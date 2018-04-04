@@ -75,7 +75,7 @@ Resources:
               - ApiDomainName
               - DistributionDomainName
 
-  ApiMappingL
+  ApiMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
       DomainName: !Ref ApiDomainName
@@ -83,13 +83,31 @@ Resources:
       Stage: !Ref Stage
 
   updateSyncedPrefs:
-    Type: AWS::Serverless::Function
+    Type: AWS::
     Properties:
       Handler: com.gu.sfl.lambda.SaveForLater::post
       Runtime: java8
       CodeUri:
         Bucket: !Ref DeployBucket
         Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
+      FunctionName: !Sub ${App}-updateSyncedPrefs-${Stage}
+      Environment:
+        Variables:
+          Stack: !Ref Stack
+          Stage: !Ref Stage
+          App: !Ref App
+          MemorySize: 384
+          Timeout: 60
+          Events:
+            PostApi:
+              Type: Api
+              Properties:
+               Path: "/syncedPrefs/me/savedArticles"
+               Method: POST
+               RestApiId: !Ref SaveForLaterApi
+
+
+
 
 
 
