@@ -1,9 +1,13 @@
 package com.gu.sfl.lambda
 
 import java.io.{InputStream, OutputStream}
+import java.nio.charset.StandardCharsets
 
+import com.gu.sfl.Logging
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.util.StatusCodes
+import org.apache.commons.io.IOUtils
 
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse =
@@ -34,7 +38,7 @@ object ApiGatewayLambdaRequest extends Base64Utils {
   }
 }
 
-case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false)
+case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false, params: Option[Map[String, String]] = None)
 
 case class ApiGatewayLambdaResponse (
   statusCode: Int,
@@ -47,11 +51,12 @@ case class ApiGatewayLambdaResponse (
 object LambdaRequest {
   def apply(apiGatewayLambdaRequest: ApiGatewayLambdaRequest): LambdaRequest = {
     val body = ApiGatewayLambdaRequest.foundBody(apiGatewayLambdaRequest)
-    LambdaRequest(body)
+    val params = apiGatewayLambdaRequest.params.getOrElse(Map.empty)
+    LambdaRequest(body, params)
   }
 }
 
-case class LambdaRequest(maybeBody: Option[Either[String, Array[Byte]]])
+case class LambdaRequest(maybeBody: Option[Either[String, Array[Byte]]], parameters: Map[String, String])
 
 
 //Todo if we don't ever need to encode the response, we don't need any of this shizzle
@@ -72,7 +77,35 @@ trait LambdaApiGateway {
   def execute(inputStream: InputStream, outputStream: OutputStream, function: (LambdaRequest => LambdaResponse))
 }
 
-class LambdaApiGatewayImpl extends LambdaApiGateway {
-  override def execute(inputStream: InputStream, outputStream: OutputStream, function: LambdaRequest => LambdaResponse): Unit = ???
+class LambdaApiGatewayImpl extends LambdaApiGateway with Logging {
+
+  def stringReadAndClose(inputStream: InputStream): String = {
+    try {
+        val inputAsString = new String(IOUtils.toByteArray(inputStream), StandardCharsets.UTF_8)
+        logger.info(s"Input as string: ${inputAsString}")
+        inputAsString
+    } finally {
+      inputStream.close()
+    }
+  }
+
+  private def objectReadAndClose(inputStream: InputStream): Either[ApiGatewayLambdaRequest, Throwable] = {
+    val inputAsString = stringReadAndClose(inputStream)
+    try {
+      Left(mapper.readValue(inputAsString, classOf[ApiGatewayLambdaRequest]))
+    }
+  }
+
+  override def execute(inputStream: InputStream, outputStream: OutputStream, function: (LambdaRequest => LambdaResponse)): Unit = {
+    try {
+      mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
+        case Left(apiLambdaGatewayRequest) => ApiGatewayLambdaResponse(function(apiLambdaGatewayRequest))
+        case Right(_) => ApiGatewayLambdaResponse(StatusCodes.internalServerError)
+      })
+    }
+    finally {
+      outputStream.close()
+    }
+  }
 }
 

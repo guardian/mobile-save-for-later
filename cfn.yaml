@@ -31,6 +31,16 @@ Parameters:
     Type: String
 
 Resources:
+  SaveForLaterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              ServiceL:
+
+
   SaveForLaterApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -70,7 +80,7 @@ Resources:
         - Name: !Ref ApiDomainName
           Type: A
           AliasTarget:
-            HostedZoneId: Whatthfckgoeshere
+            HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt
               - ApiDomainName
               - DistributionDomainName
@@ -83,9 +93,9 @@ Resources:
       Stage: !Ref Stage
 
   updateSyncedPrefs:
-    Type: AWS::
+    Type: AWS::Serverless::Function
     Properties:
-      Handler: com.gu.sfl.lambda.SaveForLater::post
+      Handler: com.gu.sfl.lambda.ConfiguredSaveForLaterLambda.handleRequest
       Runtime: java8
       CodeUri:
         Bucket: !Ref DeployBucket
@@ -96,15 +106,15 @@ Resources:
           Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
-          MemorySize: 384
-          Timeout: 60
-          Events:
-            PostApi:
-              Type: Api
-              Properties:
-               Path: "/syncedPrefs/me/savedArticles"
-               Method: POST
-               RestApiId: !Ref SaveForLaterApi
+      MemorySize: 384
+      Timeout: 60
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+           Path: "/syncedPrefs/me/savedArticles"
+           Method: POST
+           RestApiId: !Ref SaveForLaterApi
 
 
 
