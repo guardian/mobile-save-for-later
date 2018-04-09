@@ -74,10 +74,10 @@ case class LambdaResponse(
 
 
 trait LambdaApiGateway {
-  def execute(inputStream: InputStream, outputStream: OutputStream, function: (LambdaRequest => LambdaResponse))
+  def execute(inputStream: InputStream, outputStream: OutputStream)
 }
 
-class LambdaApiGatewayImpl extends LambdaApiGateway with Logging {
+class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends LambdaApiGateway with Logging {
 
   def stringReadAndClose(inputStream: InputStream): String = {
     try {
@@ -93,13 +93,16 @@ class LambdaApiGatewayImpl extends LambdaApiGateway with Logging {
     val inputAsString = stringReadAndClose(inputStream)
     try {
       Left(mapper.readValue(inputAsString, classOf[ApiGatewayLambdaRequest]))
+    } catch {
+      case t: Throwable => logger.error(s"Input not an API gateway request: $inputAsString")
+        Right(t)
     }
   }
 
-  override def execute(inputStream: InputStream, outputStream: OutputStream, function: (LambdaRequest => LambdaResponse)): Unit = {
+  override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
     try {
       mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
-        case Left(apiLambdaGatewayRequest) => ApiGatewayLambdaResponse(function(apiLambdaGatewayRequest))
+        case Left(apiLambdaGatewayRequest) => ApiGatewayLambdaResponse(function(LambdaRequest(apiLambdaGatewayRequest)))
         case Right(_) => ApiGatewayLambdaResponse(StatusCodes.internalServerError)
       })
     }

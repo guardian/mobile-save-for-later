@@ -1,8 +1,6 @@
 package com.gu.sfl
 
-import com.sun.net.httpserver.Authenticator.Failure
 import org.slf4j.{Logger, LoggerFactory}
-
 import scala.util.{Failure, Success, Try}
 
 trait Logging {

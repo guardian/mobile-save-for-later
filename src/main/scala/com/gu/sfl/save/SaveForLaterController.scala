@@ -7,6 +7,7 @@ import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.lib.Jackson._
+import scala.math.Ordering.Implicits._
 
 import scala.util.{Failure, Success, Try}
 
@@ -37,18 +38,13 @@ object SavedArticles {
 case class SavedArticle(id: String, shortUrl: String, date: LocalDate, read: Boolean, platform: Option[String])
 
 object SavedArticle {
+  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
   implicit val ordering = Ordering.by[SavedArticle, LocalDate](_.date)
 }
 
-trait SaveForLaterController {
-  def save(lambdaRequest: LambdaRequest) : LambdaResponse
-}
-
-
-
 //TODO inject object the reads/writes to dynamo
-class SaveForLaterControllerImpl extends SaveForLaterController with Base64Utils with Logging {
-  override def save(lambdaRequest: LambdaRequest): LambdaResponse = lambdaRequest match {
+class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
+  override def apply(lambdaRequest: LambdaRequest): LambdaResponse = lambdaRequest match {
     case LambdaRequest(Some(Left(json)), _) => save(Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
       case t: Throwable => logger.warn(s"Error readig json: $json")
       Failure(t)
@@ -60,15 +56,15 @@ class SaveForLaterControllerImpl extends SaveForLaterController with Base64Utils
     })
 
     case LambdaRequest(None, _) => LambdaResponse(StatusCodes.badRequest, Some(Left("Expected a json body")))
-
-      
-
   }
 
   private def save(triedRequest: Try[SavedArticles]) = {
+    logger.info("Trying to save articles")
     triedRequest match {
-      case Success(savedArticles) => LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(savedArticles))))
-      case Failure(_) => LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json"))) 
+      case Success(savedArticles) =>
+        logger.info(s"Saving articles with version: ${savedArticles.version}")
+        LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(savedArticles))))
+      case Failure(_) => LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json")))
     }
   }
 }

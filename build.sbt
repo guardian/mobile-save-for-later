@@ -2,7 +2,7 @@ import sbtassembly.MergeStrategy
 
 val awsSdkVersion = "1.11.307"
 
-name := "save-for-later"
+name := "mobile-save-for-later"
 
 organization := "com.gu"
 
@@ -10,7 +10,7 @@ version := "1.0"
 
 scalaVersion := "2.12.4"
 
-description:= "lambdas to implement save for later"
+description:= "lambdas that implement save for later"
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -24,13 +24,14 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
-  "com.gu" %% "simple-configuration-ssm" % "1.4.1",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
   "org.slf4j" % "slf4j-simple" % "1.7.25",
   "commons-io" % "commons-io" % "2.6",
+  "com.gu" %% "simple-configuration-ssm" % "1.4.3",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.mockito" % "mockito-all" % "1.9.0" % "test",
-  "org.specs2" %% "specs2-core" % "3.9.1" % "test",
-  "org.specs2" %% "specs2-matcher-extra" % "3.9.1" % "test"
+  "org.specs2" %% "specs2-core" % "4.0.2" % "test",
+  "org.specs2" %% "specs2-matcher-extra" % "4.0.2" % "test"
 )
 
 resolvers ++= Seq(
