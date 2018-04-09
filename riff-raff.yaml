@@ -6,6 +6,6 @@ deployments:
     type: aws-lambda
     parameters:
       bucket: mobile-dist
-      functionnames: [mobile-save-for-later-]
+      functionNames: [mobile-save-for-later-]
       fileName: mobile-save-for-later.jar
       prefixStack: false
