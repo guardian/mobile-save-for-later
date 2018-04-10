@@ -1,11 +1,11 @@
-AWSTemplaterFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: Implements save for later for mobile
 Parameters:
   Stack:
     Description: Stack name
     Type: String
-    Default: mobile-notifications
+    Default: mobile
   Stage:
     Description: Stage name
     Type: String
@@ -15,11 +15,11 @@ Parameters:
   App:
     Description: Application name
     Type: String
-    Default: save-for-later
+    Default: mobile-save-for-later
   DeployBucket:
     Description: S3 Bucket where riff-raff uploads artifacts on deploy
     Type: String
-    Default: mobile-apps-api-dist
+    Default: mobile-dist
   HostedZoneId:
     Description: Id of HostedZone
     Type: String
@@ -38,8 +38,27 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              ServiceL:
-
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+        - PolicyName: ssm-config
+          PolicyDocument:
+            Statement:
+              Action:
+                - ssm:GetParametersByPath
+              Effect: Allow
+              Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${App}/${Stage}/${Stack}
 
   SaveForLaterApi:
     Type: AWS::Serverless::Api
@@ -53,24 +72,24 @@ Resources:
         paths:
           "/syncedPrefs/me/savedArticles":
             post:
-              x-amazon-api-gateway-information:
+              x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${/syncedPrefs/me/savedArticles.Arn}/invocations
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SaveForLaterLambda.Arn}/invocations
               consumes:
               - application/json
               produces:
               - application/json
-              response:
-                "200"
-                  "descriptiom": "200 response"
+              responses:
+                "200":
+                  "description": "200 response"
 
 
   ApiDomainName:
     Type: AWS::ApiGateway::DomainName
     Properties:
       CertificateArn: !Ref CertArn
-      DomainName: !Sub ${App}-${HostedZoneName}
+      DomainName: !Sub ${App}.${HostedZoneName}
 
   ApiRoute53:
     Type: AWS::Route53::RecordSetGroup
@@ -92,7 +111,7 @@ Resources:
       RestApiId: !Ref SaveForLaterApi
       Stage: !Ref Stage
 
-  updateSyncedPrefs:
+  SaveForLaterLambda:
     Type: AWS::Serverless::Function
     Properties:
       Handler: com.gu.sfl.lambda.ConfiguredSaveForLaterLambda.handleRequest
