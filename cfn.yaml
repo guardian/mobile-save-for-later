@@ -119,7 +119,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeployBucket
         Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
-      FunctionName: !Sub ${App}-updateSyncedPrefs-${Stage}
+      FunctionName: !Sub ${App}-${Stage}
       Environment:
         Variables:
           Stack: !Ref Stack
