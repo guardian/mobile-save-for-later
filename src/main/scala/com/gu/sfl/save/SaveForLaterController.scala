@@ -35,7 +35,7 @@ object SavedArticles {
 }
 
 //TODO - check whether we need read or platform
-case class SavedArticle(id: String, shortUrl: String, date: LocalDate, read: Boolean, platform: Option[String])
+case class SavedArticle(id: String, shortUrl: String, date: LocalDate, read: Boolean, platform: Option[String] = None)
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
