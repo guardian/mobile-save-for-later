@@ -50,7 +50,7 @@ class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse]
       case LambdaRequest(Some(Left(json)), _) =>
         logger.info("Save json as string")
         save(Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
-          case t: Throwable => logger.warn(s"Error readig json: $json")
+          case t: Throwable => logger.warn(s"Error readingg json: **$json**", t)
             Failure(t)
         })
 
