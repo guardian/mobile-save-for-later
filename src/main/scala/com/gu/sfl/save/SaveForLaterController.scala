@@ -1,15 +1,28 @@
 package com.gu.sfl.save
 
-import java.time.{Instant, LocalDate}
+import java.time._
 
 import com.gu.sfl.Logging
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.lib.Jackson._
-import scala.math.Ordering.Implicits._
 
+import scala.math.Ordering.Implicits._
 import scala.util.{Failure, Success, Try}
+
+
+object Shitter {
+  apply(s: String) = Shitter(s.)
+}
+case class Shitter(id: Int)
+
+object SavedArticle {
+  implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
+  implicit val ordering = Ordering.by[SavedArticle, LocalDateTime](_.date)
+}
+//TODO - check whether we need read or platform
+case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean, platform: Option[String] = None)
 
 //This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
 //Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in
@@ -24,23 +37,17 @@ sealed trait SyncedPrefsData {
 
 }
 
-case class SavedArticles(version: String, savedArticles: List[SavedArticle]) extends SyncedPrefsData {
-  override def advanceVersion: SyncedPrefsData = copy(version = nextVersion)
-  def ordered: SavedArticles = copy()
-}
-
 object SavedArticles {
   def nextVersion() = Instant.now().toEpochMilli.toString
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
 }
 
-//TODO - check whether we need read or platform
-case class SavedArticle(id: String, shortUrl: String, date: LocalDate, read: Boolean, platform: Option[String] = None)
-
-object SavedArticle {
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
-  implicit val ordering = Ordering.by[SavedArticle, LocalDate](_.date)
+case class SavedArticles(version: String, savedArticles: List[SavedArticle]) extends SyncedPrefsData {
+  override def advanceVersion: SyncedPrefsData = copy(version = nextVersion)
+  def ordered: SavedArticles = copy()
 }
+
+
 
 //TODO inject object the reads/writes to dynamo
 class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
