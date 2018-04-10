@@ -44,18 +44,27 @@ object SavedArticle {
 
 //TODO inject object the reads/writes to dynamo
 class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
-  override def apply(lambdaRequest: LambdaRequest): LambdaResponse = lambdaRequest match {
-    case LambdaRequest(Some(Left(json)), _) => save(Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
-      case t: Throwable => logger.warn(s"Error readig json: $json")
-      Failure(t)
-    })
+  override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
+    logger.info("SaveForLaterController - handleReques")
+    lambdaRequest match {
+      case LambdaRequest(Some(Left(json)), _) =>
+        logger.info("Save json as string")
+        save(Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
+          case t: Throwable => logger.warn(s"Error readig json: $json")
+            Failure(t)
+        })
 
-    case LambdaRequest(Some(Right(bytes)), _)=> save(Try(mapper.readValue(bytes, classOf[SavedArticles])) recoverWith {
-      case t: Throwable => logger.warn(s"Errof reading json as bytes: ${encoder.encode(bytes)}", t)
-      Failure(t)
-    })
+      case LambdaRequest(Some(Right(bytes)), _) =>
+        logger.info("Save json as bytes")
+        save(Try(mapper.readValue(bytes, classOf[SavedArticles])) recoverWith {
+          case t: Throwable => logger.warn(s"Errof reading json as bytes: ${encoder.encode(bytes)}", t)
+            Failure(t)
+        })
 
-    case LambdaRequest(None, _) => LambdaResponse(StatusCodes.badRequest, Some(Left("Expected a json body")))
+      case LambdaRequest(None, _) =>
+        logger.info("SaveForLaterController - bad request")
+        LambdaResponse(StatusCodes.badRequest, Some(Left("Expected a json body")))
+    }
   }
 
   private def save(triedRequest: Try[SavedArticles]) = {

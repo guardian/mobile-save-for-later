@@ -25,10 +25,12 @@ object SaveForLaterLambda extends Logging {
   lazy val ssmConfig = new SsmConfig("save-for-later")
 
   lazy val saveForLaterController: SaveForLaterControllerImpl = logOnThrown(
-    () => ssmConfig.identity match {
+    () => {
+      logger.info("Configuring controller")
+      ssmConfig.identity match {
       case awsIdentity: AwsIdentity => new SaveForLaterControllerImpl()
       case _ => throw new IllegalStateException("Unable to retrieve configuration")
-    }, "Error initialising save for later controler")
+    }}, "Error initialising save for later controler")
 }
 
 class SaveForLaterLambda extends AwsLambda(SaveForLaterLambda.saveForLaterController)

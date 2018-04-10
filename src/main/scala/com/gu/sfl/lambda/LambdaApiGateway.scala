@@ -100,6 +100,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends 
   }
 
   override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
+    logger.info("ApiGateway: Execute")
     try {
       mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) => ApiGatewayLambdaResponse(function(LambdaRequest(apiLambdaGatewayRequest)))

@@ -114,7 +114,7 @@ Resources:
   SaveForLaterLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: com.gu.sfl.lambda.ConfiguredSaveForLaterLambda.handleRequest
+      Handler: com.gu.sfl.lambda.SaveForLaterLambda.handleRequest
       Runtime: java8
       CodeUri:
         Bucket: !Ref DeployBucket
