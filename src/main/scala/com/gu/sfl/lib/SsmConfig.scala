@@ -9,5 +9,4 @@ class SsmConfig(defaultAppName: String) extends Logging {
   val config = logOnThrown(() => ConfigurationLoader.load(identity) {
     case AwsIdentity(app, stack, stage, _) => SSMConfigurationLocation(path = s"/$app/$stage/$stack")
   }, "Errr reading config from ssm")
-
 }

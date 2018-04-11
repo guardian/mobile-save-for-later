@@ -59,6 +59,17 @@ Resources:
                 - ssm:GetParametersByPath
               Effect: Allow
               Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${App}/${Stage}/${Stack}
+        - PolicyName: dynamo-action
+          PolicyDocument: 
+            Statement:
+              Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+              Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Stage}-articles
+
 
   SaveForLaterApi:
     Type: AWS::Serverless::Api

@@ -12,17 +12,12 @@ import scala.math.Ordering.Implicits._
 import scala.util.{Failure, Success, Try}
 
 
-object Shitter {
-  apply(s: String) = Shitter(s.)
-}
-case class Shitter(id: Int)
-
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
   implicit val ordering = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 //TODO - check whether we need read or platform
-case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean, platform: Option[String] = None)
+case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
 //This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
 //Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in

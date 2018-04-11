@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudforms the dynamo resourcer for save for later
+Parameters:
+  Stage:
+    AllowedValues:
+      - CODE
+      - PROD
+    Description: Stage name
+    Type: String
+    Default: CODE
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: mobile
+  AppName:
+    Description: Name of the app with which these resources are associated
+    Type: String
+    Default: mobile-save-for-later
+
+Mappings:
+  StageVariables:
+    CODE:
+      TableReadCapacity: 3
+    PROD:
+      TableReadCapacity: 9
+Resources:
+  SaveForLaterDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AppName}-${Stage}-articles
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: shortUrl
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: shortUrl
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: 3
+
+
+
