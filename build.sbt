@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-ssm" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.4",
   "org.slf4j" % "slf4j-simple" % "1.7.25",
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
