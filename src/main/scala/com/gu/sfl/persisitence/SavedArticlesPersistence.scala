@@ -1,47 +1,50 @@
 package com.gu.sfl.persisitence
 
-import java.time.LocalDateTime
-
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
-import com.gu.sfl.Logging
-import com.gu.sfl.save.SavedArticles
-import com.gu.scanamo.Scanamo.exec
 import com.gu.scanamo.Table
+import com.gu.scanamo.Scanamo.exec
+import com.gu.sfl.Logging
 import com.gu.scanamo.syntax._
+import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 
+import scala.util.{Failure, Success, Try}
 
-import scala.util.{Success, Try}
-
-case class DynamoSavedArticle(id: String, version: String, shortUrl: String, date: LocalDateTime, read: Boolean)
-
-trait SavedArticlesPersistence {
-  def read(userId: String) : Try[Option[List[DynamoSavedArticle]]]
-
-  def write(savedArticles: SavedArticles) : Try[Option[Int]]
+case class PersistanceConfig(app: String, stack: String) {
+  val tableName = s"$app:$stack-articles"
 }
 
-class SavedArticledPersistenceImpl(dynamoTableName: String) extends SavedArticlesPersistence with Logging {
+case class DynamoSavedArticles(userId: String, version: String, articles: String)
 
-  private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
-  private val table = Table[DynamoSavedArticle](dynamoTableName)
+object DynamoSavedArticles  {
+  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.version, mapper.writeValueAsString(savedArticles.articles))
+}
 
-  private def savedArticlesToDynamo(savedArticles: SavedArticles) : Set[DynamoSavedArticle] = {
-    savedArticles.savedArticles.map{ a => DynamoSavedArticle(a.id, savedArticles.version, a.shortUrl, a.date, a.read)}.toSet
+trait SavedArticlesPersistence {
+  def read(userId: String) : Try[Option[SavedArticles]]
+
+  def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
+}
+
+class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticlesPersistence with Logging {
+
+  implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles) : SavedArticles = {
+    val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
+    SavedArticles(dynamoSavedArticles.version, articles)
   }
 
-  override def read(userId: String): Try[Option[List[DynamoSavedArticle]]] = Success(Some(List.empty))
+  private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
+  private val table = Table[DynamoSavedArticles](dynamoTableName)
 
-  override def write(savedArticles: SavedArticles): Try[Option[Int] = {
-    val articles = savedArticles.savedArticles.map{ a => DynamoSavedArticle(a.id, savedArticles.version, a.shortUrl, a.date, a.read)}.toSet
+  override def read(userId: String): Try[Option[SavedArticles]] = Success(Some(SavedArticles("version", List.empty)))
 
-//    def writeBatch(articles: Set[DynamoSavedArticle])
-
-    val results = exec(client)(table.putAll(articles) )
-    val f = results.flatMap{
-      r => Option(r) map(_.getUnprocessedItems)
-    }.flatMap{ t => t
-
+  override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
+    exec(client)(table.put(DynamoSavedArticles(userId,savedArticles))) match {
+      case Some(Right(as)) => Success(Some(as))
+      case Some(Left(error)) => Failure(new IllegalArgumentException(s"$error"))
+      case None => Success(None)
+    }
   }
 }
 

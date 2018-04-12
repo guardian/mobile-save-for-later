@@ -6,7 +6,8 @@ import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
 import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.SsmConfig
-import com.gu.sfl.save.SaveForLaterControllerImpl
+import com.gu.sfl.controller.SaveForLaterControllerImpl
+import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistence, SavedArticlesPersistenceImpl}
 
 import scala.util.Try
 
@@ -28,9 +29,10 @@ object SaveForLaterLambda extends Logging {
     () => {
       logger.info("Configuring controller")
       ssmConfig.identity match {
-      case awsIdentity: AwsIdentity => new SaveForLaterControllerImpl()
-      case _ => throw new IllegalStateException("Unable to retrieve configuration")
-    }}, "Error initialising save for later controler")
+        case awsIdentity: AwsIdentity =>
+          new SaveForLaterControllerImpl(new SavedArticlesPersistenceImpl(PersistanceConfig(awsIdentity.app, awsIdentity.stack).tableName))
+        case _ => throw new IllegalStateException("Unable to retrieve configuration")
+      }}, "Error initialising save for later controler")
 }
 
 class SaveForLaterLambda extends AwsLambda(SaveForLaterLambda.saveForLaterController)

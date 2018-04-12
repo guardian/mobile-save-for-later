@@ -1,4 +1,4 @@
-package com.gu.sfl.save
+package com.gu.sfl.controller
 
 import java.time._
 
@@ -7,6 +7,7 @@ import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.persisitence.SavedArticlesPersistence
 
 import scala.math.Ordering.Implicits._
 import scala.util.{Failure, Success, Try}
@@ -37,7 +38,7 @@ object SavedArticles {
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
 }
 
-case class SavedArticles(version: String, savedArticles: List[SavedArticle]) extends SyncedPrefsData {
+case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
   override def advanceVersion: SyncedPrefsData = copy(version = nextVersion)
   def ordered: SavedArticles = copy()
 }
@@ -45,23 +46,17 @@ case class SavedArticles(version: String, savedArticles: List[SavedArticle]) ext
 
 
 //TODO inject object the reads/writes to dynamo
-class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
+class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersistence) extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
   override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
     logger.info("SaveForLaterController - handleReques")
     lambdaRequest match {
       case LambdaRequest(Some(Left(json)), _) =>
         logger.info("Save json as string")
-        save(Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
-          case t: Throwable => logger.warn(s"Error readingg json: **$json**", t)
-            Failure(t)
-        })
+        save(Try(mapper.readValue(json, classOf[SavedArticles])))
 
       case LambdaRequest(Some(Right(bytes)), _) =>
         logger.info("Save json as bytes")
-        save(Try(mapper.readValue(bytes, classOf[SavedArticles])) recoverWith {
-          case t: Throwable => logger.warn(s"Errof reading json as bytes: ${encoder.encode(bytes)}", t)
-            Failure(t)
-        })
+        save(Try(mapper.readValue(bytes, classOf[SavedArticles])))
 
       case LambdaRequest(None, _) =>
         logger.info("SaveForLaterController - bad request")
@@ -71,11 +66,17 @@ class SaveForLaterControllerImpl extends Function[LambdaRequest, LambdaResponse]
 
   private def save(triedRequest: Try[SavedArticles]) = {
     logger.info("Trying to save articles")
-    triedRequest match {
-      case Success(savedArticles) =>
-        logger.info(s"Saving articles with version: ${savedArticles.version}")
-        LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(savedArticles))))
-      case Failure(_) => LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json")))
-    }
+
+    val x = triedRequest.map(
+      articles =>
+        savedArticlesPersistence.write("1234", articles)
+          .flatMap(maybeArticles => Try(maybeArticles.get))
+            .map(res => LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(res)))))
+          .getOrElse(LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json"))))
+    ).fold( t => {
+      logger.info(s"Error saving articles: ${t.getMessage}")
+      LambdaResponse(StatusCodes.internalServerError, Some(Left("Could not parse request")))
+    }, x => x)
+    x
   }
 }
