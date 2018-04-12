@@ -2,26 +2,25 @@ import java.text.SimpleDateFormat
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-val mapper = new ObjectMapper
+val mapper = new ObjectMapper() with ScalaObjectMapper
 
 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 mapper.setDateFormat(formatter)
 mapper.registerModule(DefaultScalaModule)
-
+mapper.registerModule(new Jdk8Module())
+mapper.registerModule(new JavaTimeModule())
 case class Shitter(idd: String)
 
-object SavedArticle {
-  implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
-  implicit val ordering = Ordering.by[SavedArticle, LocalDateTime](_.date)
-}
-//TODO - check whether we need read or platform
-case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean, platform: Option[String] = None)
+case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
 //This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
 //Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in
@@ -52,7 +51,7 @@ val a = SavedArticle(id = "/uk/politics/corbyn-knobber", date = d, shortUrl = "/
 
 
 val json = """{
-             |  "savedArticles": {
+             |  
              |    "version": "1415719219337",
              |    "articles": [
              |      {
@@ -74,13 +73,26 @@ val json = """{
              |        "read": false
              |      }
              |    ]
-             |  }
+             |}
+             |""".stripMargin
+
+
+val json2 = """{
+             |    "version": "1415719219337",
+             |    "articles": [
+             |      {
+             |        "id": "commentisfree/2006/mar/01/whiteteeth",
+             |        "shortUrl": "p/abc",
+             |        "date": "2014-03-01T11:54:37Z",
+             |        "read": true
+             |      }
+             |    ]
              |}
              |""".stripMargin
 
 
 
-Try(mapper.readValue(json, classOf[SavedArticles])) recoverWith {
+Try(mapper.readValue(json2, classOf[SavedArticles])) recoverWith {
   case t: Throwable => println(s"Caught", t)
   Failure(t)
 }
