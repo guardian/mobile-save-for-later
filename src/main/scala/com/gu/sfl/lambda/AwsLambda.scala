@@ -30,7 +30,7 @@ object SaveForLaterLambda extends Logging {
       logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
-          new SaveForLaterControllerImpl(new SavedArticlesPersistenceImpl(PersistanceConfig(awsIdentity.app, awsIdentity.stack).tableName))
+          new SaveForLaterControllerImpl(new SavedArticlesPersistenceImpl(PersistanceConfig(awsIdentity.app, awsIdentity.stage).tableName))
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
       }}, "Error initialising save for later controler")
 }

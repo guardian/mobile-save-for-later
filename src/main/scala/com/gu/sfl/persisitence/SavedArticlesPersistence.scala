@@ -11,8 +11,8 @@ import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 
 import scala.util.{Failure, Success, Try}
 
-case class PersistanceConfig(app: String, stack: String) {
-  val tableName = s"$app:$stack-articles"
+case class PersistanceConfig(app: String, stage: String) {
+  val tableName = s"$app-$stage-articles"
 }
 
 case class DynamoSavedArticles(userId: String, version: String, articles: String)
