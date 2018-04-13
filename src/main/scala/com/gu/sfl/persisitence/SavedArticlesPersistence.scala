@@ -49,7 +49,10 @@ class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticle
         val exception = new IllegalArgumentException(s"$error")
         logger.info(s"Exception Thrown saving articles:", exception)
         Failure(exception)
-      case None => Success(None)
+      case None => {
+        logger.info("Save an none")
+        Success(None)
+      }
     }
   }
 }
