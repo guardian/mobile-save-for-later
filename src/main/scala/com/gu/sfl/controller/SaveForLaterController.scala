@@ -67,13 +67,23 @@ class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersiste
   private def save(triedRequest: Try[SavedArticles]) = {
     logger.info("Trying to save articles")
 
-    val x = triedRequest.map(
+    val x = triedRequest.map {
       articles =>
+        logger.info(s"Have some articles for with versions: ${articles.version}")
         savedArticlesPersistence.write("1234", articles)
-          .flatMap(maybeArticles => Try(maybeArticles.get))
-            .map(res => LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(res)))))
-          .getOrElse(LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json"))))
-    ).fold( t => {
+          .flatMap {
+            logger.info("Retrieving arg")
+            maybeArticles => Try(maybeArticles.get)
+          }
+          .map{res =>
+            logger.info(s"Ok all good: ${res.version}")
+            LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(res))))
+          }
+          .getOrElse{
+            logger.info("Some kind of bad shit happened")
+            LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json")))
+          }
+    }.fold( t => {
       logger.info(s"Error saving articles: ${t.getMessage}")
       LambdaResponse(StatusCodes.internalServerError, Some(Left("Could not parse request")))
     }, x => x)

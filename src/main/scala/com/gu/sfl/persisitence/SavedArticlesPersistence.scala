@@ -40,9 +40,15 @@ class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticle
   override def read(userId: String): Try[Option[SavedArticles]] = Success(Some(SavedArticles("version", List.empty)))
 
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
+    logger.info(s"Saving articles with userId $userId")
     exec(client)(table.put(DynamoSavedArticles(userId,savedArticles))) match {
-      case Some(Right(as)) => Success(Some(as))
-      case Some(Left(error)) => Failure(new IllegalArgumentException(s"$error"))
+      case Some(Right(as)) =>
+        logger.info("Succcesfully saved articles")
+        Success(Some(as))
+      case Some(Left(error)) =>
+        val exception = new IllegalArgumentException(s"$error")
+        logger.info(s"Exception Thrown saving articles:", exception)
+        Failure(exception)
       case None => Success(None)
     }
   }
