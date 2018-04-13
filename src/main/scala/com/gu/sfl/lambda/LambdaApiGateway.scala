@@ -19,7 +19,7 @@ object ApiGatewayLambdaResponse extends Base64Utils {
       case None => ApiGatewayLambdaResponse(lamdaResponse.statusCode, None, lamdaResponse.headers)
     }
 
-  def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[Either[String, Array[Byte]]] = apiGatewayLambdaResponse.maybeBody.map {
+  def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[Either[String, Array[Byte]]] = apiGatewayLambdaResponse.body.map {
     body => if(apiGatewayLambdaResponse.isBase64Encoded) Right(decoder.decode(body)) else Left(body)
   }
 }
@@ -41,10 +41,10 @@ object ApiGatewayLambdaRequest extends Base64Utils {
 case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false, params: Option[Map[String, String]] = None)
 
 case class ApiGatewayLambdaResponse (
-  statusCode: Int,
-  maybeBody: Option[String] = None,
-  headers: Map[String, String] = Map("Content-Type" -> "application/json"),
-  isBase64Encoded: Boolean = false
+    statusCode: Int,
+    body: Option[String] = None,
+    headers: Map[String, String] = Map("Content-Type" -> "application/json"),
+    isBase64Encoded: Boolean = false
 )
 
 

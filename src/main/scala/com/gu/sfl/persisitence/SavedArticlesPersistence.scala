@@ -39,6 +39,7 @@ class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticle
 
   override def read(userId: String): Try[Option[SavedArticles]] = Success(Some(SavedArticles("version", List.empty)))
 
+  //TODO remove logging when tests are written
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info(s"Saving articles with userId $userId")
     exec(client)(table.put(DynamoSavedArticles(userId,savedArticles))) match {

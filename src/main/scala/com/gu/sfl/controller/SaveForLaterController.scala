@@ -67,6 +67,7 @@ class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersiste
   private def save(triedRequest: Try[SavedArticles]) = {
     logger.info("Trying to save articles")
 
+    //TODO - revert to being less verbose after testing
     val x = triedRequest.map {
       articles =>
         logger.info(s"Have some articles for with versions: ${articles.version}")
