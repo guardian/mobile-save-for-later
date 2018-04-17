@@ -31,13 +31,9 @@ Resources:
       AttributeDefinitions:
         - AttributeName: userId
           AttributeType: S
-        - AttributeName: version
-          AttributeType: S
       KeySchema:
         - AttributeName: userId
           KeyType: HASH
-        - AttributeName: version 
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
         WriteCapacityUnits: 3

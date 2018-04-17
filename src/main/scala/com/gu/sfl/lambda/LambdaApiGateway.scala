@@ -38,7 +38,7 @@ object ApiGatewayLambdaRequest extends Base64Utils {
   }
 }
 
-case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false, params: Option[Map[String, String]] = None)
+case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false, queryStringParameters: Option[Map[String, String]] = None, headers: Option[Map[String, String]] = None)
 
 case class ApiGatewayLambdaResponse (
     statusCode: Int,
@@ -51,12 +51,13 @@ case class ApiGatewayLambdaResponse (
 object LambdaRequest {
   def apply(apiGatewayLambdaRequest: ApiGatewayLambdaRequest): LambdaRequest = {
     val body = ApiGatewayLambdaRequest.foundBody(apiGatewayLambdaRequest)
-    val params = apiGatewayLambdaRequest.params.getOrElse(Map.empty)
-    LambdaRequest(body, params)
+    val queryStringParams = apiGatewayLambdaRequest.queryStringParameters.getOrElse(Map.empty)
+    val headers = apiGatewayLambdaRequest.headers.getOrElse(Map.empty)
+    LambdaRequest(body, queryStringParams, headers)
   }
 }
 
-case class LambdaRequest(maybeBody: Option[Either[String, Array[Byte]]], parameters: Map[String, String])
+case class LambdaRequest(maybeBody: Option[Either[String, Array[Byte]]], queryStringParameters: Map[String, String] = Map.empty, headers: Map[String, String] = Map.empty)
 
 
 //Todo if we don't ever need to encode the response, we don't need any of this shizzle

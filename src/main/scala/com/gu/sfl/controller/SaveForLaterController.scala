@@ -50,15 +50,15 @@ class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersiste
   override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
     logger.info("SaveForLaterController - handleReques")
     lambdaRequest match {
-      case LambdaRequest(Some(Left(json)), _) =>
+      case LambdaRequest(Some(Left(json)), _, _) =>
         logger.info("Save json as string")
         save(Try(mapper.readValue(json, classOf[SavedArticles])))
 
-      case LambdaRequest(Some(Right(bytes)), _) =>
+      case LambdaRequest(Some(Right(bytes)), _, _) =>
         logger.info("Save json as bytes")
         save(Try(mapper.readValue(bytes, classOf[SavedArticles])))
 
-      case LambdaRequest(None, _) =>
+      case LambdaRequest(None, _, _) =>
         logger.info("SaveForLaterController - bad request")
         LambdaResponse(StatusCodes.badRequest, Some(Left("Expected a json body")))
     }

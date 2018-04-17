@@ -37,7 +37,21 @@ class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticle
   private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
   private val table = Table[DynamoSavedArticles](dynamoTableName)
 
-  override def read(userId: String): Try[Option[SavedArticles]] = Success(Some(SavedArticles("version", List.empty)))
+  override def read(userId: String): Try[Option[SavedArticles]] = {
+    logger.info(s"Attempting to retrived saved articles for user $userId")
+    exec(client)(table.get('userId-> userId)) match {
+      case Some(Right(sa)) =>
+        logger.info(s"Retrieved articles for: $userId")
+        Success(Some(sa))
+      case Some(Left(error)) =>
+        val ex = new IllegalArgumentException(s"$error")
+        logger.info(s"Error retrieving articles", ex)
+        Failure(ex)
+      case None =>
+        logger.error("No articles found for user")
+        Success(None)
+    }
+  }
 
   //TODO remove logging when tests are written
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
