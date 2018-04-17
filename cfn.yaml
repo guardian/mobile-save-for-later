@@ -81,7 +81,7 @@ Resources:
           version: "1.0.0"
           title: !Ref App
         paths:
-          "/syncedPrefs/me/getSavedArticles":
+          "/syncedPrefs/me/savedArticles":
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -159,6 +159,12 @@ Resources:
            Method: POST
            RestApiId: !Ref SaveForLaterApi
 
+        Bucket: !Ref DeployBucket
+        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
+      FunctionName: !Sub ${App}-SAVED-${Stage}
+      Environment:
+        Variables:
+          Stack: !Ref Stack
 
   SavedArticlesLambda:
     Type: AWS::Serverless::Function
@@ -167,12 +173,6 @@ Resources:
       Role: !GetAtt SaveForLaterRole.Arn
       Runtime: java8
       CodeUri:
-        Bucket: !Ref DeployBucket
-        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
-      FunctionName: !Sub ${App}-SAVED-${Stage}
-      Environment:
-        Variables:
-          Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
       MemorySize: 394
