@@ -2,10 +2,17 @@ stacks: [mobile]
 regions: [eu-west-1]
 
 deployments:
-  mobile-save-for-later:
+  mobile-save:
     type: aws-lambda
     parameters:
       bucket: mobile-dist
-      functionNames: [mobile-save-for-later-]
+      functionNames: [mobile-save-for-later-SAVE-]
+      fileName: mobile-save-for-later.jar
+      prefixStack: false
+  mobile-saved:
+    type: aws-lambda
+    parameters:
+      bucket: mobile-dist
+      functionNames: [mobile-save-for-later-SAVED-]
       fileName: mobile-save-for-later.jar
       prefixStack: false
