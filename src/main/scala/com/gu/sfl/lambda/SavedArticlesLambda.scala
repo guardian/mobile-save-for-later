@@ -18,7 +18,7 @@ object SavedArticlesLambda extends Logging {
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
             new SavedArticlesController(
-              new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiUrl"))),
+              new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost"))),
               new SavedArticlesPersistenceImpl(PersistanceConfig(awsIdentity.app, awsIdentity.stage).tableName)
             )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
