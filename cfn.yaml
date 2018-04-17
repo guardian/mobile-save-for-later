@@ -84,7 +84,7 @@ Resources:
           "/syncedPrefs/me/savedArticles":
             get:
               x-amazon-apigateway-integration:
-                httpMethod: POST
+                httpMethod: GET
                 type: aws_proxy
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SavedArticlesLambda.Arn}/invocations
               produces:
@@ -159,13 +159,6 @@ Resources:
            Method: POST
            RestApiId: !Ref SaveForLaterApi
 
-        Bucket: !Ref DeployBucket
-        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
-      FunctionName: !Sub ${App}-SAVED-${Stage}
-      Environment:
-        Variables:
-          Stack: !Ref Stack
-
   SavedArticlesLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -173,6 +166,12 @@ Resources:
       Role: !GetAtt SaveForLaterRole.Arn
       Runtime: java8
       CodeUri:
+        Bucket: !Ref DeployBucket
+        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
+      FunctionName: !Sub ${App}-SAVED-${Stage}
+      Environment:
+        Variables:
+          Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
       MemorySize: 394
@@ -181,7 +180,7 @@ Resources:
         GetApi:
           Type: Api
           Properties:
-           Path: "/syncedPrefs/me/getSavedArticles"
+           Path: "/syncedPrefs/me/SavedArticles"
            Method: GET
            RestApiId: !Ref SaveForLaterApi
 
