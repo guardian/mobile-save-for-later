@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+#AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: Implements save for later for mobile
 Parameters:
@@ -70,6 +70,12 @@ Resources:
                 - dynamodb:Query
               Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Stage}-articles
 
+  SavedArticleLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt SavedArticlesLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
 
   SaveForLaterApi:
     Type: AWS::Serverless::Api
@@ -84,7 +90,7 @@ Resources:
           "/syncedPrefs/me/savedArticles":
             get:
               x-amazon-apigateway-integration:
-                httpMethod: GET
+                httpMethod: POST
                 type: aws_proxy
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SavedArticlesLambda.Arn}/invocations
               produces:
@@ -93,7 +99,6 @@ Resources:
                 "200":
                   "description": "200 response"
 
-          "/syncedPrefs/me/savedArticles":
             post:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -133,6 +138,7 @@ Resources:
       DomainName: !Ref ApiDomainName
       RestApiId: !Ref SaveForLaterApi
       Stage: !Ref Stage
+
 
   SaveForLaterLambda:
     Type: AWS::Serverless::Function
