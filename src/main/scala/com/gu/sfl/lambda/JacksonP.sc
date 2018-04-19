@@ -1,98 +1,16 @@
-import java.text.SimpleDateFormat
-import java.time.{Instant, LocalDate, LocalDateTime, ZoneOffset}
+import com.gu.identity.client.IdentityApiClient
+import com.gu.identity.cookie.GuUDecoder
+import org.apache.commons.httpclient.HttpClient
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-
-import scala.util.{Failure, Success, Try}
-
-val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-
-val mapper = new ObjectMapper() with ScalaObjectMapper
-
-mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-mapper.setDateFormat(formatter)
-mapper.registerModule(DefaultScalaModule)
-mapper.registerModule(new Jdk8Module())
-mapper.registerModule(new JavaTimeModule())
-case class Shitter(idd: String)
-
-case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
-
-//This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
-//Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in
-case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
-  def ordered: SyncedPrefs = copy( savedArticles = savedArticles.map(_.ordered) )
-}
-
-sealed trait SyncedPrefsData {
-  def version: String
-  val nextVersion = SavedArticles.nextVersion()
-  def advanceVersion: SyncedPrefsData
-
-}
-
-object SavedArticles {
-  def nextVersion() = Instant.now().toEpochMilli.toString
-  def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
-}
-
-case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
-  override def advanceVersion: SyncedPrefsData = copy(version = nextVersion)
-  def ordered: SavedArticles = copy()
-}
+import scala.util.Try
 
 
-val d = LocalDateTime.now()
-val a = SavedArticle(id = "/uk/politics/corbyn-knobber", date = d, shortUrl = "/p/ksjd2", read = false)
+val idKey="MIIDOzCCAi0GByqGSM44BAEwggIgAoIBAQC5VIW/0GGpHyfUd6JTZKwq3ulJJmQAlu07bTc76TS0a0cRlNuX4H/jzZr7Oqyizj3EVMSKyGZcG117SfMX6lxUr+lpRjFF8u71pSOwt/vFPDXM4FKahLMaE36cnq/FZzt6x5+/hr3f56XFvvRKuJbD+eQpg9DnN2r/1podVzzrODt4Q/+staw0F+jsxK082smqwLLOS0ipXG+GZl2eBarh8tieQDImLoh8u7gWm1n853orJ0Apgtq9FnZVQ/mZge7TXnFJpf30BEKZUcWK+1A3ullKMW8y1GNj3OqFYYVucKTdv4VaEPytqsI+iAGz0i47g01nABlEA/Tgqd7oBDPDAhUAn3NshPylLlENNeR3KnG4JBYbc2ECggEAankYtJ6y9FNGce6gym1JO5ykcMNjcPrB0tCmoUntfvKADzejzZ8Iq60HVpSi8YMbjYhEPbdi/q6I5ulPgN4zR3k+Ejb2KXeCN8jgC0TEYLYOVIPPnw+H88y4iCGhwyvodZFZM2usOhtmGqnW5GLZMqTtcWyvm695gYxLbgOZ0p/FKIS3FAWyfzC9v/Z7a66dgYkDHXiqkHfk0BoMPbTVaLjgVuAdo7+akg1XVkB6RXMNGRSsN5SnkZByMdNbyu2eSH7Xq3+aViqX9SixVV1olTh34ZOZIjKu46UFumcNMwakXkSrKT+1A5n/UJiTInIBz2wAW3/PJJY+EqJ71+WgpAOCAQYAAoIBAQCB1Ew9jUMBwr0R57BRf9ghBH2XFi/HhWhYVGtaOOlfVkMV/zUKZJlbkCjKEIUYQwJHkdaS5sZiN+hwzLUghavvLdR1JBZbO9dhFJHQHnRJZlLTixGvVBnN2Hbp/JUvzH5wdBOYS2EJFmxRcWdgfiOqjDFg+gprv5NK8Vc5kzkKVgG5Fmr1w5VmySq6AlPG5yh4NE7t+8myqxbhAulbmKmeR9olSEwo83Ydm+Uq8OCBToVMUovZbjC5zuVvSztfa+6D0bqRvFbjGWJmC9yHMFMKp4odKOsBgo9X2dl2ME/218+5SxzNVvmqvtfROGs4f33EQbWQBgy1PJY5xyM4RHVq"
+private val httpClient = new HttpClient
 
+val identityApiClient = new IdentityApiClient("https://id.guardianapis.com", httpClient, idKey)
 
-val json = """{
-             |  
-             |    "version": "1415719219337",
-             |    "articles": [
-             |      {
-             |        "id": "commentisfree/2006/mar/01/whiteteeth",
-             |        "shortUrl": "p/abc",
-             |        "date": "2014-03-01T11:54:37Z",
-             |        "read": true
-             |      },
-             |      {
-             |        "id": "commentisfree/2014/jul/17/guardian-view-assisted-dying-falconer-bill",
-             |        "shortUrl": "p/123",
-             |        "date": "2014-07-21T09:10:37Z",
-             |        "read": false
-             |      },
-             |      {
-             |        "id": "world/2014/nov/06/luxembourg-tax-leaks-put-pressure-on-g20-leaders-to-act-on-loopholes",
-             |        "shortUrl": "p/1234",
-             |        "date": "2014-11-06T17:27:37Z",
-             |        "read": false
-             |      }
-             |    ]
-             |}
-             |""".stripMargin
+val token = "4aad37356f752b84fd78da27776130103795fc3197bfb993e53a89e35782fdc4"
 
+identityApiClient.extractUserDataFromToken(token, "mobile-apps")
 
-val json2 = """{
-             |    "version": "1415719219337",
-             |    "articles": [
-             |      {
-             |        "id": "commentisfree/2006/mar/01/whiteteeth",
-             |        "shortUrl": "p/abc",
-             |        "date": "2014-03-01T11:54:37Z",
-             |        "read": true
-             |      }
-             |    ]
-             |}
-             |""".stripMargin
-
-
-
-Try(mapper.readValue(json2, classOf[SavedArticles])) recoverWith {
-  case t: Throwable => println(s"Caught", t)
-  Failure(t)
-}

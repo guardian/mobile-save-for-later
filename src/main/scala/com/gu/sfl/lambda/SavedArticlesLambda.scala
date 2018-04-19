@@ -17,6 +17,7 @@ object SavedArticlesLambda extends Logging {
       logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
+            logger.info(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
             new SavedArticlesController(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost"))),
               new SavedArticlesPersistenceImpl(PersistanceConfig(awsIdentity.app, awsIdentity.stage).tableName)
