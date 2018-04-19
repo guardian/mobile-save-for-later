@@ -8,7 +8,7 @@ organization := "com.gu"
 
 version := "1.0"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.11.8"
 
 description:= "lambdas that implement save for later"
 
@@ -24,6 +24,8 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
+  "com.gu.identity.api" %% "identity-api-client-lib" % "3.44",
+  "com.gu.identity" %% "identity-cookie" % "3.44",
   "com.amazonaws" % "aws-java-sdk-ssm" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
