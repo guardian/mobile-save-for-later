@@ -8,7 +8,7 @@ organization := "com.gu"
 
 version := "10"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.5"
 
 description:= "lambdas that implement save for later"
 
@@ -24,8 +24,6 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
-  "com.gu.identity.api" %% "identity-api-client-lib" % "3.44",
-  "com.gu.identity" %% "identity-cookie" % "3.44",
   "com.amazonaws" % "aws-java-sdk-ssm" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
@@ -34,8 +32,8 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.25",
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
-  "com.gu.identity.api" %% "identity-api-client-lib" % "3.44",
-  "com.gu.identity" %% "identity-cookie" % "3.100",
+  "com.gu.identity.api" %% "identity-api-client-lib" % "3.141",
+  "com.gu.identity" %% "identity-cookie" % "3.141",
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.mockito" % "mockito-all" % "1.9.0" % "test",

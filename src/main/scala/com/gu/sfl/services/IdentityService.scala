@@ -10,7 +10,6 @@ case class IdentityConfig(identityApiUrl: String)
 trait IdentityService {
 
   def userFromRequest(lambdaRequest: LambdaRequest) : Option[String] //Will be Future[Option[UserId]]]
-
 }
 
 class IdentityServiceImpl(identityConfig: IdentityConfig) extends IdentityService with Logging {
@@ -20,14 +19,10 @@ class IdentityServiceImpl(identityConfig: IdentityConfig) extends IdentityServic
   val token = "4aad37356f752b84fd78da27776130103795fc3197bfb993e53a89e35782fdc4"
   val client = new IdentityApiClient("https://id.guardianapis.com", httpClient, identityClientKey)
 
-
-
-
-
-
   //TODO - transfer the tokenHeader to a user id and return a future
   override def userFromRequest(lambdaRequest: LambdaRequest): Option[String] = {
-    lambdaRequest.headers.get("userId")
+    val userId = lambdaRequest.headers.get("userId")
+    logger.debug(s"UserId: $userId")
     Option(client.extractUserDataFromToken(token, "iphone")) match {
       case Some(u) =>
         logger.info(s"User; ${u.id}")
