@@ -32,8 +32,12 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.25",
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
-  "com.gu.identity.api" %% "identity-api-client-lib" % "3.141" exclude("com.google.collections", "google-collections"),
-  "com.gu.identity" %% "identity-cookie" % "3.141" exclude("com.google.collections", "google-collections"),
+  "com.gu.identity.api" %% "identity-api-client-lib" % "3.141"
+    exclude("com.google.collections", "google-collections")
+    exclude("org.slf4j" , "slf4j-simple"),
+  "com.gu.identity" %% "identity-cookie" % "3.141"
+    exclude("com.google.collections", "google-collections")
+    exclude("org.slf4j" , "slf4j-simple"),
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.mockito" % "mockito-all" % "1.9.0" % "test",
