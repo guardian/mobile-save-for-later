@@ -1,16 +1,40 @@
-import com.gu.identity.client.IdentityApiClient
-import com.gu.identity.cookie.GuUDecoder
-import org.apache.commons.httpclient.HttpClient
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Success, Try}
 
-import scala.util.Try
+case class Articles(id: String, articles: List[String] = List.empty )
 
 
-val idKey="MIIDOzCCAi0GByqGSM44BAEwggIgAoIBAQC5VIW/0GGpHyfUd6JTZKwq3ulJJmQAlu07bTc76TS0a0cRlNuX4H/jzZr7Oqyizj3EVMSKyGZcG117SfMX6lxUr+lpRjFF8u71pSOwt/vFPDXM4FKahLMaE36cnq/FZzt6x5+/hr3f56XFvvRKuJbD+eQpg9DnN2r/1podVzzrODt4Q/+staw0F+jsxK082smqwLLOS0ipXG+GZl2eBarh8tieQDImLoh8u7gWm1n853orJ0Apgtq9FnZVQ/mZge7TXnFJpf30BEKZUcWK+1A3ullKMW8y1GNj3OqFYYVucKTdv4VaEPytqsI+iAGz0i47g01nABlEA/Tgqd7oBDPDAhUAn3NshPylLlENNeR3KnG4JBYbc2ECggEAankYtJ6y9FNGce6gym1JO5ykcMNjcPrB0tCmoUntfvKADzejzZ8Iq60HVpSi8YMbjYhEPbdi/q6I5ulPgN4zR3k+Ejb2KXeCN8jgC0TEYLYOVIPPnw+H88y4iCGhwyvodZFZM2usOhtmGqnW5GLZMqTtcWyvm695gYxLbgOZ0p/FKIS3FAWyfzC9v/Z7a66dgYkDHXiqkHfk0BoMPbTVaLjgVuAdo7+akg1XVkB6RXMNGRSsN5SnkZByMdNbyu2eSH7Xq3+aViqX9SixVV1olTh34ZOZIjKu46UFumcNMwakXkSrKT+1A5n/UJiTInIBz2wAW3/PJJY+EqJ71+WgpAOCAQYAAoIBAQCB1Ew9jUMBwr0R57BRf9ghBH2XFi/HhWhYVGtaOOlfVkMV/zUKZJlbkCjKEIUYQwJHkdaS5sZiN+hwzLUghavvLdR1JBZbO9dhFJHQHnRJZlLTixGvVBnN2Hbp/JUvzH5wdBOYS2EJFmxRcWdgfiOqjDFg+gprv5NK8Vc5kzkKVgG5Fmr1w5VmySq6AlPG5yh4NE7t+8myqxbhAulbmKmeR9olSEwo83Ydm+Uq8OCBToVMUovZbjC5zuVvSztfa+6D0bqRvFbjGWJmC9yHMFMKp4odKOsBgo9X2dl2ME/218+5SxzNVvmqvtfROGs4f33EQbWQBgy1PJY5xyM4RHVq"
-private val httpClient = new HttpClient
 
-val identityApiClient = new IdentityApiClient("https://id.guardianapis.com", httpClient, idKey)
+def getId(token: String): Future[Option[String]] ={
+  Thread.sleep(1000)
+  Future.successful(Some("123"))
+}
 
-val token = "4aad37356f752b84fd78da27776130103795fc3197bfb993e53a89e35782fdc4"
+def getFakeArticles(id: String): Try[Option[Articles]] = Success(Some(Articles(id, List("art"))))
 
-identityApiClient.extractUserDataFromToken(token, "mobile-apps")
+val articles = getId("id").map {
+ maybeId => maybeId.map {
+   id => getFakeArticles(id)
+ }.getOrElse(Success(Articles("id")))
+}
+
+
+
+val x = Await.result(articles, 2 second)
+
+def getTheArticles(id: String)
+                  (getId: String => Future[Option[String]],
+                   getArticicles: String => Try[Option[Articles]] ) = {
+  for {
+    maybeId <- getId(id)
+
+  }
+}
+
+
+
+
+
 

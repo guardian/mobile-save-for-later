@@ -16,6 +16,7 @@ scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-target:jvm-1.8",
+  "-Ypartial-unification",
   "-Ywarn-dead-code"
 )
 
@@ -33,6 +34,7 @@ libraryDependencies ++= Seq(
   "com.gu" %% "scanamo" % "1.0.0-M6",
   "com.gu.identity.api" %% "identity-api-client-lib" % "3.141" excludeAll(ExclusionRule("com.google.collections", "google-collections")),
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
+  "com.squareup.okhttp3" % "okhttp" % "3.10.0",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.mockito" % "mockito-all" % "1.9.0" % "test",
   "org.specs2" %% "specs2-core" % "4.0.2" % "test",

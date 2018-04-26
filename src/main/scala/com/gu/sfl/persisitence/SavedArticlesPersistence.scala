@@ -27,7 +27,7 @@ trait SavedArticlesPersistence {
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
-class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticlesPersistence with Logging {
+class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistence with Logging {
 
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles) : SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
@@ -35,7 +35,7 @@ class SavedArticlesPersistenceImpl(dynamoTableName: String) extends SavedArticle
   }
 
   private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
-  private val table = Table[DynamoSavedArticles](dynamoTableName)
+  private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
     logger.info(s"Attempting to retrived saved articles for user $userId")
