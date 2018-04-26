@@ -50,17 +50,13 @@ class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersiste
   override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
     logger.info("SaveForLaterController - handleReques")
     lambdaRequest match {
-      case LambdaRequest(Some(Left(json)), _, _) =>
+      case LambdaRequest(Some(json), _, _) =>
         logger.info("Save json as string")
         save(Try(mapper.readValue(json, classOf[SavedArticles])))
 
-      case LambdaRequest(Some(Right(bytes)), _, _) =>
-        logger.info("Save json as bytes")
-        save(Try(mapper.readValue(bytes, classOf[SavedArticles])))
-
       case LambdaRequest(None, _, _) =>
         logger.info("SaveForLaterController - bad request")
-        LambdaResponse(StatusCodes.badRequest, Some(Left("Expected a json body")))
+        LambdaResponse(StatusCodes.badRequest, Some("Expected a json body"))
     }
   }
 
@@ -78,15 +74,15 @@ class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersiste
           }
           .map{res =>
             logger.info(s"Ok all good: ${res.version}")
-            LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(res))))
+            LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(res)))
           }
           .getOrElse{
             logger.info("Some kind of bad shit happened")
-            LambdaResponse(StatusCodes.badRequest, Some(Left("Could not unmarshal json")))
+            LambdaResponse(StatusCodes.badRequest, Some("Could not unmarshal json"))
           }
     }.fold( t => {
       logger.info(s"Error saving articles: ${t.getMessage}")
-      LambdaResponse(StatusCodes.internalServerError, Some(Left("Could not parse request")))
+      LambdaResponse(StatusCodes.internalServerError, Some("Could not parse request"))
     }, x => x)
     x
   }

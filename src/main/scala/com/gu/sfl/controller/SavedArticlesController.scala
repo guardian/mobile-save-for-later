@@ -15,8 +15,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 object SavedArticlesController {
-  val missingUserResponse = LambdaResponse(StatusCodes.badRequest, Some(Left("Could not find a user ")))
-  val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(SavedArticles(List.empty)))))
+  val missingUserResponse = LambdaResponse(StatusCodes.badRequest, Some("Could not find a user "))
+  val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
 
 }
 
@@ -29,7 +29,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest).transformWith {
      case Success(Some(articles)) =>
        logger.info("Returning found articles")
-       Future { LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(articles))) ) }
+       Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(articles)) ) }
      case Success(None) =>
        logger.info("No articles found")
        Future { SavedArticlesController.emptyArticlesResponse  }

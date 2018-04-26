@@ -10,35 +10,40 @@ import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 
 object ApiGatewayLambdaResponse extends Base64Utils {
-  def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse =
-    lamdaResponse.maybeBody match {
-      case Some(body) => body match {
-        case Left(str) => ApiGatewayLambdaResponse(lamdaResponse.statusCode, Some(str), lamdaResponse.headers, false)
-        case Right(bytes) => ApiGatewayLambdaResponse(lamdaResponse.statusCode, Some(encodeByeArray(bytes)), lamdaResponse.headers, true)
-      }
-      case None => ApiGatewayLambdaResponse(lamdaResponse.statusCode, None, lamdaResponse.headers)
-    }
+  def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, None, lamdaResponse.headers)
 
-  def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[Either[String, Array[Byte]]] = apiGatewayLambdaResponse.body.map {
-    body => if(apiGatewayLambdaResponse.isBase64Encoded) Right(decoder.decode(body)) else Left(body)
+  def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[String] = apiGatewayLambdaResponse.body.map {
+    body => if(apiGatewayLambdaResponse.isBase64Encoded)
+        throw new IllegalArgumentException("Binary content unsupported")
+    else body
   }
 }
 
 object ApiGatewayLambdaRequest extends Base64Utils {
-  def apply(lambdaRequest: LambdaRequest) : ApiGatewayLambdaRequest = lambdaRequest.maybeBody match {
-    case Some(body) => body match{
-      case Left(str) => ApiGatewayLambdaRequest(Some(str), false)
-      case Right(bytes) => ApiGatewayLambdaRequest(Some(encodeByeArray(bytes)), true)
-    }
-    case None => ApiGatewayLambdaRequest(None)
-  }
 
-  def foundBody(apiGatewayLambdaRequest: ApiGatewayLambdaRequest) : Option[Either[String, Array[Byte]]] = apiGatewayLambdaRequest.body.map {
-      body => if(apiGatewayLambdaRequest.isBase64Encoded) Right(decoder.decode(body)) else Left(body)
+  def mapToOption[S,T](map: Map[S,T]) = if (map.isEmpty) Some(map) else None
+
+  def apply(lambdaRequest: LambdaRequest) : ApiGatewayLambdaRequest = {
+    ApiGatewayLambdaRequest(
+      body = lambdaRequest.maybeBody,
+      queryStringParameters = mapToOption(lambdaRequest.queryStringParameters),
+      headers = mapToOption(lambdaRequest.headers)
+    )
+
+  }
+  def foundBody(apiGatewayLambdaRequest: ApiGatewayLambdaRequest) : Option[String] = apiGatewayLambdaRequest.body.map {
+    body => if(apiGatewayLambdaRequest.isBase64Encoded)
+      throw new IllegalArgumentException("Binary content unsupported")
+    else body
   }
 }
 
-case class ApiGatewayLambdaRequest(body: Option[String], isBase64Encoded: Boolean = false, queryStringParameters: Option[Map[String, String]] = None, headers: Option[Map[String, String]] = None)
+case class ApiGatewayLambdaRequest(
+    body: Option[String],
+    isBase64Encoded: Boolean = false,
+    queryStringParameters: Option[Map[String, String]] = None,
+    headers: Option[Map[String, String]] = None
+)
 
 case class ApiGatewayLambdaResponse (
     statusCode: Int,
@@ -57,7 +62,7 @@ object LambdaRequest {
   }
 }
 
-case class LambdaRequest(maybeBody: Option[Either[String, Array[Byte]]], queryStringParameters: Map[String, String] = Map.empty, headers: Map[String, String] = Map.empty)
+case class LambdaRequest(maybeBody: Option[String], queryStringParameters: Map[String, String] = Map.empty, headers: Map[String, String] = Map.empty)
 
 
 //Todo if we don't ever need to encode the response, we don't need any of this shizzle
@@ -70,7 +75,7 @@ object LambdaResponse extends Base64Utils {
 
 case class LambdaResponse(
   statusCode: Int,
-  maybeBody: Option[Either[String, Array[Byte]]],
+  maybeBody: Option[String],
   headers: Map[String, String] = Map("Content-Type" -> "application/json"))
 
 
