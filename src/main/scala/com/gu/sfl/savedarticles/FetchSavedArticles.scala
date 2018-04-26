@@ -19,9 +19,8 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
   private def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeaders] = for {
-    token <- headers.get(Identity.accessToken)
     auth <- headers.get(Identity.auth)
-  } yield IdentityHeaders(accessToken = token, auth = auth)
+  } yield IdentityHeaders(auth = auth)
 
   override def retrieveSavedArticlesForUser(lambdaRequest: LambdaRequest): Future[Option[SavedArticles]] = {
     for{(key, value) <- lambdaRequest.headers} logger.info(s"Header name: ${key} value: ${value}")

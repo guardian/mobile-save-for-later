@@ -1,7 +1,5 @@
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
 
 
 import com.gu.sfl.lib.Jackson._
@@ -20,4 +18,4 @@ val k = good.transformWith {
   case Failure(_) => Future{"buggery"}
 }
 
-val res = Await.result(k, 1 minute )
+

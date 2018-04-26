@@ -16,7 +16,7 @@ case class IdentityConfig(identityApiHost: String)
 
 case class IdentityToken(value: String)
 
-case class IdentityHeaders(accessToken: String, auth: String)
+case class IdentityHeaders(auth: String, accessToken: String = "Bearer application_token")
 
 trait IdentityService {
   def userFromRequest(identityHeaders: IdentityHeaders) : Future[Option[String]] //Will be Future[Option[UserId]]]
