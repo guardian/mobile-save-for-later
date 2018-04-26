@@ -48,8 +48,8 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
          val body = response.body().string()
          logger.info(s"Identity api response: $body")
          Try {
-           val node = mapper.readTree(body.getBytes())
-           node.get("user").path("id").toString
+           val node = mapper.readTree(body.getBytes)
+           node.get("user").path("id").textValue
          } match {
            case Success(userId) => promise.success(Some(userId))
            case Failure(_)  => promise.success(None)

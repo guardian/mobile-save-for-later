@@ -30,6 +30,9 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
      case Success(Some(articles)) =>
        logger.info("Returning found articles")
        Future { LambdaResponse(StatusCodes.ok, Some(Left(mapper.writeValueAsString(articles))) ) }
+     case Success(None) =>
+       logger.info("No articles found")
+       Future { SavedArticlesController.emptyArticlesResponse  }
      case Failure(_) =>
        logger.info("No saved articles found")
        Future { SavedArticlesController.emptyArticlesResponse }

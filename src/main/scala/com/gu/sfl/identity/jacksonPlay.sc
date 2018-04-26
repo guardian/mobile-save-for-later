@@ -59,7 +59,7 @@ client.newCall(req).enqueue(new Callback {
 
 val res = promise.future
 
-Await.result(res, 5 seconds)
+Await.result(res, 10 seconds)
 
 
 
