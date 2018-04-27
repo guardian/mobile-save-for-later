@@ -25,7 +25,7 @@ def articlesResponse(userId: String)(user: String => Future[Option[String]], art
 
 case class FakeLambdaResponse(body: String)
 
-val arts = articlesResponse("1234")(goodId, badArtcles)
+val arts = articlesResponse("1234")(goodId, goodArtcles)
 
 val tes = arts.transformWith {
   case Success(Some(saved)) => Future.successful(FakeLambdaResponse(saved.toString))

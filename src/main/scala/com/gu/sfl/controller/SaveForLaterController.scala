@@ -1,14 +1,19 @@
 package com.gu.sfl.controller
 
 import java.time._
+import java.util.concurrent.TimeUnit
 
-import com.gu.sfl.Logging
+import com.gu.sfl.exception.{MissingAccessToken, UserNotFoundException}
+import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
+import com.gu.sfl.savedarticles.UpdateSavedArticles
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.math.Ordering.Implicits._
 import scala.util.{Failure, Success, Try}
 
@@ -43,21 +48,54 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def ordered: SavedArticles = copy()
 }
 
-
+//TODO - trait
+object SaveForLaterControllerImpl {
+  val missingUserResponse = LambdaResponse(StatusCodes.badRequest, Some("Could not find a user "))
+  val missingAccessTokenResponse = LambdaResponse(StatusCodes.badRequest, Some("could not find an access token"))
+  val serverError = LambdaResponse(StatusCodes.internalServerError, Some("Server error"))
+  val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
+}
 
 //TODO inject object the reads/writes to dynamo
-class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersistence) extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
+class SaveForLaterControllerImpl(savedArticlesPersistence: SavedArticlesPersistence, updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
+
+  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
+
   override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
     logger.info("SaveForLaterController - handleReques")
-    lambdaRequest match {
+    val futureRespons = lambdaRequest match {
       case LambdaRequest(Some(json), _, _) =>
         logger.info("Save json as string")
-        save(Try(mapper.readValue(json, classOf[SavedArticles])))
+        futureSave(Try(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)
 
       case LambdaRequest(None, _, _) =>
         logger.info("SaveForLaterController - bad request")
-        LambdaResponse(StatusCodes.badRequest, Some("Expected a json body"))
+        Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
+    Await.result(futureRespons, Duration(270, TimeUnit.SECONDS) )
+  }
+
+  private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {
+     (for{
+       articlestoSave <- Future.fromTry(triedRequest)
+       savedArticles <- updateSavedArticles.saveSavedArticles(requestHeaders, articlestoSave)
+     }yield {
+       savedArticles
+     }).transformWith {
+       case Success(Some(articles)) =>
+         logger.info("Got articles back from db")
+         Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(articles))) }
+       case Success(None) =>
+          logger.info("No articles found for user")
+          Future { SavedArticlesController.emptyArticlesResponse }
+       case Failure(t: Throwable) =>
+          logger.info(s"Error saving articles: ${t.getMessage}")
+          t match {
+            case m: MissingAccessToken => Future{SaveForLaterControllerImpl.missingAccessTokenResponse}
+            case u: UserNotFoundException => Future{SavedArticlesController.missingUserResponse}
+            case _ => Future {SaveForLaterControllerImpl.serverError}
+          }
+     }
   }
 
   private def save(triedRequest: Try[SavedArticles]) = {
