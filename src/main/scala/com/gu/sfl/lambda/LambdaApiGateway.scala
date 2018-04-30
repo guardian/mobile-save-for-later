@@ -109,8 +109,12 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends 
     logger.info("ApiGateway: Execute")
     try {
       mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
-        case Left(apiLambdaGatewayRequest) => ApiGatewayLambdaResponse(function(LambdaRequest(apiLambdaGatewayRequest)))
-        case Right(_) => ApiGatewayLambdaResponse(StatusCodes.internalServerError)
+        case Left(apiLambdaGatewayRequest) =>
+          val response = function(LambdaRequest(apiLambdaGatewayRequest))
+          logger.info(s"ApiGateway response: ${response}")
+          ApiGatewayLambdaResponse(response)
+        case Right(_) =>
+          ApiGatewayLambdaResponse(StatusCodes.internalServerError)
       })
     }
     finally {
