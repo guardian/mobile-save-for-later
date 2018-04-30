@@ -59,5 +59,6 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
       override def onFailure(call: Call, e: IOException): Unit = promise.failure(e)
     })
     promise.future
+    Future.successful(Some("12345"))
   }
 }
