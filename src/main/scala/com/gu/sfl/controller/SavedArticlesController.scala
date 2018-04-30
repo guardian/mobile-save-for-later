@@ -27,9 +27,9 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
   override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
 
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest).transformWith {
-     case Success(Some(articles)) =>
-       logger.info("Returning found articles")
-       Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(articles)) ) }
+     case Success(Some(savedArticles)) =>
+       logger.info(s"Returning found ${savedArticles.articles.size} articles")
+       Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(savedArticles)) ) }
      case Success(None) =>
        logger.info("No articles found")
        Future { SavedArticlesController.emptyArticlesResponse  }
@@ -38,7 +38,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
        Future { SavedArticlesController.emptyArticlesResponse }
    }
    //Todo Can move await up
-   Await.result(futureResponse, Duration(270, TimeUnit.SECONDS))
+   Await.result(futureResponse, Duration.Inf)
   }
 
 }
