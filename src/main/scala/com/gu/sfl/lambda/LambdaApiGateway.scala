@@ -123,7 +123,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
         triedLambdaResponse
       })
 
-      Await.ready(futureLambdaResponse, Duration(1500, MILLISECONDS))
+      Await.ready(futureLambdaResponse, Duration.Inf)
 
       futureLambdaResponse.value.getOrElse(Failure(new IllegalStateException("Bark! Bark"))) match {
         case Success(lambdaResponse) =>
