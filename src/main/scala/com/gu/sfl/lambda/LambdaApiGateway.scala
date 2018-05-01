@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
 object ApiGatewayLambdaResponse extends Base64Utils {
-  def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, None, lamdaResponse.headers)
+  def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, lamdaResponse.maybeBody, lamdaResponse.headers)
 
   def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[String] = apiGatewayLambdaResponse.body.map {
     body => if(apiGatewayLambdaResponse.isBase64Encoded)
@@ -136,7 +136,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
 
   }
 
-  override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
+  def XCexecute(inputStream: InputStream, outputStream: OutputStream): Unit = {
       logger.info("ApiGateway: Execute")
 
       try {
@@ -158,7 +158,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
 
   }
 
-  def XXXexecute(inputStream: InputStream, outputStream: OutputStream): Unit = {
+  override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
     logger.info("ApiGateway: Execute")
     try {
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
