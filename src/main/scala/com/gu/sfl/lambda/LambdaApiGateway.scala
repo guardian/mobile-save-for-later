@@ -124,7 +124,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 
-      val result = Await.result(response, Duration(2400, MILLISECONDS))
+      val result = Await.result(response, Duration(6000, MILLISECONDS))
 
       logger.info(s"After response: ${result}" )
       mapper.writeValue(outputStream, result)
