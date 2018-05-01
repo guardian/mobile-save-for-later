@@ -57,11 +57,11 @@ object SaveForLaterControllerImpl {
 }
 
 //TODO inject object the reads/writes to dynamo
-class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, LambdaResponse] with Base64Utils with Logging {
+class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Base64Utils with Logging {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
-  override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
+  override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     logger.info("SaveForLaterController - handleReques")
     val futureRespons = lambdaRequest match {
       case LambdaRequest(Some(json), _, _) =>
@@ -72,7 +72,8 @@ class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) exten
         logger.info("SaveForLaterController - bad request")
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
-    Await.result(futureRespons, Duration(270, TimeUnit.SECONDS) )
+    futureRespons
+    //Await.result(futureRespons, Duration(270, TimeUnit.SECONDS) )
   }
 
   private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {

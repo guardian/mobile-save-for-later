@@ -9,9 +9,10 @@ import com.gu.sfl.lib.SsmConfig
 import com.gu.sfl.controller.SaveForLaterControllerImpl
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistence, SavedArticlesPersistenceImpl}
 
+import scala.concurrent.Future
 import scala.util.Try
 
-abstract class AwsLambda(function: LambdaRequest => LambdaResponse) extends RequestStreamHandler with Logging {
+abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse]) extends RequestStreamHandler with Logging {
 
   private val lambdaApiGateway = new LambdaApiGatewayImpl(function)
 

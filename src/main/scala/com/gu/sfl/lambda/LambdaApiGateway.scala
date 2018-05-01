@@ -9,6 +9,11 @@ import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, None, lamdaResponse.headers)
 
@@ -83,7 +88,7 @@ trait LambdaApiGateway {
   def execute(inputStream: InputStream, outputStream: OutputStream)
 }
 
-class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends LambdaApiGateway with Logging {
+class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) extends LambdaApiGateway with Logging {
 
   def stringReadAndClose(inputStream: InputStream): String = {
     try {
@@ -108,15 +113,19 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends 
   override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
     logger.info("ApiGateway: Execute")
     try {
-      val response = objectReadAndClose(inputStream) match {
+      val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
-          val lambdaResponse = function(LambdaRequest(apiLambdaGatewayRequest))
-          logger.info(s"ApiGateway  lamda response: ${lambdaResponse}")
-          ApiGatewayLambdaResponse(lambdaResponse)
+          function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
+            logger.info(s"ApiGateway  lamda response: ${res}")
+            ApiGatewayLambdaResponse(res)
+          }
         case Right(_) =>
           logger.info("Lambda returned error")
-          ApiGatewayLambdaResponse(StatusCodes.internalServerError)
+          Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
+
+      val result = Await.result(response, Duration.Inf)
+
       logger.info(s"After response: ${response}" )
       mapper.writeValue(outputStream, response)
     }

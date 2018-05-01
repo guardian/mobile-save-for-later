@@ -20,11 +20,11 @@ object SavedArticlesController {
 
 }
 
-class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, LambdaResponse] with Logging {
+class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Logging {
   //TODO pass round ala MAPI
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
-  override def apply(lambdaRequest: LambdaRequest): LambdaResponse = {
+  override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest).transformWith {
      case Success(Some(savedArticles)) =>
@@ -38,7 +38,8 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
        Future { SavedArticlesController.emptyArticlesResponse }
    }
    //Todo Can move await up
-   Await.ready(futureResponse, Duration.Inf)
+   //Await.ready(futureResponse, Duration.Inf)
+    futureResponse
   }
 
 }
