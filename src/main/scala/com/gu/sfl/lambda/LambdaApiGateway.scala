@@ -110,54 +110,6 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     }
   }
 
-  //TODO shit name change it
-  private def marshallResult(apiGatewayLambdaRequest: ApiGatewayLambdaRequest) : ApiGatewayLambdaResponse = {
-
-      logger.info("Making lambda request")
-
-      val promiseLambdaResponse: Promise[LambdaResponse] = Promise[LambdaResponse]
-      val futureLambdaResponse: Future[LambdaResponse] = promiseLambdaResponse.future
-
-      function(LambdaRequest(apiGatewayLambdaRequest)).transform((triedLambdaResponse: Try[LambdaResponse]) => {
-        promiseLambdaResponse.complete(triedLambdaResponse)
-        triedLambdaResponse
-      })
-
-      Await.ready(futureLambdaResponse, Duration.Inf)
-
-      futureLambdaResponse.value.getOrElse(Failure(new IllegalStateException("Bark! Bark"))) match {
-        case Success(lambdaResponse) =>
-          logger.info(s"Got Result: $lambdaResponse")
-          ApiGatewayLambdaResponse(lambdaResponse)
-        case Failure(t) =>
-          logger.info(s"lambda returned error")
-          ApiGatewayLambdaResponse(StatusCodes.internalServerError)
-      }
-
-  }
-
-  def XCexecute(inputStream: InputStream, outputStream: OutputStream): Unit = {
-      logger.info("ApiGateway: Execute")
-
-      try {
-        val response = objectReadAndClose(inputStream) match {
-          case Left(apiGatewayLambdaRequest) =>
-            logger.info("Read request OK")
-            marshallResult(apiGatewayLambdaRequest)
-          case Right(_) =>
-            logger.info("Error reading request")
-            ApiGatewayLambdaResponse(StatusCodes.internalServerError)
-        }
-        logger.info(s"ApiGateway: response: ${response}")
-        mapper.writeValue(outputStream, response)
-        
-      } finally {
-        logger.info("ApiGateway: closing output")
-        outputStream.close()
-      }
-
-  }
-
   override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
     logger.info("ApiGateway: Execute")
     try {
@@ -172,7 +124,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 
-      val result = Await.result(response, Duration(6000, MILLISECONDS))
+      val result = Await.result(response, Duration.Inf)
 
       logger.info(s"After response: ${result}" )
       mapper.writeValue(outputStream, result)

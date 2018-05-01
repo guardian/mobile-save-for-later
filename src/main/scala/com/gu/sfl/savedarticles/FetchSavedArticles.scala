@@ -20,7 +20,8 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
 
   private def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeaders] = for {
     auth <- headers.get(Identity.auth)
-  } yield IdentityHeaders(auth = auth)
+    token <- headers.get(Identity.accessToken)
+  } yield IdentityHeaders(auth = auth, accessToken = token)
 
   override def retrieveSavedArticlesForUser(lambdaRequest: LambdaRequest): Future[Option[SavedArticles]] = {
     for{(key, value) <- lambdaRequest.headers} logger.info(s"Header name: ${key} value: ${value}")
