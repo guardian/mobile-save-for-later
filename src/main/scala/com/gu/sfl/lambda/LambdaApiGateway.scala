@@ -9,7 +9,7 @@ import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -124,7 +124,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 
-      val result = Await.result(response, Duration.Inf)
+      val result = Await.result(response, Duration(2400, MICROSECONDS))
 
       logger.info(s"After response: ${result}" )
       mapper.writeValue(outputStream, result)
