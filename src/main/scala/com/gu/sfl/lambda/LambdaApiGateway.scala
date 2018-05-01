@@ -108,14 +108,17 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => LambdaResponse)) extends 
   override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
     logger.info("ApiGateway: Execute")
     try {
-      mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
+      val response = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
-          val response = function(LambdaRequest(apiLambdaGatewayRequest))
-          logger.info(s"ApiGateway response: ${response}")
-          ApiGatewayLambdaResponse(response)
+          val lambdaResponse = function(LambdaRequest(apiLambdaGatewayRequest))
+          logger.info(s"ApiGateway  lamda response: ${lambdaResponse}")
+          ApiGatewayLambdaResponse(lambdaResponse)
         case Right(_) =>
+          logger.info("Lambda returned error")
           ApiGatewayLambdaResponse(StatusCodes.internalServerError)
-      })
+      }
+      logger.info(s"After response: ${response}" )
+      mapper.writeValue(outputStream, response)
     }
     finally {
       outputStream.close()

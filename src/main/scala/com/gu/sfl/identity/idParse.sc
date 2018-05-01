@@ -1,18 +1,24 @@
-import org.apache.http.impl.client.FutureRequestExecutionMetrics
+import scala.concurrent.{Future, Promise}
+import com.gu.sfl.lib.Jackson._
+import scala.util.Success
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+case class Saved(id: String, arts: List[String] = List.empty)
+case class Response(value: String)
 
-case class Saved(id: String, articles: List[String] = List.empty)
+val promiseResponse: Promise[Response] = Promise[Response]
+val futureResponse: Future[Response] = promiseResponse.future
 
-def goodId(id: String) : Future[Option[String]] = Future.successful(Some(id))
-def noId(id: String) : Future[Option[String]] = Future.successful(None)
-def badId(id: String): Future[Option[String]] = Future.failed(new IllegalStateException("No Id"))
+val saved = Saved("1234", List("buy-conservatory", "kill-corbyn", "global-warming-bad","best-beach-in-bali"))
 
-def saved(id: String) = Saved(id, List("jezzaisacommie", "bestconservatory"))
-def goodArtcles(id: String): Try[Option[Saved]] = Success(Some(saved(id)))
-def getArtcles(id: String): Try[Option[Saved]] = Success(None)
-def badArtcles(id: String): Try[Option[Saved]] = Failure(new IllegalArgumentException("Missing id"))
+val r = Response(mapper.writeValueAsString(saved))
 
-def parseGood(json: String) = Success(saved("1234"))
+/*
+def good(id: String) : Future[Option[Saved]] = {
+  Future{ Some(saved) }
+*/
+}
+
+
+
+
 
