@@ -10,8 +10,7 @@ val futureResponse: Future[Response] = promiseResponse.future
 
 val saved = Saved("1234", List("buy-conservatory", "kill-corbyn", "global-warming-bad","best-beach-in-bali"))
 
-val r = Response(mapper.writeValueAsString(saved))
-
+val r = Response("1234")
 /*
 def good(id: String) : Future[Option[Saved]] = {
   Future{ Some(saved) }

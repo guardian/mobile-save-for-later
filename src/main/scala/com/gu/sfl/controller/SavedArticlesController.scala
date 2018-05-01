@@ -38,7 +38,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
        Future { SavedArticlesController.emptyArticlesResponse }
    }
    //Todo Can move await up
-   Await.result(futureResponse, Duration.Inf)
+   Await.ready(futureResponse, Duration.Inf)
   }
 
 }
