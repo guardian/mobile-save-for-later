@@ -140,14 +140,16 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
       logger.info("ApiGateway: Execute")
 
       try {
-        mapper.writeValue(outputStream, objectReadAndClose(inputStream) match {
+        val response = objectReadAndClose(inputStream) match {
           case Left(apiGatewayLambdaRequest) =>
             logger.info("Read request OK")
             marshallResult(apiGatewayLambdaRequest)
           case Right(_) =>
             logger.info("Error reading request")
             ApiGatewayLambdaResponse(StatusCodes.internalServerError)
-        })
+        }
+        logger.info(s"ApiGateway: response: ${response}")
+        mapper.writeValue(outputStream, response)
         
       } finally {
         logger.info("ApiGateway: closing output")
