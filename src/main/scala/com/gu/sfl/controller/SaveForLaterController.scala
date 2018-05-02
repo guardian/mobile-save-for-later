@@ -44,7 +44,7 @@ object SavedArticles {
 }
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
-  override def advanceVersion: SyncedPrefsData = copy(version = nextVersion)
+  override def advanceVersion: SavedArticles = copy(version = nextVersion)
   def ordered: SavedArticles = copy()
 }
 
@@ -57,6 +57,8 @@ object SaveForLaterControllerImpl {
 }
 
 //TODO inject object the reads/writes to dynamo
+//TODO test for json errors as per  current syncedPrefs logic
+
 class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Base64Utils with Logging {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext

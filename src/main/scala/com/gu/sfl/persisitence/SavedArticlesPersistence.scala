@@ -18,18 +18,20 @@ case class PersistanceConfig(app: String, stage: String) {
 case class DynamoSavedArticles(userId: String, version: String, articles: String)
 
 object DynamoSavedArticles  {
-  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.version, mapper.writeValueAsString(savedArticles.articles))
+  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
 }
 
 trait SavedArticlesPersistence {
   def read(userId: String) : Try[Option[SavedArticles]]
+
+  def checkVersion(userId: String, version: String) : Try[Boolean]
 
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
 class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistence with Logging {
 
-  implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles) : SavedArticles = {
+  implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
     SavedArticles(dynamoSavedArticles.version, articles)
   }
@@ -39,7 +41,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
     logger.info(s"Attempting to retrived saved articles for user $userId")
-    exec(client)(table.get('userId-> userId)) match {
+    exec(client)(table.get('userId -> userId)) match {
       case Some(Right(sa)) =>
         logger.info(s"Retrieved articles for: $userId")
         Success(Some(sa))
@@ -56,7 +58,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
   //TODO remove logging when tests are written
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info(s"Saving articles with userId $userId")
-    exec(client)(table.put(DynamoSavedArticles(userId,savedArticles))) match {
+    exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
       case Some(Right(as)) =>
         logger.info("Succcesfully saved articles")
         Success(Some(as))
@@ -68,6 +70,15 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
         logger.info("Save an none")
         Success(None)
       }
+    }
+  }
+
+  override def checkVersion(userId: String, version: String): Try[Boolean] = {
+    logger.info(s"Checking version for is $version for user: $userId")
+    exec(client)(table.get('userId -> userId)) match {
+      case Some(Right(a)) => Success(a.version == version)
+      case None => Success(true)
+      case Some(Left(error)) => new Failure(new IllegalStateException("Shoot a chucca"))
     }
   }
 }
