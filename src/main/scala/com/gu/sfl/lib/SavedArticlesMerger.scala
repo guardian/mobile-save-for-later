@@ -18,8 +18,10 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   val maxfSavedArticlesLimit = savedArticlesMergerConfig.maxSavedArticlesLimit
 
-  private def writeMerged(userId: String, articles: SavedArticles): Try[Option[SavedArticles]] = savedArticlesPersistence.write(userId, articles) match {
-    case Success(Some(articles)) => Success(Some(articles.advanceVersion))
+  private def writeMerged(userId: String, articles: SavedArticles): Try[Option[SavedArticles]] = savedArticlesPersistence.update(userId, articles) match {
+    case Success(Some(articles)) =>
+      logger.info(s"Got back following articles: $articles")
+      Success(Some(articles))
     case _ => Failure(new IllegalStateException("je suis un enfant en bas âge"))
   }
 
@@ -45,7 +47,9 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
                  loop(articles, retries - 1)
                }
 
-          case Success(None) => savedArticlesPersistence.write(userId, articles)
+          case Success(None) =>
+            logger("Adding articles for new user")
+            savedArticlesPersistence.write(userId, articles)
           case _ => Failure(new IllegalStateException("Juise what baad"))
         }
       }
