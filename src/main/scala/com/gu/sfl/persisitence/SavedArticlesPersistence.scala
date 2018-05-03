@@ -5,7 +5,7 @@ import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsy
 import com.gu.scanamo.Table
 import com.gu.scanamo.Scanamo.exec
 import com.gu.sfl.Logging
-import com.gu.scanamo.syntax._
+import com.gu.scanamo.syntax.{set, _}
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 
@@ -24,7 +24,9 @@ object DynamoSavedArticles  {
 trait SavedArticlesPersistence {
   def read(userId: String) : Try[Option[SavedArticles]]
 
-  def checkVersion(userId: String, version: String) : Try[Boolean]
+  def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
+
+  def conditionalUpdate(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
 
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
@@ -73,12 +75,36 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     }
   }
 
-  override def checkVersion(userId: String, version: String): Try[Boolean] = {
-    logger.info(s"Checking version for is $version for user: $userId")
-    exec(client)(table.get('userId -> userId)) match {
-      case Some(Right(a)) => Success(a.version == version)
-      case None => Success(true)
-      case Some(Left(error)) => new Failure(new IllegalStateException("Shoot a chucca"))
+  override def conditionalUpdate(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
+    val nextVersion = savedArticles.nextVersion
+    logger.info(s"Attempting to update articles for $userId. New versicon $nextVersion")
+    exec(client)(table.given('version -> equals(savedArticles.version))
+      .update('userId -> userId,                                      
+        set('version -> savedArticles.nextVersion) and
+        set('articles -> mapper.writeValueAsString(savedArticles.articles)))
+     ) match {
+      case Right(articles) =>
+        logger.info("Updated articles")
+        Success(Some(articles))
+      case Left(error) =>
+        val ex = new IllegalStateException(s"${error}")
+        logger.info(s"unexpected update outcome: ")
+        Failure(ex)
+    }
+  }
+
+  override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
+    logger.info("Updating saved articles four userId")
+    exec(client)(table.update('userId -> userId,
+      set('version -> savedArticles.nextVersion)
+        and set('articles -> mapper.writeValueAsString(savedArticles.articles)))) match {
+      case Right(articles) =>
+        logger.info("Updated articles")
+        Success(Some(articles))
+      case Left(error) =>
+        val ex = new IllegalStateException(s"${error}")
+        logger.info(s"unexpected update outcome: ")
+        Failure(ex)
     }
   }
 }

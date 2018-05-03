@@ -4,6 +4,7 @@ sealed trait SaveForLaterError {
   self: Throwable =>
 }
 
-case class MissingAccessToken(message: String) extends Exception(message) with SaveForLaterError
+case class MissingAccessTokenException(message: String) extends Exception(message) with SaveForLaterError
 case class UserNotFoundException(message: String) extends Exception(message) with SaveForLaterError
-case class SavedArticleMergeError(message: String) extends  Exception(message)
+case class SavedArticleMergeError(message: String) extends  Exception(message) with SaveForLaterError
+case class MaxSavedArticleTransgressionError(message: String) extends Exception(message) with SaveForLaterError

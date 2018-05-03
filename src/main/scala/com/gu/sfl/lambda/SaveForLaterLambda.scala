@@ -5,7 +5,7 @@ import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveForLaterControllerImpl
 import com.gu.sfl.lambda.SaveForLaterLambda.{logOnThrown, logger}
 import com.gu.sfl.lambda.SavedArticlesLambda.ssmConfig
-import com.gu.sfl.lib.{GlobalHttpClient, SsmConfig}
+import com.gu.sfl.lib._
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 import com.gu.sfl.services.{IdentityConfig, IdentityServiceImpl}
@@ -22,11 +22,13 @@ object SaveForLaterLambda extends Logging {
           new SaveForLaterControllerImpl(
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
-              new SavedArticlesPersistenceImpl( PersistanceConfig(awsIdentity.app, awsIdentity.stage) )
+              new SavedArticlesMergerImpl( SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
+                new SavedArticlesPersistenceImpl( PersistanceConfig(awsIdentity.app, awsIdentity.stage) )
+              )
             )
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
-      }}, "Error initialising save for later controler")
+      }}, "Error initialising save for later controller")
 }
 
 class SaveForLaterLambda extends AwsLambda(SaveForLaterLambda.saveForLaterController)

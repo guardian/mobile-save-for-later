@@ -3,7 +3,7 @@ package com.gu.sfl.controller
 import java.time._
 import java.util.concurrent.TimeUnit
 
-import com.gu.sfl.exception.{MissingAccessToken, UserNotFoundException}
+import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
@@ -94,7 +94,7 @@ class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) exten
        case Failure(t: Throwable) =>
           logger.info(s"Error saving articles: ${t.getMessage}")
           t match {
-            case m: MissingAccessToken => Future{SaveForLaterControllerImpl.missingAccessTokenResponse}
+            case m: MissingAccessTokenException => Future{SaveForLaterControllerImpl.missingAccessTokenResponse}
             case u: UserNotFoundException => Future{SavedArticlesController.missingUserResponse}
             case _ => Future {SaveForLaterControllerImpl.serverError}
           }
