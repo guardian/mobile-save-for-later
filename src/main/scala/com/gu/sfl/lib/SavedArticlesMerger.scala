@@ -48,7 +48,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
                }
 
           case Success(None) =>
-            logger("Adding articles for new user")
+            logger.info("Adding articles for new user")
             savedArticlesPersistence.write(userId, articles)
           case _ => Failure(new IllegalStateException("Juise what baad"))
         }
