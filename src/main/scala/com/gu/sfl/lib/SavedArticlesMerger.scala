@@ -44,7 +44,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
                else {
                  logger.info(s"Conflicting merge try on saving articles. trying again")
                  val nextTryArticles = SavedArticles(currentArticles.version, mergedArticles)
-                 loop(articles, retries - 1)
+                 loop(nextTryArticles, retries - 1)
                }
 
           case Success(None) =>
