@@ -18,11 +18,9 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   val maxfSavedArticlesLimit = savedArticlesMergerConfig.maxSavedArticlesLimit
 
-  private def writeMerged(userId: String, articles: SavedArticles): Try[Option[SavedArticles]] = savedArticlesPersistence.update(userId, articles) match {
-    case Success(Some(articles)) =>
-      logger.info(s"Got back following articles: $articles")
-      Success(Some(articles))
-    case _ => Failure(new IllegalStateException("je suis un enfant en bas âge"))
+  private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SavedArticles]] = persistOperation(userId, articles) match {
+    case Success(Some(articles)) => Success(Some(articles))
+    case _ => Failure(SavedArticleMergeError("Could not update articles"))
   }
 
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
@@ -36,21 +34,21 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
       } else {
         savedArticlesPersistence.read(userId) match {
           case Success(Some(currentArticles)) =>
-               val mergedArticles = Merge.mergeListBy(articles.articles, savedArticles.articles)(_.id)
-               if(currentArticles.version == articles.version) {
+            val mergedArticles = Merge.mergeListBy(currentArticles.articles, articles.articles)(_.id)
+            if(currentArticles.version == articles.version) {
                  logger.debug(s"Merging new articles list for user: $userId")
-                 writeMerged(userId, SavedArticles(articles.version, mergedArticles))
+                 persistMergedArticles(userId, SavedArticles(articles.version, mergedArticles))(savedArticlesPersistence.update)
                }
                else {
                  logger.info(s"Conflicting merge try on saving articles. trying again")
-                 val nextTryArticles = SavedArticles(currentArticles.version, mergedArticles)
+                 val nextTryArticles = currentArticles.copy(articles = mergedArticles)
                  loop(nextTryArticles, retries - 1)
                }
 
           case Success(None) =>
             logger.info("Adding articles for new user")
-            savedArticlesPersistence.write(userId, articles)
-          case _ => Failure(new IllegalStateException("Juise what baad"))
+             persistMergedArticles(userId, articles)(savedArticlesPersistence.write)
+          case _ => Failure(new SavedArticleMergeError("Could not retrieve current articles"))
         }
       }
     }
@@ -59,7 +57,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
       logger.info(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxfSavedArticlesLimit}.")
       Failure(new MaxSavedArticleTransgressionError(s"Tried to save more than $maxfSavedArticlesLimit articles.") )
     } else {
-      loop(savedArticles, 2)
+      loop(savedArticles, 3)
     }
   }
 }

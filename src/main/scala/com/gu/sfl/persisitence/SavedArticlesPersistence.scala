@@ -88,7 +88,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
         Success(Some(articles))
       case Left(error) =>
         val ex = new IllegalStateException(s"${error}")
-        logger.info(s"unexpected update outcome: ")
+        logger.info(s"unexpected update outcome: $error ")
         Failure(ex)
     }
   }
@@ -96,15 +96,16 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info("Updating saved articles four userId")
     exec(client)(table.update('userId -> userId,
-      set('version -> savedArticles.nextVersion)
-        and set('articles -> mapper.writeValueAsString(savedArticles.articles)))) match {
-      case Right(articles) =>
-        logger.info("Updated articles")
-        Success(Some(articles))
-      case Left(error) =>
-        val ex = new IllegalStateException(s"${error}")
-        logger.info(s"unexpected update outcome: ")
-        Failure(ex)
+      set('version -> savedArticles.nextVersion) and
+      set('articles -> mapper.writeValueAsString(savedArticles.articles)))
+    ) match {
+        case Right(articles) =>
+          logger.info("Updated articles")
+          Success(Some(articles))
+        case Left(error) =>
+          val ex = new IllegalStateException(s"${error}")
+          logger.info(s"unexpected update outcome: ")
+          Failure(ex)
     }
   }
 }

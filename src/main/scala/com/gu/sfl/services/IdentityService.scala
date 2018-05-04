@@ -14,16 +14,13 @@ import scala.util.{Failure, Success, Try}
 
 case class IdentityConfig(identityApiHost: String)
 
-case class IdentityToken(value: String)
-
 case class IdentityHeaders(auth: String, accessToken: String = "Bearer application_token")
 
 trait IdentityService {
-  def userFromRequest(identityHeaders: IdentityHeaders) : Future[Option[String]] //Will be Future[Option[UserId]]]
+  def userFromRequest(identityHeaders: IdentityHeaders) : Future[Option[String]]
 }
-
-
 class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient) extends IdentityService with Logging {
+
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
   override def userFromRequest(identityHeaders: IdentityHeaders): Future[Option[String]] = {
 

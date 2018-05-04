@@ -21,7 +21,7 @@ object SavedArticlesController {
 }
 
 class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Logging {
-  //TODO pass round ala MAPI
+
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
@@ -37,8 +37,6 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
        logger.info("No saved articles found")
        Future { SavedArticlesController.emptyArticlesResponse }
    }
-   //Todo Can move await up
-   //Await.ready(futureResponse, Duration.Inf)
     futureResponse
   }
 
