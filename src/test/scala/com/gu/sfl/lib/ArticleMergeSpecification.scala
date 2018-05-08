@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-import org.mockito.Matchers
+import org.mockito.Matchers.any
 import org.scalatest.mockito.MockitoSugar
 import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
@@ -37,19 +37,19 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.read(userId) returns (Success(None))
       savedArticlesPersistence.write(userId, savedArticles) returns (responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
-      verify(savedArticlesPersistence, times(1)).read(Matchers.eq(userId))
-      verify(savedArticlesPersistence, never()).update(Matchers.any[String], Matchers.any[SavedArticles])
+      there was one(savedArticlesPersistence).read(userId)
+      there were no(savedArticlesPersistence).update(any[String](), any[SavedArticles]())
       saved shouldEqual (responseArticles)
     }
 
     "will merge the new list correctly if the user aleady has articles stored and there is no conflict" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
-      savedArticlesPersistence.update(Matchers.eq(userId), Matchers.eq(savedArticles2)) returns(responseArticles)
+      savedArticlesPersistence.update(argThat(===(userId)), argThat(===(savedArticles2))) returns(responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesUpdate1)
-      verify(savedArticlesPersistence, times(1)).read(Matchers.eq(userId))
-      verify(savedArticlesPersistence, never()).write(Matchers.any[String], Matchers.any[SavedArticles])
-      verify(savedArticlesPersistence, times(1)).update(Matchers.eq(userId), Matchers.eq(savedArticles2))
+      there was one(savedArticlesPersistence).read(argThat(===(userId)))
+      there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(savedArticles2)))
       saved shouldEqual (responseArticles)
     }
 
@@ -57,11 +57,11 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
       val expectedSavedArticles = savedArticles2.copy(version = "2")
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles.copy(version = "2"))))
-      savedArticlesPersistence.update(Matchers.eq(userId), Matchers.eq(expectedSavedArticles)) returns(responseArticles)
+      savedArticlesPersistence.update(argThat(===(userId)), argThat(===(expectedSavedArticles))) returns(responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesUpdate1)
-      verify(savedArticlesPersistence, times(2)).read(Matchers.eq(userId))
-      verify(savedArticlesPersistence, never()).write(Matchers.any[String], Matchers.any[SavedArticles])
-      verify(savedArticlesPersistence, times(1)).update(Matchers.eq(userId), Matchers.eq(expectedSavedArticles))
+      there were two(savedArticlesPersistence).read(argThat(===((userId))))
+      there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedSavedArticles)))
       saved shouldEqual (responseArticles)
     }
 
@@ -72,9 +72,9 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.update(userId, expectedSavedArticles) returns (responseArticles)
 
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesUpdate1)
-      verify(savedArticlesPersistence, times(3)).read(Matchers.eq(userId))
-      verify(savedArticlesPersistence, never()).write(Matchers.any[String], Matchers.any[SavedArticles])
-      verify(savedArticlesPersistence, times(1)).update(Matchers.eq(userId), Matchers.eq(expectedSavedArticles))
+      there were three(savedArticlesPersistence).read(argThat(===(userId)))
+      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedSavedArticles)))
       saved shouldEqual (responseArticles)
     }
 

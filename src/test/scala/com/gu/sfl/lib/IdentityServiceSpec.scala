@@ -70,7 +70,7 @@ class IdentityServiceSpec extends Specification with Mockito {
     val call = mock[Call]
     val captor: ArgumentCaptor[Request] = ArgumentCaptor.forClass(classOf[Request])
 
-    httpClient.newCall(captor.capture) answers {
+    httpClient.newCall(any[Request]()) answers {
 
       (_: Any) match {
         case (request: Request) => {
