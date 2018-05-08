@@ -6,7 +6,7 @@ name := "mobile-save-for-later"
 
 organization := "com.gu"
 
-version := "11"
+version := "10"
 
 scalaVersion := "2.12.5"
 
@@ -36,6 +36,7 @@ libraryDependencies ++= Seq(
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
   "com.squareup.okhttp3" % "okhttp" % "3.10.0",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+  "org.mockito" % "mockito-all" % "1.9.0" % "test",
   "org.specs2" %% "specs2-core" % "4.0.2" % "test",
   "org.specs2" %% "specs2-matcher-extra" % "4.0.2" % "test",
   "org.specs2" %% "specs2-mock" % "4.0.2" % "test"
