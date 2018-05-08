@@ -34,12 +34,14 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
 
     val promise = Promise[Option[String]]
 
+    val request = new Request.Builder()
+      .url(meUrl)
+      .headers(headers)
+      .get()
+      .build()
+
     okHttpClient.newCall(
-      new Request.Builder()
-        .url(meUrl)
-        .headers(headers)
-        .get()
-        .build()
+      request
     ).enqueue(new Callback {
       override def onResponse(call: Call, response: Response): Unit = {
          val body = response.body().string()
