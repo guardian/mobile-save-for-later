@@ -2,11 +2,10 @@ package com.gu.sfl.services
 
 import java.io.IOException
 
-import com.gu.identity.client.IdentityApiClient
+import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.lambda.LambdaRequest
 import okhttp3._
-import org.apache.commons.httpclient.HttpClient
 import com.gu.sfl.lib.Jackson._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -55,7 +54,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
          }
       }
 
-      override def onFailure(call: Call, e: IOException): Unit = promise.failure(e)
+      override def onFailure(call: Call, e: IOException): Unit = promise.failure(IdentityApiRequestError("Did not get identiy api response"))
     })
     promise.future
   }

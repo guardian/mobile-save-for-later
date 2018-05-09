@@ -8,3 +8,4 @@ case class MissingAccessTokenException(message: String) extends Exception(messag
 case class UserNotFoundException(message: String) extends Exception(message) with SaveForLaterError
 case class SavedArticleMergeError(message: String) extends  Exception(message) with SaveForLaterError
 case class MaxSavedArticleTransgressionError(message: String) extends Exception(message) with SaveForLaterError
+case class IdentityApiRequestError(message: String) extends Exception(message) with SaveForLaterError

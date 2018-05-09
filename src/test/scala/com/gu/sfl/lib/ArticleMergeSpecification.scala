@@ -4,14 +4,10 @@ import java.time.LocalDateTime
 
 import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
-import com.gu.sfl.persisitence.SavedArticlesPersistence
-import org.mockito.Matchers.any
-import org.scalatest.mockito.MockitoSugar
+import com.gu.sfl.persisitence.{SavedArticlesPersistence, SavedArticlesPersistenceImpl}
 import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
-
-import org.mockito.Mockito.{verify, times, never, verifyZeroInteractions}
 
 import scala.util.{Failure, Success}
 
@@ -38,7 +34,9 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.write(userId, savedArticles) returns (responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       there was one(savedArticlesPersistence).read(userId)
-      there were no(savedArticlesPersistence).update(any[String](), any[SavedArticles]())
+
+      there was no(savedArticlesPersistence).update(Mockito.any[String](), Mockito.any[SavedArticles]())
+      there were no(savedArticlesPersistence).update(userId, savedArticles)
       saved shouldEqual (responseArticles)
     }
 
@@ -52,6 +50,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(savedArticles2)))
       saved shouldEqual (responseArticles)
     }
+
 
     "If there is a conflict in version try again before merging" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
@@ -80,7 +79,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
     "will not attempt to merge saved articles more than three times " in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
-      val expectedSavedArticles = savedArticles2.copy(version = "3")
+      val expectedUnsavedArticles = savedArticles2.copy(version = "3")
       savedArticlesPersistence.read(userId) returns (
         Success(Some(savedArticles.copy(version = "2"))),
         Success(Some(savedArticles.copy(version = "3"))),
@@ -88,9 +87,9 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       )
 
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesUpdate1)
-      verify(savedArticlesPersistence, times(3)).read(Matchers.eq(userId))
-      verify(savedArticlesPersistence, never()).write(Matchers.any[String], Matchers.any[SavedArticles])
-      verify(savedArticlesPersistence, times(0)).update(Matchers.eq(userId), Matchers.eq(expectedSavedArticles))
+      there were three(savedArticlesPersistence).read(argThat(===(userId)))
+      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there were no (savedArticlesPersistence).update(any[String](), any[SavedArticles]())
       saved shouldEqual (Failure(SavedArticleMergeError("Conflicting version in savedArticles")))
     }
 
@@ -98,14 +97,16 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       private val articleSaveLimit = 2
       override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(articleSaveLimit), savedArticlesPersistence)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
-      verifyZeroInteractions(savedArticlesPersistence)
+      there were no (savedArticlesPersistence).read(argThat(===(userId)))
+      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there were no (savedArticlesPersistence).update(any[String](), any[SavedArticles]())
       saved mustEqual(Failure(MaxSavedArticleTransgressionError(s"Tried to save more than $articleSaveLimit articles.")))
     }
 
     "failure to get current articles throws the correct exceptiob" in new Setup {
       savedArticlesPersistence.read(userId) returns (Failure(new IllegalStateException("Bad, bad, bad")))
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
-      verify(savedArticlesPersistence, times(1)).read(Matchers.eq(userId))
+      there was one(savedArticlesPersistence).read(argThat(===(userId)))
       saved shouldEqual (Failure(SavedArticleMergeError("Could not retrieve current articles")))
     }
 
@@ -119,7 +120,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
   }
 
   trait Setup extends Scope {
-    val savedArticlesPersistence = mock[SavedArticlesPersistence]
+    val savedArticlesPersistence = mock[SavedArticlesPersistenceImpl]
     val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(2), savedArticlesPersistence)
   }
 

@@ -20,6 +20,8 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
+fork := true // was hitting deadlock, found similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
+
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
   "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.11.307",
@@ -32,14 +34,11 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.4",
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
-  "com.gu.identity.api" %% "identity-api-client-lib" % "3.141" excludeAll(ExclusionRule("com.google.collections", "google-collections")),
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
   "com.squareup.okhttp3" % "okhttp" % "3.10.0",
-  "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.specs2" %% "specs2-core" % "4.0.3" % "test",
-  "org.specs2" %% "specs2-matcher-extra" % "4.0.3" % "test",
+  "org.specs2" %% "specs2-scalacheck" % "4.0.3" % "test",
   "org.specs2" %% "specs2-mock" % "4.0.3" % "test"
-
 )
 
 resolvers ++= Seq(
