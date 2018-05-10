@@ -19,9 +19,6 @@ import org.specs2.mock.Mockito
 
 import scala.util.{Failure, Success}
 
-
-
-
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
