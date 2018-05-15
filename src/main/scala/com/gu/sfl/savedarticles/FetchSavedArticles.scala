@@ -2,16 +2,16 @@ package com.gu.sfl.savedarticles
 
 import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.controller.SavedArticles
-import com.gu.sfl.lambda.LambdaRequest
+import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
+import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-import com.gu.sfl.services.{IdentityHeaders, IdentityService}
 import com.gu.sfl.util.HeaderNames._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait FetchSavedArticles {
-    def retrieveSavedArticlesForUser(lambdaRequest: LambdaRequest) : Future[Option[SavedArticles]]
+    def retrieveSavedArticlesForUser(headers: Map[String, String]) : Future[Option[SavedArticles]]
 }
 
 class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence) extends FetchSavedArticles with Logging{
@@ -23,27 +23,27 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
     token <- headers.get(Identity.accessToken)
   } yield IdentityHeaders(auth = auth, accessToken = token)
 
-  override def retrieveSavedArticlesForUser(lambdaRequest: LambdaRequest): Future[Option[SavedArticles]] = {
-    for{(key, value) <- lambdaRequest.headers} logger.info(s"Header name: ${key} value: ${value}")
+  //TODO rename
+  override def retrieveSavedArticlesForUser(headers: Map[String, String]): Future[Option[SavedArticles]] = {
+    for{(key, value) <- headers} logger.info(s"Header name: ${key} value: ${value}")
 
     (for {
-      identityHeaders <- getIdentityHeaders(lambdaRequest.headers)
+      identityHeaders <- getIdentityHeaders(headers)
     } yield {
       identityService.userFromRequest(identityHeaders).transformWith{
         case Success(Some(userId)) =>
           logger.info(s"Got user id ${userId} from identity")
           Future.fromTry(savedArticlesPersistence.read(userId))
         case Success(_) =>
-          //TODO this needs fixig
           logger.info(s"no user found for AccessToken ${identityHeaders.accessToken}")
-          Future.failed(new IllegalStateException("Attempted to retrieve articles for not existant user"))
+          Future.failed(new UserNotFoundException("Could not retrieve a user id"))
         case Failure(_) =>
-          logger.info(s"could not retrieve articles for: token: ${identityHeaders.accessToken}")
-          Future.failed(new IllegalStateException("Attempted to retrieve articles for not existant user"))
+          logger.info(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
+          Future.failed(new UserNotFoundException("Could not retrieve a user id"))
       }
     }).getOrElse{
       logger.info(s"Could not retrieve identity headers")
-      Future.failed(new IllegalStateException("Missing authorissation data"))
+      Future.failed(MissingAccessTokenException("No access token on request"))
     }
   }
 }

@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 import com.gu.sfl.Parallelism
 import com.gu.sfl.controller.{SavedArticle, SavedArticles}
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
+import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
-import com.gu.sfl.services.{IdentityHeaders, IdentityService}
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -83,15 +83,9 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   "when the identity service returns a user the updated articles are returned" in new SetUpWithUserId  {
     articlesMerger.updateWithRetryAndMerge(any[String](), any[SavedArticles]()) returns (Success(Some(updatedSavedArticles)))
     val updateResponse = updateSavedArticles.saveSavedArticles(requestHeaders, savedArticles)
-    Await.result(updateResponse, Duration.Inf)  mustEqual(Some(updatedSavedArticles)
+    Await.result(updateResponse, Duration.Inf)  mustEqual(Some(updatedSavedArticles))
   }
 
-
-
-
-  trait IdentityApiFailSetup extends {
-     //articlesMerger.updateWithRetryAndMerge(argThat(===(userId)), argThat(===(savedArticles))) returns (Success(Some(updatedSavedArticles)))
-  }
 
   trait SetupWithNoUserId extends Setup {
     identityService.userFromRequest(any[IdentityHeaders]()) returns (Future.successful(None))
@@ -117,7 +111,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     val identityService = mock[IdentityService]
     val articlesMerger = mock[SavedArticlesMerger]
     val updateSavedArticles = new UpdateSavedArticlesImpl(identityService, articlesMerger)
-    val requestHeaders = Map("authorization" -> "some_auth")
+    val requestHeaders = Map("Authorization" -> "some_auth")
     val identityHeaders = IdentityHeaders(auth = "some_auth", accessToken = "Bearer application_token")
   }
 

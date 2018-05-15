@@ -1,12 +1,11 @@
-package com.gu.sfl.services
+package com.gu.sfl.identity
 
 import java.io.IOException
 
 import com.gu.sfl.exception.IdentityApiRequestError
-import com.gu.sfl.{Logging, Parallelism}
-import com.gu.sfl.lambda.LambdaRequest
-import okhttp3._
 import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.{Logging, Parallelism}
+import okhttp3._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}

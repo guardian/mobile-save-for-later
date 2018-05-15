@@ -3,10 +3,11 @@ package com.gu.sfl.lambda
 import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SavedArticlesController
+import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib.{GlobalHttpClient, SsmConfig}
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
-import com.gu.sfl.services.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.identity.IdentityServiceImpl
 
 //TODO - BOTH lambdas need renaming
 object SavedArticlesLambda extends Logging {

@@ -70,7 +70,7 @@ class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) exten
         logger.info("Save json as string")
         futureSave(Try(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)
 
-      case LambdaRequest(None, _, _) =>
+      case LambdaRequest(None, _,  _) =>
         logger.info("SaveForLaterController - bad request")
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }

@@ -38,7 +38,7 @@ object ApiGatewayLambdaRequest extends Base64Utils {
   }
   def foundBody(apiGatewayLambdaRequest: ApiGatewayLambdaRequest) : Option[String] = apiGatewayLambdaRequest.body.map {
     body => if(apiGatewayLambdaRequest.isBase64Encoded)
-      throw new IllegalArgumentException("Binary content unsupported")
+      throw new UnsupportedOperationException("Binary content unsupported")
     else body
   }
 }
@@ -115,10 +115,15 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     try {
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
-          function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-            logger.info(s"ApiGateway  lamda response: ${res}")
-            ApiGatewayLambdaResponse(res)
-          }
+          if(apiLambdaGatewayRequest.isBase64Encoded)
+             Future.successful(
+                ApiGatewayLambdaResponse(LambdaResponse(StatusCodes.badRequest, Some("Binary content not supported"), Map("Content-Type" -> "text/plain")))
+             )
+          else
+            function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
+              logger.info(s"ApiGateway  lamda response: ${res}")
+              ApiGatewayLambdaResponse(res)
+            }
         case Right(_) =>
           logger.info("Lambda returned error")
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))

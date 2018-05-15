@@ -2,10 +2,10 @@ package com.gu.sfl.controller
 
 import java.util.concurrent.TimeUnit
 
+import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-import com.gu.sfl.services.IdentityService
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.lib.Jackson.mapper
 import com.gu.sfl.savedarticles.FetchSavedArticles
@@ -26,7 +26,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
-   val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest).transformWith {
+   val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest.headers).transformWith {
      case Success(Some(savedArticles)) =>
        logger.info(s"Returning found ${savedArticles.articles.size} articles")
        Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(savedArticles)) ) }

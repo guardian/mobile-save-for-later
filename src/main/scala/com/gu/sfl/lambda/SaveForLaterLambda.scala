@@ -3,12 +3,10 @@ package com.gu.sfl.lambda
 import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveForLaterControllerImpl
-import com.gu.sfl.lambda.SaveForLaterLambda.{logOnThrown, logger}
-import com.gu.sfl.lambda.SavedArticlesLambda.ssmConfig
+import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib._
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
-import com.gu.sfl.services.{IdentityConfig, IdentityServiceImpl}
 
 object SaveForLaterLambda extends Logging {
 

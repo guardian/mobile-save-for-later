@@ -1,22 +1,18 @@
-package com.gu.sfl.lib
+package com.gu.sfl.identity
 
 import java.io.IOException
 
 import com.gu.sfl.Parallelism
 import com.gu.sfl.exception.IdentityApiRequestError
-import com.gu.sfl.services.{IdentityConfig, IdentityHeaders, IdentityService, IdentityServiceImpl}
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, Request, Response, ResponseBody}
-import org.specs2.mutable.Specification
-import org.mockito.{ArgumentCaptor, Matchers}
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
+import com.gu.sfl.lib.GlobalHttpClient
+import okhttp3._
 import org.specs2.matcher.ThrownMessages
+import org.specs2.mock.Mockito
+import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
-import org.specs2.mock.Mockito
-
+import scala.concurrent.{Await, ExecutionContext}
 import scala.util.{Failure, Success}
 
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
