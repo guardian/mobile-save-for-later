@@ -7,6 +7,9 @@ import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 import com.gu.sfl.lib.Jackson._
 import LambdaApiGatewaySpec.stringAsInputStream
+import com.gu.sfl.lambda
+import org.scalacheck.{Arbitrary, Gen}
+import com.gu.sfl.util.ScalaCheckUtils.genCommonAscii
 
 import scala.concurrent.Future
 
@@ -15,6 +18,21 @@ object LambdaApiGatewaySpec {
 }
 
 class LambdaApiGatewaySpec extends Specification with ScalaCheck {
+
+  private val genStringMap: Gen[(String, String)]  = Gen.zip(genCommonAscii, genCommonAscii)
+
+  implicit def arbitraryLambdaRequest: Arbitrary[LambdaRequest] = Arbitrary( for{
+    stringBinary <- Gen.option[String](genCommonAscii)
+    query <- Gen.mapOf[String, String](genStringMap)
+    headers <- Gen.mapOf[String, String](genStringMap)
+  } yield LambdaRequest(stringBinary, query, headers) )
+
+  implicit def arbitraryLambdaResponse: Arbitrary[LambdaResponse] = Arbitrary( for{
+    statusCode <- Arbitrary.arbitrary[Int]
+    stringBinary <- Gen.option[String](genCommonAscii)
+    headers <- Gen.mapOf[String, String](genStringMap)
+  } yield LambdaResponse(statusCode, stringBinary, headers) )
+
 
   "LamdaApiGateWay" should {
     "marshal and and unmarshal a string properly" in {
@@ -53,7 +71,32 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
         """{"statusCode":400,"body":"Binary content not supported","headers":{"Content-Type":"text/plain"},"isBase64Encoded":false}"""
       ))
     }
-  }
 
+    "check random lambdaRequest and LambdaResponse convert as expected" >> prop { (lambdaRequest: LambdaRequest, lambdaResponse: LambdaResponse) =>
+      val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream
+      new LambdaApiGatewayImpl((request: LambdaRequest) => {
+        request must beEqualTo(lambdaRequest)
+        Future.successful(lambdaResponse)
+      }).execute(
+        stringAsInputStream(mapper.writeValueAsString(ApiGatewayLambdaRequest(lambdaRequest))),
+        outputStream
+      )
+      mapper.readValue[ApiGatewayLambdaResponse](outputStream.toByteArray) must_== ApiGatewayLambdaResponse(lambdaResponse)
+    }
+
+    "lambda request sound across api request in" >> prop { (lambdaRequest: LambdaRequest) => {
+        val renderedRequest: LambdaRequest = LambdaRequest(ApiGatewayLambdaRequest(lambdaRequest))
+        renderedRequest must beEqualTo(lambdaRequest)
+        renderedRequest.hashCode() must beEqualTo(lambdaRequest.hashCode())
+      }
+    }
+
+    "lambda response sound across api request in" >> prop { (lambdaResponse: LambdaResponse) => {
+        val renderedResponse: LambdaResponse = LambdaResponse(ApiGatewayLambdaResponse(lambdaResponse))
+        renderedResponse must beEqualTo(lambdaResponse)
+        renderedResponse.hashCode() must beEqualTo(lambdaResponse.hashCode())
+      }
+    }
+  }
 
 }

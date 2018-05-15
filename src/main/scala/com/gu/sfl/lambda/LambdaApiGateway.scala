@@ -26,7 +26,7 @@ object ApiGatewayLambdaResponse extends Base64Utils {
 
 object ApiGatewayLambdaRequest extends Base64Utils {
 
-  def mapToOption[S,T](map: Map[S,T]) = if (map.isEmpty) Some(map) else None
+  def mapToOption[S,T](map: Map[S,T]) = if (map.nonEmpty) Some(map) else None
 
   def apply(lambdaRequest: LambdaRequest) : ApiGatewayLambdaRequest = {
     ApiGatewayLambdaRequest(
@@ -67,6 +67,7 @@ object LambdaRequest {
   }
 }
 
+//TODO blat query params
 case class LambdaRequest(maybeBody: Option[String], queryStringParameters: Map[String, String] = Map.empty, headers: Map[String, String] = Map.empty)
 
 
