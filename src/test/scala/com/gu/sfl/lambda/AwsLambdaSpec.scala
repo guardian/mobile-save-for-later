@@ -2,8 +2,7 @@ package com.gu.sfl.lambda
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
-import com.gu.sfl.Logging
-import org.slf4j.Logger
+import org.apache.logging.log4j.core.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
@@ -17,7 +16,7 @@ class AwsLambdaSpec extends Specification with Mockito {
         val mockedLogger = mock[Logger]
         val testException = new IllegalStateException("This is totally illegal")
         val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
-          override val logger: Logger = mockedLogger
+          override val logger = mockedLogger
 
         }
         Try(lambda.handleRequest(
