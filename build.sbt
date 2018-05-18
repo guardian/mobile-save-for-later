@@ -48,7 +48,8 @@ libraryDependencies ++= Seq(
 dependencyOverrides ++= List(
   "commons-logging" % "commons-logging" % "1.2",
   "org.slf4j" % "slf4j-api" % "1.7.25",
-  "org.apache.logging.log4j" % "log4j-core" % log4j2Version
+  "org.apache.logging.log4j" % "log4j-core" % log4j2Version,
+  "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
 )
 
 resolvers ++= Seq(
@@ -59,6 +60,7 @@ resolvers ++= Seq(
 assemblyMergeStrategy in assembly := {
   case "META-INF/MANIFEST.MF" => MergeStrategy.discard
   case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" => new MergeFilesStrategy
+  case "META-INF/services/com.fasterxml.jackson.databind.Module" => new MergeFilesStrategy
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
