@@ -17,7 +17,7 @@ class AwsLambdaSpec extends Specification with Mockito {
         val mockedLogger = mock[Logger]
         val testException = new IllegalStateException("This is totally illegal")
         val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
-          override def logger: Logger = mockedLogger
+          override val logger: Logger = mockedLogger
 
         }
         Try(lambda.handleRequest(
