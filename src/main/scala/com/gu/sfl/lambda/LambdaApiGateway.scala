@@ -94,7 +94,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
   def stringReadAndClose(inputStream: InputStream): String = {
     try {
         val inputAsString = new String(IOUtils.toByteArray(inputStream), StandardCharsets.UTF_8)
-        logger.info(s"Input as string: ${inputAsString}")
+//        logger.info(s"Input as string: ${inputAsString}")
         inputAsString
     } finally {
       inputStream.close()

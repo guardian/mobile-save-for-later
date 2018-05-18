@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.4",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.4",
+  "org.slf4j" % "slf4j-simple" % "1.7.25",
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
