@@ -60,7 +60,6 @@ resolvers ++= Seq(
 assemblyMergeStrategy in assembly := {
   case "META-INF/MANIFEST.MF" => MergeStrategy.discard
   case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" => new MergeFilesStrategy
-  case "META-INF/services/com.fasterxml.jackson.databind.Module" => new MergeFilesStrategy
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
