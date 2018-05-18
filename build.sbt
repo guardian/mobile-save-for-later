@@ -47,8 +47,8 @@ libraryDependencies ++= Seq(
 
 dependencyOverrides ++= List(
   "commons-logging" % "commons-logging" % "1.2",
-  "org.apache.logging.log4j" % "log4j-core" % log4j2Version,
-  "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
+  "org.slf4j" % "slf4j-api" % "1.7.25",
+  "org.apache.logging.log4j" % "log4j-core" % log4j2Version
 )
 
 resolvers ++= Seq(
