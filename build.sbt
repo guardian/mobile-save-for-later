@@ -36,7 +36,6 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.4",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.4",
   "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version,
-  "org.apache.logging.log4j" % "log4j-core" % log4j2Version,
   "commons-io" % "commons-io" % "2.6",
   "com.gu" %% "scanamo" % "1.0.0-M6",
   "com.gu" %% "simple-configuration-ssm" % "1.4.3",
@@ -48,7 +47,8 @@ libraryDependencies ++= Seq(
 
 dependencyOverrides ++= List(
   "commons-logging" % "commons-logging" % "1.2",
-  "org.apache.logging.log4j" % "log4j-api" % log4j2Version
+  "org.apache.logging.log4j" % "log4j-core" % log4j2Version,
+  "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
 )
 
 resolvers ++= Seq(
