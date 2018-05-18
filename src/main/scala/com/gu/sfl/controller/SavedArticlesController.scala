@@ -28,7 +28,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
 
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest.headers).transformWith {
      case Success(Some(savedArticles)) =>
-       logger.info(s"Returning found ${savedArticles.articles.size} articles")
+       logger.info(s"Returning found ${savedArticles.size} articles")
        Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(savedArticles)) ) }
      case Success(None) =>
        logger.info("No articles found")

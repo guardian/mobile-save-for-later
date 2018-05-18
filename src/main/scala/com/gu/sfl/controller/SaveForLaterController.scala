@@ -29,6 +29,7 @@ case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read:
 //Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in
 case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
   def ordered: SyncedPrefs = copy( savedArticles = savedArticles.map(_.ordered) )
+  lazy val size = savedArticles.map(_.articles.size).getOrElse(0) //For dev
 }
 
 sealed trait SyncedPrefsData {
@@ -54,6 +55,7 @@ object SaveForLaterControllerImpl {
   val missingAccessTokenResponse = LambdaResponse(StatusCodes.badRequest, Some("could not find an access token"))
   val serverError = LambdaResponse(StatusCodes.internalServerError, Some("Server error"))
   val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
+  
 }
 
 //TODO inject object the reads/writes to dynamo
@@ -75,7 +77,6 @@ class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) exten
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
     futureRespons
-    //Await.result(futureRespons, Duration(270, TimeUnit.SECONDS) )
   }
 
   private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {

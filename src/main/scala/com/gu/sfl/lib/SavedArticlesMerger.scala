@@ -1,7 +1,7 @@
 package com.gu.sfl.lib
 
 import com.gu.sfl.Logging
-import com.gu.sfl.controller.SavedArticles
+import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 
@@ -11,22 +11,22 @@ import scala.util.{Failure, Success, Try}
 case class SavedArticlesMergerConfig(maxSavedArticlesLimit: Int)
 
 trait SavedArticlesMerger {
-  def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
+  def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SyncedPrefs]]
 }
 
 class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConfig, savedArticlesPersistence: SavedArticlesPersistence) extends SavedArticlesMerger with Logging {
 
   val maxfSavedArticlesLimit = savedArticlesMergerConfig.maxSavedArticlesLimit
 
-  private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SavedArticles]] = persistOperation(userId, articles) match {
-    case Success(Some(articles)) => Success(Some(articles))
+  private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SyncedPrefs]] = persistOperation(userId, articles) match {
+    case Success(Some(articles)) => Success(Some(SyncedPrefs(userId, Some(articles))))
     case _ => Failure(SavedArticleMergeError("Could not update articles"))
   }
 
-  override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
+  override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SyncedPrefs]] = {
 
     @tailrec
-    def loop(articles: SavedArticles, retries: Int): Try[Option[SavedArticles]] = {
+    def loop(articles: SavedArticles, retries: Int): Try[Option[SyncedPrefs]] = {
 
       if(retries == 0) {
         logger.info(s"Failed to merge saved articles for user: $userId")

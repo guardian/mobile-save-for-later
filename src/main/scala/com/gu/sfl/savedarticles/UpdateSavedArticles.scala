@@ -1,7 +1,7 @@
 package com.gu.sfl.savedarticles
 
 import com.gu.sfl.{Logging, Parallelism}
-import com.gu.sfl.controller.SavedArticles
+import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lambda.LambdaRequest
@@ -16,7 +16,7 @@ import scala.util.{Failure, Success, Try}
 //TODO rename
 trait UpdateSavedArticles {
   //TODO - rename this too!
-  def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SavedArticles]]
+  def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SyncedPrefs]]
 }
 
 class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMerger: SavedArticlesMerger) extends UpdateSavedArticles with Logging {
@@ -28,7 +28,7 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
      auth <- headers.get(Identity.auth)
   } yield IdentityHeaders(auth = auth)
 
-  override def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SavedArticles]] = {
+  override def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SyncedPrefs]] = {
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {
