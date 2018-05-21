@@ -25,6 +25,8 @@ object SavedArticle {
 //TODO - check whether we need read or platform
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
+case class SyncedPrefsResponse(status: String, syncedPrefs: SyncedPrefs)
+
 //This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
 //Todo - eventually we may no longer need the syncedPrefs hierarchy  because at this point its only saving articles which we're interested in
 case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
@@ -49,19 +51,18 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def ordered: SavedArticles = copy()
 }
 
-//TODO - trait
-object SaveForLaterControllerImpl {
+trait SaveForLaterController {
   val missingUserResponse = LambdaResponse(StatusCodes.badRequest, Some("Could not find a user "))
   val missingAccessTokenResponse = LambdaResponse(StatusCodes.badRequest, Some("could not find an access token"))
   val serverError = LambdaResponse(StatusCodes.internalServerError, Some("Server error"))
   val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
-  
+  def okSavedArticlesResponse(syncedPrefs: SyncedPrefs): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SyncedPrefsResponse("ok", syncedPrefs))))
 }
 
 //TODO inject object the reads/writes to dynamo
 //TODO test for json errors as per  current syncedPrefs logic
 
-class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Base64Utils with Logging {
+class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils with Logging {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
@@ -82,22 +83,22 @@ class SaveForLaterControllerImpl(updateSavedArticles: UpdateSavedArticles) exten
   private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {
      (for{
        articlestoSave <- Future.fromTry(triedRequest)
-       savedArticles <- updateSavedArticles.saveSavedArticles(requestHeaders, articlestoSave)
+       maybeSyncedPrefs <- updateSavedArticles.saveSavedArticles(requestHeaders, articlestoSave)
      }yield {
-       savedArticles
+       maybeSyncedPrefs
      }).transformWith {
-       case Success(Some(articles)) =>
+       case Success(Some(syncedPrefs)) =>
          logger.info("Got articles back from db")
-         Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(articles))) }
+         Future { okSavedArticlesResponse(syncedPrefs) }
        case Success(None) =>
           logger.info("No articles found for user")
-          Future { SavedArticlesController.emptyArticlesResponse }
+          Future { emptyArticlesResponse }
        case Failure(t: Throwable) =>
           logger.info(s"Error saving articles: ${t.getMessage}")
           t match {
-            case m: MissingAccessTokenException => Future{SaveForLaterControllerImpl.missingAccessTokenResponse}
-            case u: UserNotFoundException => Future{SavedArticlesController.missingUserResponse}
-            case _ => Future {SaveForLaterControllerImpl.serverError}
+            case m: MissingAccessTokenException => Future{ missingAccessTokenResponse }
+            case u: UserNotFoundException => Future{ missingUserResponse }
+            case _ => Future { serverError }
           }
      }
   }

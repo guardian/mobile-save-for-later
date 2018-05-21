@@ -14,29 +14,24 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-object SavedArticlesController {
-  val missingUserResponse = LambdaResponse(StatusCodes.badRequest, Some("Could not find a user "))
-  val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
 
-}
-
-class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with Logging {
+class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest.headers).transformWith {
-     case Success(Some(savedArticles)) =>
-       logger.info(s"Returning found ${savedArticles.size} articles")
-       Future { LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(savedArticles)) ) }
+     case Success(Some(syncedPrefs)) =>
+       logger.info(s"Returning found ${syncedPrefs.size} articles")
+       Future { okSavedArticlesResponse(syncedPrefs) }
      case Success(None) =>
        logger.info("No articles found")
-       Future { SavedArticlesController.emptyArticlesResponse  }
+       Future { emptyArticlesResponse  }
      case Failure(_) =>
        //TODO match and customise error messages
        logger.info("No saved articles found")
-       Future { SavedArticlesController.emptyArticlesResponse }
+       Future { emptyArticlesResponse }
    }
     futureResponse
   }
