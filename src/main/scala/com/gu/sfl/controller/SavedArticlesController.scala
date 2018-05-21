@@ -19,6 +19,8 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
+  //Todo SET no cache headers
+
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
    val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest.headers).transformWith {

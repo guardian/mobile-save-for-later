@@ -6,7 +6,7 @@ import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lambda.LambdaRequest
 import com.gu.sfl.lib.Jackson.mapper
-import com.gu.sfl.lib.SavedArticlesMerger
+import com.gu.sfl.lib.{AuthHeaderParser, SavedArticlesMerger}
 import com.gu.sfl.persisitence.{SavedArticlesPersistence, SavedArticlesPersistenceImpl}
 import com.gu.sfl.util.HeaderNames._
 
@@ -19,14 +19,9 @@ trait UpdateSavedArticles {
   def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SyncedPrefs]]
 }
 
-class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMerger: SavedArticlesMerger) extends UpdateSavedArticles with Logging {
+class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMerger: SavedArticlesMerger) extends UpdateSavedArticles with Logging with AuthHeaderParser {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
-
-  //PullUp
-  private def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeaders] = for {
-     auth <- headers.get(Identity.auth)
-  } yield IdentityHeaders(auth = auth)
 
   override def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SyncedPrefs]] = {
     (for {

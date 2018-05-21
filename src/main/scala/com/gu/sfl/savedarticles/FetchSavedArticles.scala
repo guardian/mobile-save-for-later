@@ -4,6 +4,7 @@ import com.gu.sfl.{Logging, Parallelism}
 import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MissingAccessTokenException, RetrieveSavedArticlesError, SavedArticleMergeError, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
+import com.gu.sfl.lib.AuthHeaderParser
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 import com.gu.sfl.util.HeaderNames._
 
@@ -14,14 +15,9 @@ trait FetchSavedArticles {
     def retrieveSavedArticlesForUser(headers: Map[String, String]) : Future[Option[SyncedPrefs]]
 }
 
-class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence) extends FetchSavedArticles with Logging{
+class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence) extends FetchSavedArticles with Logging with AuthHeaderParser{
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
-
-  private def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeaders] = for {
-    auth <- headers.get(Identity.auth)
-    token <- headers.get(Identity.accessToken)
-  } yield IdentityHeaders(auth = auth, accessToken = token)
 
   private def wrapSavedArticles(userId: String, maybeSavedArticles: Try[Option[SavedArticles]]) : Try[Option[SyncedPrefs]] = maybeSavedArticles match {
     case Success(Some(articles)) => Success(Some(SyncedPrefs(userId, Some(articles))))
