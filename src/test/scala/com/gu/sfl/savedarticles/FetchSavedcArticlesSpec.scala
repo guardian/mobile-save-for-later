@@ -3,7 +3,7 @@ package com.gu.sfl.savedarticles
 import java.time.LocalDateTime
 
 import com.gu.sfl.Parallelism
-import com.gu.sfl.controller.{SavedArticle, SavedArticles}
+import com.gu.sfl.controller.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
@@ -46,21 +46,23 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the identity service provides a user id we retrieve the articles from the persistence layers" in new SetupWithUserId {
+    //savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
     fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    //val r = Await.result(res, Duration.Inf)
     there was one (savedArticlesPersistence).read(argThat(===(userId)))
   }
 
   "when the identity provides a user id the users saved articles are returned" in new SetupWithUserId {
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
-    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(savedArticles))
+    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(savedArticles))))
   }
 
-  "ehen the user has no articles then an empty list is returned" in new SetupWithUserId {
+  "ehen the user has no articles then the response contains an empty list" in new SetupWithUserId {
     val emptyArticles = SavedArticles("123454", List.empty)
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(emptyArticles)))
     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
-    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(emptyArticles))
+    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
   }
 
   "when the identity api does not return a user id then no attemp is made to retrieve persisted articles" in new SeupWithoutUserId  {

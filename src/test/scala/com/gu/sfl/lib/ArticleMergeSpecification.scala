@@ -2,7 +2,7 @@ package com.gu.sfl.lib
 
 import java.time.LocalDateTime
 
-import com.gu.sfl.controller.{SavedArticle, SavedArticles}
+import com.gu.sfl.controller.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
 import com.gu.sfl.persisitence.{SavedArticlesPersistence, SavedArticlesPersistenceImpl}
 import org.specs2.mutable.Specification
@@ -30,6 +30,8 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
     "saves the articles if the user does not currently have any articles saved" in new Setup {
       val responseArticles = Success(Some(savedArticles.advanceVersion))
+      val expectedMergeResponse = Success(Some(SyncedPrefs(userId, Some(savedArticles.advanceVersion))))
+
       savedArticlesPersistence.read(userId) returns (Success(None))
       savedArticlesPersistence.write(userId, savedArticles) returns (responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
@@ -37,23 +39,27 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
       there was no(savedArticlesPersistence).update(Mockito.any[String](), Mockito.any[SavedArticles]())
       there were no(savedArticlesPersistence).update(userId, savedArticles)
-      saved shouldEqual (responseArticles)
+      saved shouldEqual (expectedMergeResponse)
     }
 
     "will merge the new list correctly if the user aleady has articles stored and there is no conflict" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
+      val expectedMergeResponse = Success(Some(SyncedPrefs(userId, Some(savedArticles2.advanceVersion))))
+
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
       savedArticlesPersistence.update(argThat(===(userId)), argThat(===(savedArticles2))) returns(responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesUpdate1)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
       there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(savedArticles2)))
-      saved shouldEqual (responseArticles)
+      saved shouldEqual (expectedMergeResponse)
     }
 
 
     "If there is a conflict in version try again before merging" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
+      val expectedMergeResponse = Success(Some(SyncedPrefs(userId, Some(savedArticles2.advanceVersion))))
+
       val expectedSavedArticles = savedArticles2.copy(version = "2")
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles.copy(version = "2"))))
       savedArticlesPersistence.update(argThat(===(userId)), argThat(===(expectedSavedArticles))) returns(responseArticles)
@@ -61,11 +67,13 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       there were two(savedArticlesPersistence).read(argThat(===((userId))))
       there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedSavedArticles)))
-      saved shouldEqual (responseArticles)
+      saved shouldEqual (expectedMergeResponse)
     }
 
     "will attempt tp retry a merge up to three times" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
+      val expectedMergeResponse = Success(Some(SyncedPrefs(userId, Some(savedArticles2.advanceVersion))))
+
       val expectedSavedArticles = savedArticles2.copy(version = "3")
       savedArticlesPersistence.read(userId) returns (Success(Some(savedArticles.copy(version = "2"))), Success(Some(savedArticles.copy(version = "3"))) )
       savedArticlesPersistence.update(userId, expectedSavedArticles) returns (responseArticles)
@@ -74,11 +82,12 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       there were three(savedArticlesPersistence).read(argThat(===(userId)))
       there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedSavedArticles)))
-      saved shouldEqual (responseArticles)
+      saved shouldEqual (expectedMergeResponse)
     }
 
     "will not attempt to merge saved articles more than three times " in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
+
       val expectedUnsavedArticles = savedArticles2.copy(version = "3")
       savedArticlesPersistence.read(userId) returns (
         Success(Some(savedArticles.copy(version = "2"))),
@@ -93,7 +102,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       saved shouldEqual (Failure(SavedArticleMergeError("Conflicting version in savedArticles")))
     }
 
-    "will not try to merge a list of articles with a lenght greater than the saved article limit" in new Setup {
+    "will not try to merge a list of articles with a length greater than the saved article limit" in new Setup {
       private val articleSaveLimit = 2
       override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(articleSaveLimit), savedArticlesPersistence)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)

@@ -34,6 +34,7 @@ class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Fu
        logger.info("No articles found")
        Future { SavedArticlesController.emptyArticlesResponse  }
      case Failure(_) =>
+       //TODO match and customise error messages
        logger.info("No saved articles found")
        Future { SavedArticlesController.emptyArticlesResponse }
    }

@@ -3,7 +3,7 @@ package com.gu.sfl.savedarticles
 import java.time.LocalDateTime
 
 import com.gu.sfl.Parallelism
-import com.gu.sfl.controller.{SavedArticle, SavedArticles}
+import com.gu.sfl.controller.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
@@ -86,7 +86,6 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     Await.result(updateResponse, Duration.Inf)  mustEqual(Some(updatedSavedArticles))
   }
 
-
   trait SetupWithNoUserId extends Setup {
     identityService.userFromRequest(any[IdentityHeaders]()) returns (Future.successful(None))
   }
@@ -106,7 +105,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     protected val userId = "1234"
 
     val savedArticles = SavedArticles(userId, List(articleOne, articleTwo))
-    val updatedSavedArticles = SavedArticles(userId, List(articleOne, articleTwo, articleThree))
+    val updatedSavedArticles = SyncedPrefs(userId, Some(SavedArticles(userId, List(articleOne, articleTwo, articleThree))))
 
     val identityService = mock[IdentityService]
     val articlesMerger = mock[SavedArticlesMerger]
