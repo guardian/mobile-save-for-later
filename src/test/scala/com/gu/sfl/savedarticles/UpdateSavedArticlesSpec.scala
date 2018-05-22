@@ -3,18 +3,18 @@ package com.gu.sfl.savedarticles
 import java.time.LocalDateTime
 
 import com.gu.sfl.Parallelism
-import com.gu.sfl.controller.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
+import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Mockito {
 

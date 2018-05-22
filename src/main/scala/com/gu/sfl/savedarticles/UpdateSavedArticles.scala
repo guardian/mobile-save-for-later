@@ -1,17 +1,13 @@
 package com.gu.sfl.savedarticles
 
-import com.gu.sfl.{Logging, Parallelism}
-import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
-import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
-import com.gu.sfl.lambda.LambdaRequest
-import com.gu.sfl.lib.Jackson.mapper
+import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.{AuthHeaderParser, SavedArticlesMerger}
-import com.gu.sfl.persisitence.{SavedArticlesPersistence, SavedArticlesPersistenceImpl}
-import com.gu.sfl.util.HeaderNames._
+import com.gu.sfl.model.{SavedArticles, SyncedPrefs}
+import com.gu.sfl.{Logging, Parallelism}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 //TODO rename
 trait UpdateSavedArticles {

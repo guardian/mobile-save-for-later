@@ -3,7 +3,6 @@ package com.gu.sfl.util
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import com.gu.sfl.util.ScalaCheckUtils.genCommonAscii
-
 import org.scalacheck.Gen.{listOf, oneOf}
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck

@@ -1,12 +1,11 @@
 package com.gu.sfl.savedarticles
 
-import com.gu.sfl.{Logging, Parallelism}
-import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
-import com.gu.sfl.exception.{MissingAccessTokenException, RetrieveSavedArticlesError, SavedArticleMergeError, UserNotFoundException}
-import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
+import com.gu.sfl.exception.{MissingAccessTokenException, RetrieveSavedArticlesError, UserNotFoundException}
+import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.AuthHeaderParser
+import com.gu.sfl.model._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-import com.gu.sfl.util.HeaderNames._
+import com.gu.sfl.{Logging, Parallelism}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}

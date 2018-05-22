@@ -3,10 +3,9 @@ package com.gu.sfl.savedarticles
 import java.time.LocalDateTime
 
 import com.gu.sfl.Parallelism
-import com.gu.sfl.controller.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
-import com.gu.sfl.lib.SavedArticlesMerger
+import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito

@@ -9,10 +9,9 @@ import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, lamdaResponse.maybeBody, lamdaResponse.headers)

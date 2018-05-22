@@ -3,13 +3,12 @@ package com.gu.sfl.lambda
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.nio.charset.StandardCharsets.UTF_8
 
+import com.gu.sfl.lambda.LambdaApiGatewaySpec.stringAsInputStream
+import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.util.ScalaCheckUtils.genCommonAscii
+import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
-import com.gu.sfl.lib.Jackson._
-import LambdaApiGatewaySpec.stringAsInputStream
-import com.gu.sfl.lambda
-import org.scalacheck.{Arbitrary, Gen}
-import com.gu.sfl.util.ScalaCheckUtils.genCommonAscii
 
 import scala.concurrent.Future
 

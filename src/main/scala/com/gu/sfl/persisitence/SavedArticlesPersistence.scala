@@ -2,12 +2,12 @@ package com.gu.sfl.persisitence
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
-import com.gu.scanamo.Table
 import com.gu.scanamo.Scanamo.exec
-import com.gu.sfl.Logging
+import com.gu.scanamo.Table
 import com.gu.scanamo.syntax.{set, _}
+import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
-import com.gu.sfl.controller.{SavedArticle, SavedArticles}
+import com.gu.sfl.model._
 
 import scala.util.{Failure, Success, Try}
 

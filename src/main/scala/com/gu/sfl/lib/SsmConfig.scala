@@ -1,8 +1,8 @@
 package com.gu.sfl.lib
 
-import com.gu.{AppIdentity, AwsIdentity}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.sfl.Logging
+import com.gu.{AppIdentity, AwsIdentity}
 
 class SsmConfig(defaultAppName: String) extends Logging {
   val identity: AppIdentity = logOnThrown(() => AppIdentity.whoAmI(defaultAppName = defaultAppName), "Error retrieving appIdentity")

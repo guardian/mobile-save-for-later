@@ -1,8 +1,8 @@
 package com.gu.sfl.lib
 
 import com.gu.sfl.Logging
-import com.gu.sfl.controller.{SavedArticles, SyncedPrefs}
 import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
+import com.gu.sfl.model._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 
 import scala.annotation.tailrec

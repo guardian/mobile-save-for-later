@@ -29,4 +29,5 @@ object SaveForLaterLambda extends Logging {
       }}, "Error initialising save for later controller")
 }
 
+
 class SaveForLaterLambda extends AwsLambda(SaveForLaterLambda.saveForLaterController)
