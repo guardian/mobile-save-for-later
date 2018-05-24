@@ -21,17 +21,17 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
   
   "Fetch articles without auth headers does ot call identity api" in new Setup {
-     fetchSavedArticlesImpl.retrieveSavedArticlesForUser(Map.empty)
+     fetchSavedArticlesImpl.retrieveForUser(Map.empty)
      there were no(identityService).userFromRequest(any[IdentityHeaders]())
   }
 
   "Fetch articles without auth headers does not attempt to retrieve persisitin articles" in new Setup {
-    fetchSavedArticlesImpl.retrieveSavedArticlesForUser(Map.empty)
+    fetchSavedArticlesImpl.retrieveForUser(Map.empty)
     there were no(savedArticlesPersistence).read(any[String]())
   }
 
   "fetching articles without auth headers results in the correct exception" in new Setup {
-    val invalidResult = Await.ready(fetchSavedArticlesImpl.retrieveSavedArticlesForUser(Map.empty), Duration.Inf).value.get
+    val invalidResult = Await.ready(fetchSavedArticlesImpl.retrieveForUser(Map.empty), Duration.Inf).value.get
 
     invalidResult match {
       case Success(_) => fail("No missing auth exception thrown")
@@ -40,37 +40,37 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "fetching saved articles correctly sends the auth headers to the identity service" in new SetupWithUserId {
-    fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     there was one (identityService).userFromRequest(argThat(===(identityHeaders)))
   }
 
   "when the identity service provides a user id we retrieve the articles from the persistence layers" in new SetupWithUserId {
     //savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
-    fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     //val r = Await.result(res, Duration.Inf)
     there was one (savedArticlesPersistence).read(argThat(===(userId)))
   }
 
   "when the identity provides a user id the users saved articles are returned" in new SetupWithUserId {
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
-    val savedArticlesFuture = fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(savedArticles))))
   }
 
   "ehen the user has no articles then the response contains an empty list" in new SetupWithUserId {
     val emptyArticles = SavedArticles("123454", List.empty)
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(emptyArticles)))
-    val savedArticlesFuture = fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
   }
 
   "when the identity api does not return a user id then no attemp is made to retrieve persisted articles" in new SeupWithoutUserId  {
-    fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders)
+    fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     there were no (savedArticlesPersistence).read(any[String]())
   }
 
   "when the identity service does not provide a user id the correct error is returned" in new SeupWithoutUserId {
-    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders), Duration.Inf).value.get
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
     futureFetchException match {
       case Success(_) => fail("No missing user errot")
       case Failure(ex) => ex mustEqual(new UserNotFoundException("Could not retrieve a user id"))
@@ -79,7 +79,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
   "when the identity service errors the correct error is returned" in new Setup {
     identityService.userFromRequest(any[IdentityHeaders]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
-    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveSavedArticlesForUser(requestHeaders), Duration.Inf).value.get
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
     futureFetchException match {
       case Success(_) => fail("No missing user errot")
       case Failure(ex) => ex mustEqual(new UserNotFoundException("Could not retrieve a user id"))

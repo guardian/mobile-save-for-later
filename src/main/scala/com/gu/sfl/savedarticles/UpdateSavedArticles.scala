@@ -9,17 +9,15 @@ import com.gu.sfl.{Logging, Parallelism}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-//TODO rename
 trait UpdateSavedArticles {
-  //TODO - rename this too!
-  def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SyncedPrefs]]
+  def save(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SyncedPrefs]]
 }
 
 class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMerger: SavedArticlesMerger) extends UpdateSavedArticles with Logging with AuthHeaderParser {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
-  override def saveSavedArticles(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SyncedPrefs]] = {
+  override def save(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SyncedPrefs]] = {
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {

@@ -8,15 +8,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 
-class SavedArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
+class FetchArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
 
   implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
 
-  //Todo SET no cache headers
-
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
-   val futureResponse =  fetchSavedArticles.retrieveSavedArticlesForUser(lambdaRequest.headers).transformWith {
+   val futureResponse =  fetchSavedArticles.retrieveForUser(lambdaRequest.headers).transformWith {
      case Success(Some(syncedPrefs)) =>
        syncedPrefs.savedArticles.map( sa =>
           logger.info(s"Returning found ${sa.articles.size} articles")

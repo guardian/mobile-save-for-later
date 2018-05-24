@@ -2,22 +2,22 @@ package com.gu.sfl.lambda
 
 import com.gu.AwsIdentity
 import com.gu.sfl.Logging
-import com.gu.sfl.controller.SaveForLaterControllerImpl
+import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib._
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 
-object SaveForLaterLambda extends Logging {
+object SaveArticlesLambda extends Logging {
 
   lazy val ssmConfig = new SsmConfig("save-for-later")
 
-  lazy val saveForLaterController: SaveForLaterControllerImpl = logOnThrown(
+  lazy val saveForLaterController: SaveArticlesController = logOnThrown(
     () => {
       logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
-          new SaveForLaterControllerImpl(
+          new SaveArticlesController(
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
               new SavedArticlesMergerImpl( SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
@@ -30,4 +30,4 @@ object SaveForLaterLambda extends Logging {
 }
 
 
-class SaveForLaterLambda extends AwsLambda(SaveForLaterLambda.saveForLaterController)
+class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController)

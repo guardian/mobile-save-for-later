@@ -22,9 +22,8 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
 
   implicit def arbitraryLambdaRequest: Arbitrary[LambdaRequest] = Arbitrary( for{
     stringBinary <- Gen.option[String](genCommonAscii)
-    query <- Gen.mapOf[String, String](genStringMap)
     headers <- Gen.mapOf[String, String](genStringMap)
-  } yield LambdaRequest(stringBinary, query, headers) )
+  } yield LambdaRequest(stringBinary, headers) )
 
   implicit def arbitraryLambdaResponse: Arbitrary[LambdaResponse] = Arbitrary( for{
     statusCode <- Arbitrary.arbitrary[Int]
@@ -38,11 +37,11 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
       val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
       val expectedBodyString = """{"test" : "content"}"""
       val expectedBodyJson = mapper.readTree(expectedBodyString)
-      val inputStream =  stringAsInputStream("""{"body":"{\"test\":\"content\"}","isBase64Encoded":false,"queryStringParameters":{"Content-Type":"application/json; charset=UTF-8"}}""")
+      val inputStream =  stringAsInputStream("""{"body":"{\"test\":\"content\"}","isBase64Encoded":false,"headers":{"Content-Type":"application/json; charset=UTF-8"}}""")
 
 
       new LambdaApiGatewayImpl((lambdaRequest: LambdaRequest) => {
-        lambdaRequest.queryStringParameters must beEqualTo(Map("Content-Type" -> "application/json; charset=UTF-8"))
+        lambdaRequest.headers must beEqualTo(Map("Content-Type" -> "application/json; charset=UTF-8"))
 
         lambdaRequest.maybeBody match {
           case Some(body) =>  mapper.readTree(body) must beEqualTo(expectedBodyJson)

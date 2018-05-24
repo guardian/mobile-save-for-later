@@ -30,7 +30,6 @@ object ApiGatewayLambdaRequest extends Base64Utils {
   def apply(lambdaRequest: LambdaRequest) : ApiGatewayLambdaRequest = {
     ApiGatewayLambdaRequest(
       body = lambdaRequest.maybeBody,
-      queryStringParameters = mapToOption(lambdaRequest.queryStringParameters),
       headers = mapToOption(lambdaRequest.headers)
     )
 
@@ -52,7 +51,7 @@ case class ApiGatewayLambdaRequest(
 case class ApiGatewayLambdaResponse (
     statusCode: Int,
     body: Option[String] = None,
-    headers: Map[String, String] = Map("Content-Type" -> "application/json"),
+    headers: Map[String, String] = Map("Content-Type" -> "application/json", "cache-control" -> "no-cache"),
     isBase64Encoded: Boolean = false
 )
 
@@ -60,17 +59,13 @@ case class ApiGatewayLambdaResponse (
 object LambdaRequest {
   def apply(apiGatewayLambdaRequest: ApiGatewayLambdaRequest): LambdaRequest = {
     val body = ApiGatewayLambdaRequest.foundBody(apiGatewayLambdaRequest)
-    val queryStringParams = apiGatewayLambdaRequest.queryStringParameters.getOrElse(Map.empty)
     val headers = apiGatewayLambdaRequest.headers.getOrElse(Map.empty)
-    LambdaRequest(body, queryStringParams, headers)
+    LambdaRequest(body, headers)
   }
 }
 
-//TODO blat query params
-case class LambdaRequest(maybeBody: Option[String], queryStringParameters: Map[String, String] = Map.empty, headers: Map[String, String] = Map.empty)
+case class LambdaRequest(maybeBody: Option[String], headers: Map[String, String] = Map.empty)
 
-
-//Todo if we don't ever need to encode the response, we don't need any of this shizzle
 object LambdaResponse extends Base64Utils {
   def apply(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : LambdaResponse = {
     val body = ApiGatewayLambdaResponse.foundBody(apiGatewayLambdaResponse)

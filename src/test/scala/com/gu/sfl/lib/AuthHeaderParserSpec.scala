@@ -17,7 +17,7 @@ class AuthHeaderParserSpec extends Specification {
        parser.getIdentityHeaders(headers) mustEqual(expectedIdentityHeaders)
     }
 
-    "Np auth header gives returns none" in new AuthHeaderScope  {
+    "No auth header returns none" in new AuthHeaderScope  {
       val headers = Map("tosh" -> "someTosh")
       parser.getIdentityHeaders(headers) mustEqual(None)
     }

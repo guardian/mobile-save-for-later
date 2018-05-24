@@ -8,7 +8,6 @@ import org.specs2.mutable.Specification
 
 import scala.util.Try
 
-//TODO purchases crab. Extract
 class AwsLambdaSpec extends Specification with Mockito {
 
     "AswLambda" should {

@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait FetchSavedArticles {
-    def retrieveSavedArticlesForUser(headers: Map[String, String]) : Future[Option[SyncedPrefs]]
+    def retrieveForUser(headers: Map[String, String]) : Future[Option[SyncedPrefs]]
 }
 
 class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence) extends FetchSavedArticles with Logging with AuthHeaderParser{
@@ -23,8 +23,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
     case _ => Failure(RetrieveSavedArticlesError("Could not update articles"))
   }
 
-  //TODO rename
-  override def retrieveSavedArticlesForUser(headers: Map[String, String]): Future[Option[SyncedPrefs]] = {
+  override def retrieveForUser(headers: Map[String, String]): Future[Option[SyncedPrefs]] = {
     for{(key, value) <- headers} logger.info(s"Header name: ${key} value: ${value}")
 
     (for {
