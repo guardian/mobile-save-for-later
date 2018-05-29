@@ -38,5 +38,21 @@ Resources:
         ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
         WriteCapacityUnits: 3
 
+  SaveForLaterTestDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AppName}-TEST-articles
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: 100
+
+
+
 
 

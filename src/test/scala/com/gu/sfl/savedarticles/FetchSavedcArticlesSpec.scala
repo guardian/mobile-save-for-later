@@ -1,10 +1,8 @@
 package com.gu.sfl.savedarticles
 
 import java.time.LocalDateTime
-
-import com.gu.sfl.Parallelism
 import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
-import com.gu.sfl.identity.{IdentityHeaders, IdentityService}
+import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 import org.specs2.matcher.ThrownMessages
@@ -15,14 +13,14 @@ import org.specs2.specification.Scope
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Mockito {
 
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
-  
   "Fetch articles without auth headers does ot call identity api" in new Setup {
      fetchSavedArticlesImpl.retrieveForUser(Map.empty)
-     there were no(identityService).userFromRequest(any[IdentityHeaders]())
+     there were no(identityService).userFromRequest(any[IdentityHeader]())
   }
 
   "Fetch articles without auth headers does not attempt to retrieve persisitin articles" in new Setup {
@@ -78,7 +76,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the identity service errors the correct error is returned" in new Setup {
-    identityService.userFromRequest(any[IdentityHeaders]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
+    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
     val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
     futureFetchException match {
       case Success(_) => fail("No missing user errot")
@@ -87,11 +85,11 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   trait SeupWithoutUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeaders]()) returns(Future.successful(None))
+    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.successful(None))
   }
 
   trait SetupWithUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeaders]()) returns(Future.successful(Some(userId)))
+    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.successful(Some(userId)))
   }
 
 
@@ -110,7 +108,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
     val fetchSavedArticlesImpl = new FetchSavedArticlesImpl(identityService, savedArticlesPersistence)
     val requestHeaders = Map("Authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")
-    val identityHeaders = IdentityHeaders(auth = "some_auth", accessToken = "Bearer application_token")
+    val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
 
 
   }

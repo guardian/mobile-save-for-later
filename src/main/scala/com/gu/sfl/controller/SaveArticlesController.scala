@@ -7,14 +7,12 @@ import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model.{SavedArticles, SyncedPrefs, SyncedPrefsResponse}
 import com.gu.sfl.savedarticles.UpdateSavedArticles
 import com.gu.sfl.util.StatusCodes
-import com.gu.sfl.{Logging, Parallelism}
+import com.gu.sfl.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SaveArticlesController(updateSavedArticles: UpdateSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils with Logging {
-
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
+class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils with Logging {
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     logger.info("SaveForLaterController - handleReques")

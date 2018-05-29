@@ -57,7 +57,6 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
       ))
     }
 
-    //Todo We're going to have to handle bytes
     "marshal and unmarshal bytes properly" in {
       val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
       val inputStream = stringAsInputStream("""{"body":"dGVzdEJhc2U2NGlucHV0","isBase64Encoded":true,"queryStringParameters":{"Content-Type":"text/plain"}}""")

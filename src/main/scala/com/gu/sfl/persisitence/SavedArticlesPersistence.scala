@@ -26,8 +26,6 @@ trait SavedArticlesPersistence {
 
   def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
 
-  def conditionalUpdate(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
-
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
@@ -57,7 +55,6 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     }
   }
 
-  //TODO remove logging when tests are written
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info(s"Saving articles with userId $userId")
     exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
@@ -74,25 +71,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
       }
     }
   }
-
-  override def conditionalUpdate(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    val nextVersion = savedArticles.nextVersion
-    logger.info(s"Attempting to update articles for $userId. New versicon $nextVersion")
-    exec(client)(table.given('version -> equals(savedArticles.version))
-      .update('userId -> userId,                                      
-        set('version -> savedArticles.nextVersion) and
-        set('articles -> mapper.writeValueAsString(savedArticles.articles)))
-     ) match {
-      case Right(articles) =>
-        logger.info("Updated articles")
-        Success(Some(articles))
-      case Left(error) =>
-        val ex = new IllegalStateException(s"${error}")
-        logger.info(s"unexpected update outcome: $error ")
-        Failure(ex)
-    }
-  }
-
+  
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info("Updating saved articles four userId")
     exec(client)(table.update('userId -> userId,

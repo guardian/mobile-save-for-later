@@ -1,6 +1,6 @@
 package com.gu.sfl.lib
 
-import com.gu.sfl.identity.IdentityHeaders
+import com.gu.sfl.identity.IdentityHeader
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
@@ -26,7 +26,7 @@ class AuthHeaderParserSpec extends Specification {
 
   trait AuthHeaderScope extends Scope {
      val parser = new AuthHeaderParser {}
-     val expectedIdentityHeaders = Some(IdentityHeaders("someAuth", "Bearer application_token"))
+     val expectedIdentityHeaders = Some(IdentityHeader("someAuth", "Bearer application_token"))
   }
 
 }

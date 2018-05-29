@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudforms resources for migration save for later to mobile
+Parameters:
+    IdentityAccountId:
+      Description: Account ID of the gu moble account which
+      Type: String
+Resources:
+  SflDataMigrationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+
+      Path: /
+      Policies:
+        - PolicyName: assume-identity-s3-read
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action: sts:AssumeRole
+              Resource: !Sub arn:aws:iam::${IdentityAccountId}:role/sfl-data-migration-s3-role
+        - PolicyName: sfl-dynamo-access
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource: arn:aws:dynamodb:eu-west-1:${AWS::AccountId}:table/mobile-save-for-later-TEST-articles
+
+

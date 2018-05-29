@@ -26,11 +26,9 @@ fork := true // was hitting deadlock, fxxund similar complaints online, disablin
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
-  "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307",
   "com.amazonaws" % "aws-lambda-java-log4j2" % "1.1.0",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
-  "com.amazonaws" % "aws-java-sdk-ssm" % "1.11.307",
   "com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.9.4",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.4",

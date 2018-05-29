@@ -5,7 +5,7 @@ import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.AuthHeaderParser
 import com.gu.sfl.model._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-import com.gu.sfl.{Logging, Parallelism}
+import com.gu.sfl.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -14,9 +14,7 @@ trait FetchSavedArticles {
     def retrieveForUser(headers: Map[String, String]) : Future[Option[SyncedPrefs]]
 }
 
-class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence) extends FetchSavedArticles with Logging with AuthHeaderParser{
-
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
+class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence)(implicit executionContext: ExecutionContext) extends FetchSavedArticles with Logging with AuthHeaderParser{
 
   private def wrapSavedArticles(userId: String, maybeSavedArticles: Try[Option[SavedArticles]]) : Try[Option[SyncedPrefs]] = maybeSavedArticles match {
     case Success(Some(articles)) => Success(Some(SyncedPrefs(userId, Some(articles))))

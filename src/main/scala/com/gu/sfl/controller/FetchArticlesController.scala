@@ -2,15 +2,13 @@ package com.gu.sfl.controller
 
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.savedarticles.FetchSavedArticles
-import com.gu.sfl.{Logging, Parallelism}
+import com.gu.sfl.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 
-class FetchArticlesController(fetchSavedArticles: FetchSavedArticles) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
-
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
+class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 

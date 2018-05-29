@@ -1,8 +1,6 @@
 package com.gu.sfl.identity
 
 import java.io.IOException
-
-import com.gu.sfl.Parallelism
 import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.lib.GlobalHttpClient
 import okhttp3._
@@ -14,11 +12,12 @@ import org.specs2.specification.Scope
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
 
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
-  val identityHeaders = IdentityHeaders("auth", "access-token")
+  val identityHeaders = IdentityHeader("auth", "access-token")
 
   "the identity service" should {
 

@@ -4,7 +4,7 @@ import java.io.IOException
 
 import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.lib.Jackson._
-import com.gu.sfl.{Logging, Parallelism}
+import com.gu.sfl.Logging
 import okhttp3._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -12,15 +12,14 @@ import scala.util.{Failure, Success, Try}
 
 case class IdentityConfig(identityApiHost: String)
 
-case class IdentityHeaders(auth: String, accessToken: String = "Bearer application_token")
+case class IdentityHeader(auth: String, accessToken: String = "Bearer application_token")
 
 trait IdentityService {
-  def userFromRequest(identityHeaders: IdentityHeaders) : Future[Option[String]]
+  def userFromRequest(identityHeaders: IdentityHeader) : Future[Option[String]]
 }
-class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient) extends IdentityService with Logging {
+class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient)(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
 
-  implicit val executionContext: ExecutionContext = Parallelism.largeGlobalExecutionContext
-  override def userFromRequest(identityHeaders: IdentityHeaders): Future[Option[String]] = {
+  override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
 
     val meUrl = s"${identityConfig.identityApiHost}/user/me"
     logger.info(s"Attempting to get user details with from: ${meUrl} with token: ${identityHeaders.accessToken}")
