@@ -66,8 +66,8 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
         logger.info(s"Exception Thrown saving articles:", exception)
         Failure(exception)
       case None => {
-        logger.info("Save an none")
-        Success(None)
+        logger.info("Successful saved but none retrieved")
+        Success(Some(savedArticles))
       }
     }
   }
