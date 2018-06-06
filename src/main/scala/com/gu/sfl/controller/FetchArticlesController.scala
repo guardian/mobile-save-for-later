@@ -7,7 +7,6 @@ import com.gu.sfl.Logging
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-
 class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {

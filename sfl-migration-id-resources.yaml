@@ -31,7 +31,7 @@ Resources:
           Sid: ReadConfigurationFromS3
           Effect: Allow
           Action:
-            - s3:GetObject
+            - s3:*
           Resource:
             - !Sub arn:aws:s3:::gu-sfl-migration/*
 

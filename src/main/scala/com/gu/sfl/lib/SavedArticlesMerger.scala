@@ -19,8 +19,13 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
   val maxfSavedArticlesLimit = savedArticlesMergerConfig.maxSavedArticlesLimit
 
   private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SyncedPrefs]] = persistOperation(userId, articles) match {
-    case Success(Some(articles)) => Success(Some(SyncedPrefs(userId, Some(articles))))
-    case _ => Failure(SavedArticleMergeError("Could not update articles"))
+    case Success(Some(articles)) =>
+      logger.info(s"success persisting articles for ${userId}")
+      Success(Some(SyncedPrefs(userId, Some(articles))))
+
+    case Failure(e) =>
+      logger.info(s"Error persisting articles for ${userId}. Error: ${e.getMessage}")
+      Failure(SavedArticleMergeError("Could not update articles"))
   }
 
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SyncedPrefs]] = {

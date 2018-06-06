@@ -19,7 +19,7 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
     val futureRespons = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
         logger.info("Save json as string")
-        futureSave(Try(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)
+        futureSave(Try.apply(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)
 
       case LambdaRequest(None,  _) =>
         logger.info("SaveForLaterController - bad request")

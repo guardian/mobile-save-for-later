@@ -53,6 +53,37 @@ Resources:
         WriteCapacityUnits: 100
 
 
+  SaveForLaterArticlesLimitTestDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AppName}-LIMIT-TEST-articles
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: 100
+
+
+  SaveForLaterArticlesLimitTestTwoDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AppName}-LIMIT-TEST-2-articles
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: 100
+
+
+
 
 
 

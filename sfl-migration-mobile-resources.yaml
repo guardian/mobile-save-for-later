@@ -11,25 +11,23 @@ Resources:
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
-            Action: sts:AssumeRole
+            Action:
+            - sts:AssumeRole
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - ec2.amazonaws.com
 
       Path: /
       Policies:
-        - PolicyName: assume-identity-s3-read
-          PolicyDocument:
+         - PolicyDocument:
             Statement:
-              Effect: Allow
-              Action: sts:AssumeRole
-              Resource: !Sub arn:aws:iam::${IdentityAccountId}:role/sfl-data-migration-s3-role
-        - PolicyName: sfl-dynamo-access
-          PolicyDocument:
-            Statement:
-              Effect: Allow
-              Action:
-                - dynamodb:*
-              Resource: arn:aws:dynamodb:eu-west-1:${AWS::AccountId}:table/mobile-save-for-later-TEST-articles
+            -  Effect: Allow
+               Action: sts:AssumeRole
+               Resource: !Sub arn:aws:iam::${IdentityAccountId}:role/sfl-data-migration-s3-role
+            -  Effect: Allow
+               Action:
+               - dynamodb:*
+               Resource: arn:aws:dynamodb:eu-west-1:${AWS::AccountId}:table/mobile-save-for-later-TEST-articles
+           PolicyName: assume-identity-s3-read
 
 

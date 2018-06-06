@@ -83,7 +83,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
           Success(Some(articles))
         case Left(error) =>
           val ex = new IllegalStateException(s"${error}")
-          logger.info(s"unexpected update outcome: ")
+          logger.info(s"unexpected update outcome: ${ex.getMessage} ")
           Failure(ex)
     }
   }
