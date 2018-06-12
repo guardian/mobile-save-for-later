@@ -1,6 +1,6 @@
 package com.gu.sfl.controller
 
-import com.gu.sfl.exception.{MissingAccessTokenException, UserNotFoundException}
+import com.gu.sfl.exception.{IdentityServiceException, MaxSavedArticleTransgressionError, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
@@ -16,16 +16,13 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     logger.info("SaveForLaterController - handleReques")
-    val futureRespons = lambdaRequest match {
+    val futureResponse = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
-        logger.info("Save json as string")
         futureSave(Try.apply(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)
-
       case LambdaRequest(None,  _) =>
-        logger.info("SaveForLaterController - bad request")
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
-    futureRespons
+    futureResponse
   }
 
   private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {
@@ -36,17 +33,19 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
        maybeSyncedPrefs
      }).transformWith {
        case Success(Some(syncedPrefs)) =>
-         logger.info("Got articles back from db")
+         logger.debug("Got articles back from db")
          Future { okSavedArticlesResponse(syncedPrefs) }
        case Success(None) =>
-          logger.info("No articles found for user")
+          logger.debug("No articles found for user")
           Future { emptyArticlesResponse }
        case Failure(t: Throwable) =>
-          logger.info(s"Error saving articles: ${t.getMessage}")
+          logger.debug(s"Error saving articles: ${t.getMessage}")
           t match {
+            case i: IdentityServiceException => Future { identityErrorResponse }
             case m: MissingAccessTokenException => Future{ missingAccessTokenResponse }
             case u: UserNotFoundException => Future{ missingUserResponse }
-            case _ => Future { serverError }
+            case m: MaxSavedArticleTransgressionError => Future { maximumSavedArticlesErrorResponse }
+            case _ => Future { serverErrorResponse }
           }
      }
   }

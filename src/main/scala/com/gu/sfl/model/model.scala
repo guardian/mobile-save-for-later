@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
-  implicit val ordering = Ordering.by[SavedArticle, LocalDateTime](_.date)
+  implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
@@ -23,13 +23,13 @@ case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
 sealed trait SyncedPrefsData {
   def version: String
   @JsonIgnore
-  val nextVersion = SavedArticles.nextVersion()
+  def nextVersion: String = SavedArticles.nextVersion
   def advanceVersion: SyncedPrefsData
 }
 
 object SavedArticles {
-  def nextVersion() = Instant.now().toEpochMilli.toString
-  def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
+  def nextVersion : String = Instant.now().toEpochMilli.toString
+  def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion, articles)
 }
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {

@@ -22,7 +22,6 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
   override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
 
     val meUrl = s"${identityConfig.identityApiHost}/user/me"
-    logger.info(s"Attempting to get user details with from: ${meUrl} with token: ${identityHeaders.accessToken}")
 
     val headers = new Headers.Builder()
       .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)

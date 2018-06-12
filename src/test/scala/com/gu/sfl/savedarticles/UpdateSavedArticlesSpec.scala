@@ -1,7 +1,8 @@
 package com.gu.sfl.savedarticles
 
 import java.time.LocalDateTime
-import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
+
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceException, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
@@ -64,7 +65,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
     updateResponse match {
       case Success(_) => fail("No IOxception thrown")
-      case Failure(e) => e mustEqual(UserNotFoundException("Could not retrieve a user id"))
+      case Failure(e) => e mustEqual(IdentityServiceException("Could not retrieve a user from the id api"))
     }
   }
 

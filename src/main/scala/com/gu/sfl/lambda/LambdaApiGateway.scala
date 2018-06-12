@@ -25,7 +25,7 @@ object ApiGatewayLambdaResponse extends Base64Utils {
 
 object ApiGatewayLambdaRequest extends Base64Utils {
 
-  def mapToOption[S,T](map: Map[S,T]) = if (map.nonEmpty) Some(map) else None
+  def mapToOption[S,T](map: Map[S,T]): Option[Map[S,T]] = if (map.nonEmpty) Some(map) else None
 
   def apply(lambdaRequest: LambdaRequest) : ApiGatewayLambdaRequest = {
     ApiGatewayLambdaRequest(
@@ -80,7 +80,7 @@ case class LambdaResponse(
 
 
 trait LambdaApiGateway {
-  def execute(inputStream: InputStream, outputStream: OutputStream)
+  def execute(inputStream: InputStream, outputStream: OutputStream) : Unit
 }
 
 class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) extends LambdaApiGateway with Logging {

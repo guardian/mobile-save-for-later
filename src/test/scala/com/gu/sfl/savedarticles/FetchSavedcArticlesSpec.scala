@@ -1,7 +1,8 @@
 package com.gu.sfl.savedarticles
 
 import java.time.LocalDateTime
-import com.gu.sfl.exception.{IdentityApiRequestError, MissingAccessTokenException, UserNotFoundException}
+
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceException, MissingAccessTokenException, UserNotFoundException}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.persisitence.SavedArticlesPersistence
@@ -80,7 +81,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
     futureFetchException match {
       case Success(_) => fail("No missing user errot")
-      case Failure(ex) => ex mustEqual(new UserNotFoundException("Could not retrieve a user id"))
+      case Failure(ex) => ex mustEqual(new IdentityServiceException("Could not get a response from the id api"))
     }
   }
 

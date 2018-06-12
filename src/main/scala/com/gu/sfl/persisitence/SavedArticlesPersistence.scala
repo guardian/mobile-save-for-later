@@ -43,11 +43,11 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     logger.info(s"Attempting to retrived saved articles for user $userId")
     exec(client)(table.get('userId -> userId)) match {
       case Some(Right(sa)) =>
-        logger.info(s"Retrieved articles for: $userId")
+        logger.debug(s"Retrieved articles for: $userId")
         Success(Some(sa))
       case Some(Left(error)) =>
         val ex = new IllegalArgumentException(s"$error")
-        logger.info(s"Error retrieving articles", ex)
+        logger.debug(s"Error retrieving articles", ex)
         Failure(ex)
       case None =>
         logger.error("No articles found for user")
@@ -59,31 +59,31 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     logger.info(s"Saving articles with userId $userId")
     exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
       case Some(Right(articles)) =>
-        logger.info("Succcesfully saved articles")
+        logger.debug("Succcesfully saved articles")
         Success(Some(articles))
       case Some(Left(error)) =>
         val exception = new IllegalArgumentException(s"$error")
-        logger.info(s"Exception Thrown saving articles:", exception)
+        logger.debug(s"Exception Thrown saving articles:", exception)
         Failure(exception)
       case None => {
-        logger.info("Successfully saved but none retrieved")
+        logger.debug("Successfully saved but none retrieved")
         Success(Some(savedArticles))
       }
     }
   }
   
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    logger.info("Updating saved articles four userId")
+    logger.info(s"Updating saved articles four ${userId}")
     exec(client)(table.update('userId -> userId,
       set('version -> savedArticles.nextVersion) and
       set('articles -> mapper.writeValueAsString(savedArticles.articles)))
     ) match {
         case Right(articles) =>
-          logger.info("Updated articles")
+          logger.debug("Updated articles")
           Success(Some(articles))
         case Left(error) =>
           val ex = new IllegalStateException(s"${error}")
-          logger.info(s"unexpected update outcome: ${ex.getMessage} ")
+          logger.error(s"Error updating articles for userId ${userId}: ${ex.getMessage} ")
           Failure(ex)
     }
   }

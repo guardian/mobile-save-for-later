@@ -4,9 +4,11 @@ import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.lambda.FetchArticlesLambda.savedArticledController
 import com.gu.sfl.lib.{GlobalHttpClient, SsmConfig}
 import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object FetchArticlesLambda extends Logging {
@@ -29,6 +31,6 @@ object FetchArticlesLambda extends Logging {
       }}, "Error initialising saved articles controller")
 }
 
-class FetchArticlesLambda extends AwsLambda(FetchArticlesLambda.savedArticledController)
+class FetchArticlesLambda extends AwsLambda(function = savedArticledController)
 
 

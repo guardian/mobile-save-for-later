@@ -1,6 +1,6 @@
 package com.gu.sfl.savedarticles
 
-import com.gu.sfl.exception.{MissingAccessTokenException, RetrieveSavedArticlesError, UserNotFoundException}
+import com.gu.sfl.exception.{IdentityServiceException, MissingAccessTokenException, RetrieveSavedArticlesError, UserNotFoundException}
 import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.AuthHeaderParser
 import com.gu.sfl.model._
@@ -29,17 +29,17 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
     } yield {
       identityService.userFromRequest(identityHeaders).transformWith{
         case Success(Some(userId)) =>
-          logger.info(s"Got user id ${userId} from identity")
+          logger.debug(s"Got user id ${userId} from identity")
           Future.fromTry(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
-          logger.info(s"no user found for AccessToken ${identityHeaders.accessToken}")
+          logger.debug(s"no user found for AccessToken ${identityHeaders.accessToken}")
           Future.failed(new UserNotFoundException("Could not retrieve a user id"))
         case Failure(_) =>
-          logger.info(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
-          Future.failed(new UserNotFoundException("Could not retrieve a user id"))
+          logger.debug(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
+          Future.failed(new IdentityServiceException("Could not get a response from the id api"))
       }
     }).getOrElse{
-      logger.info(s"Could not retrieve identity headers")
+      logger.debug(s"Could not retrieve identity headers")
       Future.failed(MissingAccessTokenException("No access token on request"))
     }
   }
