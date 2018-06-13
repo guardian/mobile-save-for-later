@@ -23,13 +23,13 @@ case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
 sealed trait SyncedPrefsData {
   def version: String
   @JsonIgnore
-  def nextVersion: String = SavedArticles.nextVersion
+  val nextVersion = SavedArticles.nextVersion()
   def advanceVersion: SyncedPrefsData
 }
 
 object SavedArticles {
-  def nextVersion : String = Instant.now().toEpochMilli.toString
-  def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion, articles)
+  def nextVersion() = Instant.now().toEpochMilli.toString
+  def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
 }
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
