@@ -41,7 +41,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
     ).enqueue(new Callback {
       override def onResponse(call: Call, response: Response): Unit = {
          val body = response.body().string()
-         logger.info(s"Identity api response: $body")
+         logger.debug(s"Identity api response: $body")
          Try {
            val node = mapper.readTree(body.getBytes)
            node.get("user").path("id").textValue

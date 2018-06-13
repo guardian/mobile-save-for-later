@@ -30,7 +30,28 @@ Parameters:
     Description: ACM Certificate ARN
     Type: String
 
+Mappings:
+  StageVariables:
+    CODE:
+      TableReadCapacity: 25
+    PROD:
+      TableReadCapacity: 25
+
 Resources:
+  SaveForLaterDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AppName}-${Stage}-articles
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteCapacity ]
+
   SaveForLaterRole:
     Type: AWS::IAM::Role
     Properties:

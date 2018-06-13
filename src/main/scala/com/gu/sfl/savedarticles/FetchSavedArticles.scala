@@ -22,8 +22,6 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
   }
 
   override def retrieveForUser(headers: Map[String, String]): Future[Option[SyncedPrefs]] = {
-    for{(key, value) <- headers} logger.info(s"Header name: ${key} value: ${value}")
-
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {
