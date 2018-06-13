@@ -24,10 +24,10 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
        case Failure(ex) =>
          logger.debug("Error trying to retrieve saved articles")
          ex match {
-           case e: IdentityServiceException => Future { identityErrorResponse }
-           case e: MissingAccessTokenException => Future { missingAccessTokenResponse }
-           case e: UserNotFoundException => Future { emptyArticlesResponse }
-           case _ => Future { serverErrorResponse }
+           case e: IdentityServiceException => Future.successful( identityErrorResponse )
+           case e: MissingAccessTokenException => Future.successful( missingAccessTokenResponse )
+           case e: UserNotFoundException => Future.successful(emptyArticlesResponse)
+           case _ => Future.successful(serverErrorResponse )
          }
      }
      futureResponse
