@@ -21,7 +21,7 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
-fork := true // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
+//fork := true // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
 
 
 libraryDependencies ++= Seq(
