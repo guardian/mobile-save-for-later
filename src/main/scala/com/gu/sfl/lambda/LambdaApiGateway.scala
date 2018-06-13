@@ -87,9 +87,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
 
   def stringReadAndClose(inputStream: InputStream): String = {
     try {
-        val inputAsString = new String(IOUtils.toByteArray(inputStream), StandardCharsets.UTF_8)
-//        logger.info(s"Input as string: ${inputAsString}")
-        inputAsString
+         new String(IOUtils.toByteArray(inputStream), StandardCharsets.UTF_8)
     } finally {
       inputStream.close()
     }
@@ -106,7 +104,6 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
   }
 
   override def execute(inputStream: InputStream, outputStream: OutputStream): Unit = {
-    logger.info("ApiGateway: Execute")
     try {
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
@@ -116,17 +113,15 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
              )
           else
             function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-              logger.info(s"ApiGateway  lamda response: ${res}")
+              logger.debug(s"ApiGateway  lamda response: ${res}")
               ApiGatewayLambdaResponse(res)
             }
         case Right(_) =>
-          logger.info("Lambda returned error")
+          logger.debug("Lambda returned error")
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 
       val result = Await.result(response, Duration.Inf)
-
-      logger.info(s"After response: ${result}" )
       mapper.writeValue(outputStream, result)
     }
     finally {

@@ -15,7 +15,6 @@ import scala.util.{Failure, Success, Try}
 class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils with Logging {
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
-    logger.info("SaveForLaterController - handleReques")
     val futureResponse = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
         futureSave(Try.apply(mapper.readValue(json, classOf[SavedArticles])), lambdaRequest.headers)

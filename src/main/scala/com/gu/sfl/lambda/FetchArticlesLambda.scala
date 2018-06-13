@@ -17,10 +17,9 @@ object FetchArticlesLambda extends Logging {
 
   lazy val savedArticledController: FetchArticlesController = logOnThrown(
     () => {
-      logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
-            logger.info(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
+            logger.debug(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
             new FetchArticlesController(
               new FetchSavedArticlesImpl(
                 new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")),GlobalHttpClient.defaultHttpClient),

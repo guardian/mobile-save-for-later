@@ -20,11 +20,11 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SyncedPrefs]] = persistOperation(userId, articles) match {
     case Success(Some(articles)) =>
-      logger.info(s"success persisting articles for ${userId}")
+      logger.debug(s"success persisting articles for ${userId}")
       Success(Some(SyncedPrefs(userId, Some(articles))))
 
     case Failure(e) =>
-      logger.info(s"Error persisting articles for ${userId}. Error: ${e.getMessage}")
+      logger.debug(s"Error persisting articles for ${userId}. Error: ${e.getMessage}")
       Failure(SavedArticleMergeError("Could not update articles"))
   }
 
@@ -34,7 +34,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
     def loop(articles: SavedArticles, retries: Int): Try[Option[SyncedPrefs]] = {
 
       if(retries == 0) {
-        logger.info(s"Failed to merge saved articles for user: $userId")
+        logger.debug(s"Failed to merge saved articles for user: $userId")
         Failure(SavedArticleMergeError("Conflicting version in savedArticles") )
       } else {
         savedArticlesPersistence.read(userId) match {
@@ -45,13 +45,13 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
                  persistMergedArticles(userId, SavedArticles(articles.version, mergedArticles))(persistOperation = savedArticlesPersistence.update)
                }
                else {
-                 logger.info(s"Conflicting merge try on saving articles. trying again")
+                 logger.debug(s"Conflicting merge try on saving articles. trying again")
                  val nextTryArticles = currentArticles.copy(articles = mergedArticles)
                  loop(nextTryArticles, retries - 1)
                }
 
           case Success(None) =>
-            logger.info("Adding articles for new user")
+            logger.debug("Adding articles for new user")
              persistMergedArticles(userId, articles)(savedArticlesPersistence.write)
           case _ => Failure(SavedArticleMergeError("Could not retrieve current articles"))
         }
@@ -59,7 +59,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
     }
 
     if( savedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
-      logger.info(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")
+      logger.debug(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")
       Failure(MaxSavedArticleTransgressionError(s"Tried to save more than $maxSavedArticlesLimit articles.") )
     } else {
       loop(savedArticles, 3)
