@@ -7,13 +7,8 @@ import org.specs2.specification.Scope
 class AuthHeaderParserSpec extends Specification {
   
   "parse" should {
-    "Get the auth from a lowercase header" in new AuthHeaderScope {
+    "Get the auth from a header" in new AuthHeaderScope {
        val headers = Map("authorization" -> "someAuth")
-       parser.getIdentityHeaders(headers) mustEqual(expectedIdentityHeaders)
-    }
-
-    "Get the auth from a upperCase header" in new AuthHeaderScope {
-       val headers = Map("Authorization" -> "someAuth")
        parser.getIdentityHeaders(headers) mustEqual(expectedIdentityHeaders)
     }
 

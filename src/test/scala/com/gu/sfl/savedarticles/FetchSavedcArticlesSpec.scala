@@ -108,7 +108,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     val savedArticlesPersistence = mock[SavedArticlesPersistence]
 
     val fetchSavedArticlesImpl = new FetchSavedArticlesImpl(identityService, savedArticlesPersistence)
-    val requestHeaders = Map("Authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")
+    val requestHeaders = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")
     val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
 
 

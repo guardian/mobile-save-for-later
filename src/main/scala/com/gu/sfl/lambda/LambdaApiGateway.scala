@@ -15,12 +15,6 @@ import scala.concurrent.{Await, Future}
 
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, lamdaResponse.maybeBody, lamdaResponse.headers)
-
-  def foundBody(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : Option[String] = apiGatewayLambdaResponse.body.map {
-    body => if(apiGatewayLambdaResponse.isBase64Encoded)
-        throw new IllegalArgumentException("Binary content unsupported")
-    else body
-  }
 }
 
 object ApiGatewayLambdaRequest extends Base64Utils {
@@ -32,18 +26,11 @@ object ApiGatewayLambdaRequest extends Base64Utils {
       body = lambdaRequest.maybeBody,
       headers = mapToOption(lambdaRequest.headers)
     )
-
-  }
-  def foundBody(apiGatewayLambdaRequest: ApiGatewayLambdaRequest) : Option[String] = apiGatewayLambdaRequest.body.map {
-    body => if(apiGatewayLambdaRequest.isBase64Encoded)
-      throw new UnsupportedOperationException("Binary content unsupported")
-    else body
   }
 }
 
 case class ApiGatewayLambdaRequest(
     body: Option[String],
-    isBase64Encoded: Boolean = false,
     queryStringParameters: Option[Map[String, String]] = None,
     headers: Option[Map[String, String]] = None
 )
@@ -52,15 +39,13 @@ case class ApiGatewayLambdaResponse (
     statusCode: Int,
     body: Option[String] = None,
     headers: Map[String, String] = Map("Content-Type" -> "application/json", "cache-control" -> "no-cache"),
-    isBase64Encoded: Boolean = false
 )
 
 
 object LambdaRequest {
   def apply(apiGatewayLambdaRequest: ApiGatewayLambdaRequest): LambdaRequest = {
-    val body = ApiGatewayLambdaRequest.foundBody(apiGatewayLambdaRequest)
-    val headers = apiGatewayLambdaRequest.headers.getOrElse(Map.empty)
-    LambdaRequest(body, headers)
+    val headers = apiGatewayLambdaRequest.headers.map{ h => h.map {case (key, value) => (key.toLowerCase, value)}}.getOrElse(Map.empty)
+    LambdaRequest(apiGatewayLambdaRequest.body, headers.toMap)
   }
 }
 
@@ -68,8 +53,7 @@ case class LambdaRequest(maybeBody: Option[String], headers: Map[String, String]
 
 object LambdaResponse extends Base64Utils {
   def apply(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : LambdaResponse = {
-    val body = ApiGatewayLambdaResponse.foundBody(apiGatewayLambdaResponse)
-    LambdaResponse(apiGatewayLambdaResponse.statusCode, body, apiGatewayLambdaResponse.headers)
+    LambdaResponse(apiGatewayLambdaResponse.statusCode, apiGatewayLambdaResponse.body, apiGatewayLambdaResponse.headers)
   }
 }
 
@@ -107,16 +91,11 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     try {
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
-          if(apiLambdaGatewayRequest.isBase64Encoded)
-             Future.successful(
-                ApiGatewayLambdaResponse(LambdaResponse(StatusCodes.badRequest, Some("Binary content not supported"), Map("Content-Type" -> "text/plain")))
-             )
-          else
-            function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-              logger.debug(s"ApiGateway  lamda response: ${res}")
-              ApiGatewayLambdaResponse(res)
-            }
-        case Right(_) =>
+          function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
+            logger.debug(s"ApiGateway  lamda response: ${res}")
+            ApiGatewayLambdaResponse(res)
+          }
+       case Right(_) =>
           logger.debug("Lambda returned error")
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }

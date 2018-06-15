@@ -6,9 +6,9 @@ import okhttp3.{ConnectionPool, MediaType, OkHttpClient}
 
 object GlobalHttpClient {
   val defaultHttpClient: OkHttpClient = new OkHttpClient.Builder()
-      .connectTimeout(240, TimeUnit.SECONDS)
-      .readTimeout(240, TimeUnit.SECONDS)
-      .writeTimeout(240, TimeUnit.SECONDS)
+      .connectTimeout(12, TimeUnit.SECONDS)
+      .readTimeout(12, TimeUnit.SECONDS)
+      .writeTimeout(12, TimeUnit.SECONDS)
       .connectionPool(new ConnectionPool(30, 30, TimeUnit.MINUTES))
       .build()
 

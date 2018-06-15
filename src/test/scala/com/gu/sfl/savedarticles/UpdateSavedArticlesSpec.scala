@@ -109,7 +109,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     val identityService = mock[IdentityService]
     val articlesMerger = mock[SavedArticlesMerger]
     val updateSavedArticles = new UpdateSavedArticlesImpl(identityService, articlesMerger)
-    val requestHeaders = Map("Authorization" -> "some_auth")
+    val requestHeaders = Map("authorization" -> "some_auth")
     val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
   }
 

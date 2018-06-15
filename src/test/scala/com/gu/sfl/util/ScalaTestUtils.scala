@@ -9,7 +9,7 @@ import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
 object ScalaCheckUtils {
-  val commonAsciiChars: List[Char] = ((32 until 126).toList :+ 12).map((_: Int).toChar)
+  val commonAsciiChars: List[Char] = ((32 until 126).toList :+ 12).map((_: Int).toChar.toLower)
   val genCommonAscii: Gen[String] = genStringFromChars(commonAsciiChars)
   private val epoch1980 = ZonedDateTime.of(1980, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toEpochSecond
   private val nowPlusOneYear = ZonedDateTime.now().plusYears(1).toEpochSecond

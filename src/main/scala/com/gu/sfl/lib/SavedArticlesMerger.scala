@@ -41,14 +41,14 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
           case Success(Some(currentArticles)) =>
             val mergedArticles = Merge.mergeListBy(currentArticles.articles, articles.articles)(_.id)
             if(currentArticles.version == articles.version) {
-                 logger.debug(s"Merging new articles list for user: $userId")
-                 persistMergedArticles(userId, SavedArticles(articles.version, mergedArticles))(persistOperation = savedArticlesPersistence.update)
-               }
-               else {
-                 logger.info(s"Conflicting merge try on saving articles. trying again")
-                 val nextTryArticles = currentArticles.copy(articles = mergedArticles)
-                 loop(nextTryArticles, retries - 1)
-               }
+               logger.debug(s"Merging new articles list for user: $userId")
+               persistMergedArticles(userId, SavedArticles(articles.version, mergedArticles))(persistOperation = savedArticlesPersistence.update)
+             }
+             else {
+               logger.info(s"Conflicting merge try on saving articles. trying again")
+               val nextTryArticles = currentArticles.copy(articles = mergedArticles)
+               loop(nextTryArticles, retries - 1)
+             }
 
           case Success(None) =>
             logger.info("Adding articles for new user")

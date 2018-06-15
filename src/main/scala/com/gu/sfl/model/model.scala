@@ -34,5 +34,5 @@ object SavedArticles {
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
   override def advanceVersion: SavedArticles = copy(version = nextVersion)
-  def ordered: SavedArticles = copy()
+  def ordered: SavedArticles = copy(articles = articles.sorted)
 }

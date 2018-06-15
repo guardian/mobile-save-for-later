@@ -41,31 +41,19 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
 
 
       new LambdaApiGatewayImpl((lambdaRequest: LambdaRequest) => {
-        lambdaRequest.headers must beEqualTo(Map("Content-Type" -> "application/json; charset=UTF-8"))
+        lambdaRequest.headers must beEqualTo(Map("content-type" -> "application/json; charset=UTF-8"))
 
         lambdaRequest.maybeBody match {
           case Some(body) =>  mapper.readTree(body) must beEqualTo(expectedBodyJson)
           case notString => notString must beEqualTo(Some(expectedBodyJson))
         }
-        Future.successful(LambdaResponse(200, Some("""{"test":"body"}"""), Map("Content-Type" -> "application/json; charset=UTF-8")))
+        Future.successful(LambdaResponse(200, Some("""{"test":"body"}"""), Map("content-type" -> "application/json; charset=UTF-8")))
       }).execute(
         inputStream, outputStream
       )
 
       mapper.readTree(outputStream.toByteArray) must beEqualTo(mapper.readTree(
-        """{"statusCode":200,"isBase64Encoded":false,"headers":{"Content-Type":"application/json; charset=UTF-8"},"body":"{\"test\":\"body\"}"}"""
-      ))
-    }
-
-    "marshal and unmarshal bytes properly" in {
-      val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
-      val inputStream = stringAsInputStream("""{"body":"dGVzdEJhc2U2NGlucHV0","isBase64Encoded":true,"queryStringParameters":{"Content-Type":"text/plain"}}""")
-      new LambdaApiGatewayImpl((lambdaRequest: LambdaRequest) => {
-        throw new IllegalStateException("This should not be called. For now")
-      }).execute(inputStream, outputStream)
-
-      mapper.readTree(outputStream.toByteArray) must beEqualTo(mapper.readTree(
-        """{"statusCode":400,"body":"Binary content not supported","headers":{"Content-Type":"text/plain"},"isBase64Encoded":false}"""
+        """{"statusCode":200,"headers":{"content-type":"application/json; charset=UTF-8"},"body":"{\"test\":\"body\"}"}"""
       ))
     }
 
