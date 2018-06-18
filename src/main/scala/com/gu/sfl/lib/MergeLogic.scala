@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.reflect.internal.util.Collections.distinctBy
 
 //This is a virtual straight rob from identity
-object Merge {
+object MergeLogic {
 
   implicit class RichList[A](val l: List[A]) {
     def tailOrNil = if(l.isEmpty) Nil else l.tail

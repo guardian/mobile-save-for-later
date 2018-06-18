@@ -34,14 +34,16 @@ Mappings:
   StageVariables:
     CODE:
       TableReadCapacity: 25
+      TableWriteCapacity: 25
     PROD:
       TableReadCapacity: 25
+      TableWriteCapacity: 25
 
 Resources:
   SaveForLaterDynamoTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${AppName}-${Stage}-articles
+      TableName: !Sub ${App}-${Stage}-articles
       AttributeDefinitions:
         - AttributeName: userId
           AttributeType: S
@@ -106,7 +108,7 @@ Resources:
         swagger: "2.0"
         info:
           version: "1.0.0"
-          title: !Ref App
+          title: !Sub ${App}-${Stage}
         paths:
 
           "/syncedPrefs/me":
