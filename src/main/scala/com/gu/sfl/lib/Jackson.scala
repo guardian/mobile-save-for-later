@@ -15,8 +15,8 @@ object Jackson {
   val mapper = new ObjectMapper() with ScalaObjectMapper
 
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-  mapper.setDateFormat(formatter)
   mapper.registerModule(DefaultScalaModule)
   mapper.registerModule(new Jdk8Module())
   mapper.registerModule(new JavaTimeModule())
+  mapper.setDateFormat(formatter)
 }
