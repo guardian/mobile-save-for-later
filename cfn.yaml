@@ -33,8 +33,8 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      TableReadCapacity: 25
-      TableWriteCapacity: 25
+      TableReadCapacity: 100
+      TableWriteCapacity: 4500
     PROD:
       TableReadCapacity: 25
       TableWriteCapacity: 25
