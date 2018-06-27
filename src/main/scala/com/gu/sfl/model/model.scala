@@ -5,9 +5,10 @@ import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, JsonProcessingException}
+import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode, SerializerProvider}
+import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 object SavedArticle {
@@ -15,6 +16,7 @@ object SavedArticle {
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 
+@JsonDeserialize(using = classOf[SavedArticleDeserializer])
 @JsonSerialize(using = classOf[SavedArticleSerializer])
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
@@ -47,6 +49,23 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
 
 object ArticleSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+}
+
+@Override
+@throws(classOf[IOException])
+@throws(classOf[JsonProcessingException])
+class SavedArticleDeserializer(t: Class[SavedArticle]) extends StdDeserializer[SavedArticle](t)  {
+  def this () = this(null)
+
+  override def deserialize(p: JsonParser, ctxt: DeserializationContext): SavedArticle = {
+    val node: JsonNode = p.readValueAsTree()
+    val id = node.get("id").asText()
+    val shortUrl = node.get("shortUrl").asText()
+    val read = node.get("read").asBoolean()
+    val str = node.get("date").asText()
+    val date = LocalDateTime.parse(str, ArticleSerializer.formatter)
+    SavedArticle(id, shortUrl, date, read)
+  }
 }
 
 class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedArticle](t) {
