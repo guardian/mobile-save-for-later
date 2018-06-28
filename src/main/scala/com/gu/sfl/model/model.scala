@@ -16,6 +16,7 @@ object SavedArticle {
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 
+@JsonDeserialize(using = classOf[SavedArticleDeserializer])
 @JsonSerialize(using = classOf[SavedArticleSerializer])
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
