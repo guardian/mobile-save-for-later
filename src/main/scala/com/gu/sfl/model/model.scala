@@ -47,24 +47,24 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def ordered: SavedArticles = copy(articles = articles.sorted)
 }
 
-object ArticleSerializer {
+object SavedArticleDateSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
 
-@Override
-@throws(classOf[IOException])
-@throws(classOf[JsonProcessingException])
 class SavedArticleDeserializer(t: Class[SavedArticle]) extends StdDeserializer[SavedArticle](t)  {
 
   def this () = this(null)
 
+  @Override
+  @throws(classOf[IOException])
+  @throws(classOf[JsonProcessingException])
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): SavedArticle = {
     val node: JsonNode = p.readValueAsTree()
     val id = node.get("id").asText()
     val shortUrl = node.get("shortUrl").asText()
     val read = node.get("read").asBoolean()
     val str = node.get("date").asText()
-    val date = LocalDateTime.parse(str, ArticleSerializer.formatter)
+    val date = LocalDateTime.parse(str, SavedArticleDateSerializer.formatter)
     SavedArticle(id, shortUrl, date, read)
   }
 }
@@ -80,7 +80,7 @@ class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedA
     gen.writeStartObject()
     gen.writeStringField("id", value.id)
     gen.writeStringField("shortUrl", value.shortUrl)
-    gen.writeStringField("date", ArticleSerializer.formatter.format(value.date))
+    gen.writeStringField("date", SavedArticleDateSerializer.formatter.format(value.date))
     gen.writeBooleanField("read", value.read)
     gen.writeEndObject()
   }
