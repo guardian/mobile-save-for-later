@@ -16,7 +16,6 @@ object SavedArticle {
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 
-@JsonDeserialize(using = classOf[SavedArticleDeserializer])
 @JsonSerialize(using = classOf[SavedArticleSerializer])
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
@@ -55,6 +54,7 @@ object ArticleSerializer {
 @throws(classOf[IOException])
 @throws(classOf[JsonProcessingException])
 class SavedArticleDeserializer(t: Class[SavedArticle]) extends StdDeserializer[SavedArticle](t)  {
+
   def this () = this(null)
 
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): SavedArticle = {
@@ -70,15 +70,12 @@ class SavedArticleDeserializer(t: Class[SavedArticle]) extends StdDeserializer[S
 
 class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedArticle](t) {
 
-
   def this() = this(null)
-
 
   @Override
   @throws(classOf[IOException])
   @throws(classOf[JsonProcessingException])
-  def serialize(value: SavedArticle, gen: JsonGenerator, serializers: SerializerProvider)
-  = {
+  def serialize(value: SavedArticle, gen: JsonGenerator, serializers: SerializerProvider) = {
     gen.writeStartObject()
     gen.writeStringField("id", value.id)
     gen.writeStringField("shortUrl", value.shortUrl)
