@@ -21,7 +21,7 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
     } yield {
         identityService.userFromRequest(identityHeaders) transformWith {
           case Success(Some(userId)) =>
-            logger.debug(s"Attempting to save articles fo user: $userId")
+            logger.info(s"Attempting to save articles fo user: $userId")
             Future.fromTry(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))
           case Success(_) =>
             logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
