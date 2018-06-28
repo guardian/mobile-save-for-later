@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
-  implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
+  implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date).reverse
 }
 
 @JsonDeserialize(using = classOf[SavedArticleDeserializer])
