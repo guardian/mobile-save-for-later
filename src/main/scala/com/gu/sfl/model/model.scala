@@ -81,7 +81,7 @@ class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedA
   = {
     gen.writeStartObject()
     gen.writeStringField("id", value.id)
-    gen.writeStringField("short", value.shortUrl)
+    gen.writeStringField("shortUrl", value.shortUrl)
     gen.writeStringField("date", ArticleSerializer.formatter.format(value.date))
     gen.writeBooleanField("read", value.read)
     gen.writeEndObject()

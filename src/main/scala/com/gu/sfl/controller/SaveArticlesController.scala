@@ -17,6 +17,7 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     val futureResponse = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
+        logger.debug(s"Json body: $json")
         futureSave(Try.apply(mapper.readValue[SavedArticles](json)), lambdaRequest.headers)
       case LambdaRequest(None,  _) =>
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
