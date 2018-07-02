@@ -2,7 +2,7 @@ package com.gu.sfl.controller
 
 import com.gu.sfl.lambda.LambdaResponse
 import com.gu.sfl.lib.Jackson.mapper
-import com.gu.sfl.model.{SavedArticles, SyncedPrefs, SyncedPrefsResponse}
+import com.gu.sfl.model.{SavedArticles, SavedArticlesResponse, SyncedPrefs, SyncedPrefsResponse}
 import com.gu.sfl.util.StatusCodes
 
 trait SaveForLaterController {
@@ -13,5 +13,6 @@ trait SaveForLaterController {
   val serverErrorResponse = LambdaResponse(StatusCodes.internalServerError, Some("Server error."))
   val accessDenied = LambdaResponse(StatusCodes.forbidden, Some("Access denied"))
   val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
-  def okSavedArticlesResponse(syncedPrefs: SyncedPrefs): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SyncedPrefsResponse("ok", syncedPrefs))))
+  def okSycedPrefsResponse(syncedPrefs: SyncedPrefs): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SyncedPrefsResponse("ok", syncedPrefs))))
+  def okSavedArticlesResponse(savedArticles: SavedArticles): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticlesResponse("ok", savedArticles))))
 }

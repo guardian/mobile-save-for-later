@@ -11,18 +11,18 @@ import scala.util.{Failure, Success, Try}
 case class SavedArticlesMergerConfig(maxSavedArticlesLimit: Int)
 
 trait SavedArticlesMerger {
-  def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SyncedPrefs]]
+  def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
 }
 
 class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConfig, savedArticlesPersistence: SavedArticlesPersistence) extends SavedArticlesMerger with Logging {
 
   val maxSavedArticlesLimit: Int = savedArticlesMergerConfig.maxSavedArticlesLimit
 
-  private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SyncedPrefs]] =
+  private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Try[Option[SavedArticles]] =
      persistOperation(userId, articles) match {
         case Success(Some(articles)) =>
           logger.debug(s"success persisting articles for ${userId}")
-          Success(Some(SyncedPrefs(userId, Some(articles))))
+          Success(Some(articles))
         case Failure(e) =>
           logger.debug(s"Error persisting articles for ${userId}. Error: ${e.getMessage}")
           Failure(SavedArticleMergeError("Could not update articles"))
@@ -30,7 +30,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
 
 
-  override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SyncedPrefs]] = {
+  override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
 
     if( savedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
       logger.debug(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")

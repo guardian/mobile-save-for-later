@@ -17,7 +17,7 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
          syncedPrefs.savedArticles.map( sp =>
             logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
-         Future { okSavedArticlesResponse(syncedPrefs) }
+         Future { okSycedPrefsResponse(syncedPrefs) }
        case Success(None) =>
          logger.debug("No articles found")
          Future { emptyArticlesResponse  }

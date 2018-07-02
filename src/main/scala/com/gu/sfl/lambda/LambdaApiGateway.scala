@@ -38,7 +38,7 @@ case class ApiGatewayLambdaRequest(
 case class ApiGatewayLambdaResponse (
     statusCode: Int,
     body: Option[String] = None,
-    headers: Map[String, String] = Map("Content-Type" -> "application/json", "cache-control" -> "no-cache"),
+    headers: Map[String, String] = Map("Content-Type" -> "application/json; charset=UTF-8", "cache-control" -> "max-age=0")
 )
 
 
@@ -60,7 +60,8 @@ object LambdaResponse extends Base64Utils {
 case class LambdaResponse(
   statusCode: Int,
   maybeBody: Option[String],
-  headers: Map[String, String] = Map("Content-Type" -> "application/json"))
+  headers: Map[String, String] = Map("Content-Type" -> "application/json; charset=UTF-8", "cache-control" -> "max-age=0")
+)
 
 
 trait LambdaApiGateway {
