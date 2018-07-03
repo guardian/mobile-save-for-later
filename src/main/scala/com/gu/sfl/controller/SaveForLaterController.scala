@@ -6,7 +6,7 @@ import com.gu.sfl.model._
 import com.gu.sfl.util.StatusCodes
 
 trait SaveForLaterController {
-  val missingUserResponse = LambdaResponse(StatusCodes.forbidden, Some(mapper.writeValueAsString(List(Error("Access Denied", "Access Denied")))))
+  val missingUserResponse = LambdaResponse(StatusCodes.forbidden, Some(mapper.writeValueAsString(ErrorResponse(List(Error("Access Denied", "Access Denied"))))))
   val maximumSavedArticlesErrorResponse = LambdaResponse(StatusCodes.badRequest, Some("Maximum saved articles exceeded."))
   val missingAccessTokenResponse = LambdaResponse(StatusCodes.badRequest, Some("could not find an access token."))
   val identityErrorResponse = LambdaResponse(StatusCodes.internalServerError, Some("Could not retrieve user id."))
