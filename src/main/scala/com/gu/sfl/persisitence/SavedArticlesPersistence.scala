@@ -60,7 +60,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
       case Some(Right(articles)) =>
         logger.debug("Succcesfully saved articles")
-        Success(Some(articles))
+        Success(Some(articles.ordered))
       case Some(Left(error)) =>
         val exception = new IllegalArgumentException(s"$error")
         logger.debug(s"Exception Thrown saving articles:", exception)
@@ -80,7 +80,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     ) match {
         case Right(articles) =>
           logger.debug("Updated articles")
-          Success(Some(articles))
+          Success(Some(articles.ordered))
         case Left(error) =>
           val ex = new IllegalStateException(s"${error}")
           logger.error(s"Error updating articles for userId ${userId}: ${ex.getMessage} ")
