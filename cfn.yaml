@@ -37,7 +37,7 @@ Mappings:
       TableWriteCapacity: 25
     PROD:
       TableReadCapacity: 75
-      TableWriteCapacity: 75
+      TableWriteCapacity: 4500
 
 Resources:
   SaveForLaterDynamoTable:

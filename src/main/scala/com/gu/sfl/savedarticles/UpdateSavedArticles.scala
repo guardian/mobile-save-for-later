@@ -10,12 +10,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait UpdateSavedArticles {
-  def save(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SyncedPrefs]]
+  def save(headers: Map[String, String], savedArticles: SavedArticles) : Future[Option[SavedArticles]]
 }
 
 class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMerger: SavedArticlesMerger)(implicit executionContext: ExecutionContext) extends UpdateSavedArticles with Logging with AuthHeaderParser {
 
-  override def save(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SyncedPrefs]] = {
+  override def save(headers: Map[String, String], savedArticles: SavedArticles): Future[Option[SavedArticles]] = {
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {

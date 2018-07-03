@@ -104,7 +104,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     protected val userId = "1234"
 
     val savedArticles = SavedArticles(userId, List(articleOne, articleTwo))
-    val updatedSavedArticles = SyncedPrefs(userId, Some(SavedArticles(userId, List(articleOne, articleTwo, articleThree))))
+    val updatedSavedArticles = SavedArticles(userId, List(articleOne, articleTwo, articleThree))
 
     val identityService = mock[IdentityService]
     val articlesMerger = mock[SavedArticlesMerger]

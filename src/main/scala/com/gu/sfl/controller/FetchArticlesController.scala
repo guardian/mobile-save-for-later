@@ -14,13 +14,13 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
 
      val futureResponse =  fetchSavedArticles.retrieveForUser(lambdaRequest.headers).transformWith {
        case Success(Some(syncedPrefs)) =>
-         syncedPrefs.savedArticles.map( sp =>
+         syncedPrefs.savedArticles.foreach ( sp =>
             logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
-         Future { okSavedArticlesResponse(syncedPrefs) }
+         Future.successful { okSyncedPrefsResponse(syncedPrefs) }
        case Success(None) =>
          logger.debug("No articles found")
-         Future { emptyArticlesResponse  }
+         Future.successful { emptyArticlesResponse  }
        case Failure(ex) =>
          logger.debug("Error trying to retrieve saved articles")
          ex match {
