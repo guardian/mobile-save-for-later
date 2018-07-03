@@ -34,7 +34,8 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
     if( savedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
       logger.debug(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")
-      Failure(MaxSavedArticleTransgressionError(s"Tried to save more than $maxSavedArticlesLimit articles.") )
+      val errorMsg = s"The limit on number of saved articles is $maxSavedArticlesLimit"
+      Failure(MaxSavedArticleTransgressionError(errorMsg))
     } else {
       savedArticlesPersistence.read(userId) match {
         case Success(Some(currentArticles)) if currentArticles.version == savedArticles.version =>
