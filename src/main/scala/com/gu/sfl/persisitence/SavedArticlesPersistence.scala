@@ -44,7 +44,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     exec(client)(table.get('userId -> userId)) match {
       case Some(Right(sa)) =>
         logger.debug(s"Retrieved articles for: $userId")
-        Success(Some(sa))
+        Success(Some(sa.ordered))
       case Some(Left(error)) =>
         val ex = new IllegalArgumentException(s"$error")
         logger.debug(s"Error retrieving articles", ex)
