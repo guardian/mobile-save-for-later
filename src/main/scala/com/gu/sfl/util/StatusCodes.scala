@@ -5,5 +5,5 @@ object StatusCodes {
   val ok: Int = 200
   val badRequest: Int = 400
   val forbidden: Int = 403
-  val entityToLarge = 413
+  val entityTooLarge = 413
 }
