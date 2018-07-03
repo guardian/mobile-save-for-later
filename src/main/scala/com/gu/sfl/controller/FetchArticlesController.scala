@@ -22,11 +22,11 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
          logger.debug("No articles found")
          Future.successful { emptyArticlesResponse  }
        case Failure(ex) =>
-         logger.error("Error trying to retrieve saved articles")
+         logger.error(s"Error trying to retrieve saved articles: ${ex.getMessage}")
          ex match {
            case e: IdentityServiceException => Future.successful( identityErrorResponse )
            case e: MissingAccessTokenException => Future.successful( missingAccessTokenResponse )
-           case e: UserNotFoundException => Future.successful(emptyArticlesResponse)
+           case e: UserNotFoundException => Future.successful(missingUserResponse)
            case _ => Future.successful(serverErrorResponse )
          }
      }

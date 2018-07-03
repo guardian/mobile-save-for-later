@@ -49,6 +49,10 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def ordered: SavedArticles = copy(articles = articles.sorted.reverse)
 }
 
+case class ErrorResponse(errors: List[Error])
+
+case class Error(message: String, description: String)
+
 object SavedArticleDateSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
