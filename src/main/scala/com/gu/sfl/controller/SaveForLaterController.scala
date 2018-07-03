@@ -12,7 +12,7 @@ trait SaveForLaterController {
   val serverErrorResponse = LambdaResponse(StatusCodes.internalServerError, Some("Server error."))
   val accessDenied = LambdaResponse(StatusCodes.forbidden, Some("Access denied"))
   val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
-  def maximumSavedArticlesErrorResponse(exception: Exception) = LambdaResponse(StatusCodes.entityToLarge, Some(mapper.writeValueAsString(ErrorResponse(List(Error("Payload too large", exception.getMessage))))))
+  def maximumSavedArticlesErrorResponse(exception: Exception) = LambdaResponse(StatusCodes.entityTooLarge, Some(mapper.writeValueAsString(ErrorResponse(List(Error("Payload too large", exception.getMessage))))))
   def okSyncedPrefsResponse(syncedPrefs: SyncedPrefs): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SyncedPrefsResponse("ok", syncedPrefs))))
   def okSavedArticlesResponse(savedArticles: SavedArticles): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticlesResponse("ok", savedArticles))))
 }
