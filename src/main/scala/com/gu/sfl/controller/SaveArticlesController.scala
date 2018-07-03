@@ -38,7 +38,7 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
           logger.debug("No articles found for user")
           Future { emptyArticlesResponse }
        case Failure(t: Throwable) =>
-          logger.debug(s"Error saving articles: ${t.getMessage}")
+          logger.error(s"Error saving articles: ${t.getMessage}")
           t match {
             case i: IdentityServiceException => Future.successful( identityErrorResponse )
             case m: MissingAccessTokenException => Future.successful(missingAccessTokenResponse )
