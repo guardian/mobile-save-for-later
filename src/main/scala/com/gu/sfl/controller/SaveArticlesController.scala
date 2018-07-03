@@ -43,7 +43,7 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
             case i: IdentityServiceException => Future.successful( identityErrorResponse )
             case m: MissingAccessTokenException => Future.successful(missingAccessTokenResponse )
             case u: UserNotFoundException => Future.successful(missingUserResponse)
-            case m: MaxSavedArticleTransgressionError => Future.successful(maximumSavedArticlesErrorResponse)
+            case m: MaxSavedArticleTransgressionError => Future.successful(maximumSavedArticlesErrorResponse(m))
             case _ => Future.successful( serverErrorResponse )
           }
      }

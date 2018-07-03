@@ -57,13 +57,13 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     
 
     "will not try to merge a list of articles with a length greater than the saved article limit" in new Setup {
-      private val articleSaveLimit = 2
-      override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(articleSaveLimit), savedArticlesPersistence)
+      private val maxSavedArticlesLimit = 2
+      override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(maxSavedArticlesLimit), savedArticlesPersistence)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
       there were no (savedArticlesPersistence).read(argThat(===(userId)))
       there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there were no (savedArticlesPersistence).update(any[String](), any[SavedArticles]())
-      saved mustEqual(Failure(MaxSavedArticleTransgressionError(s"Tried to save more than $articleSaveLimit articles.")))
+      saved mustEqual(Failure(MaxSavedArticleTransgressionError(s"The limit on number of saved articles is $maxSavedArticlesLimit")))
     }
 
     "failure to get current articles throws the correct exception" in new Setup {
