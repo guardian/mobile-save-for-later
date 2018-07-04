@@ -56,12 +56,20 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(savedArticles))))
   }
 
-  "ehen the user has no articles then the response contains an empty list" in new SetupWithUserId {
+  "when the user has no articles then the response contains an empty list" in new SetupWithUserId {
     val emptyArticles = SavedArticles("123454", List.empty)
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(emptyArticles)))
     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
   }
+
+  "when the user has never saved any articles the response contains an empty list" in new SetupWithUserId {
+     val emptyArticles = SavedArticles("1", List.empty)
+     savedArticlesPersistence.read(argThat(===(userId))).returns(Success(None))
+     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
+     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
+  }
+
 
   "when the identity api does not return a user id then no attemp is made to retrieve persisted articles" in new SeupWithoutUserId  {
     fetchSavedArticlesImpl.retrieveForUser(requestHeaders)

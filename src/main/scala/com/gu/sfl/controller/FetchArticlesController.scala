@@ -18,9 +18,6 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
             logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
          Future.successful { okSyncedPrefsResponse(syncedPrefs) }
-       case Success(None) =>
-         logger.debug("No articles found")
-         Future.successful { emptyArticlesResponse  }
        case Failure(ex) =>
          logger.error(s"Error trying to retrieve saved articles: ${ex.getMessage}")
          ex match {

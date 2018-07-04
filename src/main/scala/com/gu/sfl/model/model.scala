@@ -42,6 +42,7 @@ sealed trait SyncedPrefsData {
 object SavedArticles {
   def nextVersion() = Instant.now().toEpochMilli.toString
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
+  val empty = SavedArticles("1", List.empty)
 }
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {

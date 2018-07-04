@@ -18,6 +18,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
 
   private def wrapSavedArticles(userId: String, maybeSavedArticles: Try[Option[SavedArticles]]) : Try[Option[SyncedPrefs]] = maybeSavedArticles match {
     case Success(Some(articles)) => Success(Some(SyncedPrefs(userId, Some(articles))))
+    case Success(_) => Success(Some(SyncedPrefs(userId, Some(SavedArticles.empty))))
     case _ => Failure(RetrieveSavedArticlesError("Could not update articles"))
   }
 
