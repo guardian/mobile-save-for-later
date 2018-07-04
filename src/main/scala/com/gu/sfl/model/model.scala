@@ -50,7 +50,7 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def ordered: SavedArticles = copy(articles = articles.sorted.reverse)
 }
 
-case class ErrorResponse(errors: List[Error])
+case class ErrorResponse(status: String = "error", errors: List[Error])
 
 case class Error(message: String, description: String)
 
