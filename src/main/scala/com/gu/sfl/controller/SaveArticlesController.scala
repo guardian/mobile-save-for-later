@@ -44,7 +44,7 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
             case m: MissingAccessTokenException => Future.successful(missingAccessTokenResponse )
             case u: UserNotFoundException => Future.successful(missingUserResponse)
             case m: MaxSavedArticleTransgressionError => Future.successful(maximumSavedArticlesErrorResponse(m))
-            case _ => Future.successful( serverErrorResponse(t.getMessage) )
+            case _ => Future.successful( serverErrorResponse("Error updating articles") )
           }
      }
   }

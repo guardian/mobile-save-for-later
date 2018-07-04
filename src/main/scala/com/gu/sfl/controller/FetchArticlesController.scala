@@ -24,7 +24,7 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
            case e: IdentityServiceException => Future.successful( identityErrorResponse )
            case e: MissingAccessTokenException => Future.successful( missingAccessTokenResponse )
            case e: UserNotFoundException => Future.successful(missingUserResponse)
-           case _ => Future.successful(serverErrorResponse(ex.getMessage) )
+           case _ => Future.successful(serverErrorResponse("Error fetching articles") )
          }
      }
      futureResponse
