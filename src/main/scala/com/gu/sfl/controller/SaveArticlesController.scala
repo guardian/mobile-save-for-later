@@ -12,7 +12,9 @@ import com.gu.sfl.Logging
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils with Logging {
+class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
+
+  override def defaultErrorMessage: String = "Error saving articles"
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     val futureResponse = lambdaRequest match {
@@ -27,24 +29,20 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
   private def futureSave(triedRequest: Try[SavedArticles], requestHeaders: Map[String, String] ): Future[LambdaResponse] = {
      (for{
        articlestoSave <- Future.fromTry(triedRequest)
-       maybeSyncedPrefs <- updateSavedArticles.save(requestHeaders, articlestoSave)
+       maybeUpdatedArticles <- updateSavedArticles.save(requestHeaders, articlestoSave)
      }yield {
-       maybeSyncedPrefs
-     }).transformWith {
-       case Success(Some(syncedPrefs)) =>
+       maybeUpdatedArticles
+     }).map {
+       case Right(syncedPrefs) =>
          logger.debug("Got articles back from db")
-         Future { okSavedArticlesResponse(syncedPrefs) }
-       case Success(None) =>
-          logger.debug("No articles found for user")
-          Future { emptyArticlesResponse }
-       case Failure(t: Throwable) =>
-          logger.error(s"Error saving articles: ${t.getMessage}")
-          t match {
-            case i: IdentityServiceException => Future.successful( identityErrorResponse )
-            case m: MissingAccessTokenException => Future.successful(missingAccessTokenResponse )
-            case u: UserNotFoundException => Future.successful(missingUserResponse)
-            case m: MaxSavedArticleTransgressionError => Future.successful(maximumSavedArticlesErrorResponse(m))
-            case _ => Future.successful( serverErrorResponse("Error updating articles") )
+         okSavedArticlesResponse(syncedPrefs)
+       case Left(error) =>
+          logger.error(s"Error saving articles: ${error.message}")
+          processErrorResponse(error) {
+            case i: IdentityServiceException =>  identityErrorResponse
+            case m: MissingAccessTokenException => missingAccessTokenResponse
+            case u: UserNotFoundException => missingUserResponse
+            case m: MaxSavedArticleTransgressionError => maximumSavedArticlesErrorResponse(m.message)
           }
      }
   }

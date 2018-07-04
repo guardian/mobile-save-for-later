@@ -8,23 +8,24 @@ import com.gu.sfl.exception.{IdentityServiceException, MissingAccessTokenExcepti
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Logging {
+class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController  {
+
+  override def defaultErrorMessage: String = "Error fetching articles"
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
 
-     val futureResponse =  fetchSavedArticles.retrieveForUser(lambdaRequest.headers).transformWith {
-       case Success(Some(syncedPrefs)) =>
+     val futureResponse =  fetchSavedArticles.retrieveForUser(lambdaRequest.headers).map {
+       case Right(syncedPrefs) =>
          syncedPrefs.savedArticles.foreach ( sp =>
             logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
-         Future.successful { okSyncedPrefsResponse(syncedPrefs) }
-       case Failure(ex) =>
-         logger.error(s"Error trying to retrieve saved articles: ${ex.getMessage}")
-         ex match {
-           case e: IdentityServiceException => Future.successful( identityErrorResponse )
-           case e: MissingAccessTokenException => Future.successful( missingAccessTokenResponse )
-           case e: UserNotFoundException => Future.successful(missingUserResponse)
-           case _ => Future.successful(serverErrorResponse("Error fetching articles") )
+         okSyncedPrefsResponse(syncedPrefs)
+       case Left(ex) =>
+         logger.error(s"Error trying to retrieve saved articles: ${ex.message}")
+         processErrorResponse(ex) {
+           case e: IdentityServiceException =>  identityErrorResponse
+           case e: MissingAccessTokenException => missingAccessTokenResponse
+           case e: UserNotFoundException => missingUserResponse
          }
      }
      futureResponse
