@@ -6,13 +6,17 @@ import com.gu.sfl.model._
 import com.gu.sfl.util.StatusCodes
 
 trait SaveForLaterController {
-  val missingUserResponse = LambdaResponse(StatusCodes.forbidden, Some(mapper.writeValueAsString(ErrorResponse(List(Error("Access Denied", "Access Denied"))))))
-  val missingAccessTokenResponse = LambdaResponse(StatusCodes.badRequest, Some("could not find an access token."))
-  val identityErrorResponse = LambdaResponse(StatusCodes.internalServerError, Some("Could not retrieve user id."))
-  val serverErrorResponse = LambdaResponse(StatusCodes.internalServerError, Some("Server error."))
-  val accessDenied = LambdaResponse(StatusCodes.forbidden, Some("Access denied"))
+
+
+  def lambdaErrorResponse(statusCode:Int, errors: List[Error]) = LambdaResponse(statusCode, Some(mapper.writeValueAsString(ErrorResponse(errors = errors))))
+
+  val missingUserResponse = lambdaErrorResponse(StatusCodes.forbidden, List(Error("Access Denied", "Access Denied")))
+  val missingAccessTokenResponse = lambdaErrorResponse(StatusCodes.forbidden, List(Error("Access denied", "could not find an access token.")))
+  val identityErrorResponse = lambdaErrorResponse(StatusCodes.internalServerError, List(Error("Access denied","Could not retrieve user id.")))
   val emptyArticlesResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticles(List.empty))))
-  def maximumSavedArticlesErrorResponse(exception: Exception) = LambdaResponse(StatusCodes.entityTooLarge, Some(mapper.writeValueAsString(ErrorResponse(List(Error("Payload too large", exception.getMessage))))))
+
   def okSyncedPrefsResponse(syncedPrefs: SyncedPrefs): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SyncedPrefsResponse("ok", syncedPrefs))))
   def okSavedArticlesResponse(savedArticles: SavedArticles): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticlesResponse("ok", savedArticles))))
+  def serverErrorResponse(message: String) = lambdaErrorResponse(StatusCodes.internalServerError, List(Error("Server error.", message)))
+  def maximumSavedArticlesErrorResponse(exception: Exception) = lambdaErrorResponse(StatusCodes.entityTooLarge, (List(Error("Payload too large", exception.getMessage))))
 }
