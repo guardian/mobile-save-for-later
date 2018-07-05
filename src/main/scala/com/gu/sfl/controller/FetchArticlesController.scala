@@ -20,9 +20,9 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
             logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
          okSyncedPrefsResponse(syncedPrefs)
-       case Left(ex) =>
-         logger.error(s"Error trying to retrieve saved articles: ${ex.message}")
-         processErrorResponse(ex) {
+       case Left(error) =>
+         logger.error(s"Error trying to retrieve saved articles: ${error.message}")
+         processErrorResponse(error) {
            case e: IdentityServiceError =>  identityErrorResponse
            case e: MissingAccessTokenError => missingAccessTokenResponse
            case e: UserNotFoundError => missingUserResponse
