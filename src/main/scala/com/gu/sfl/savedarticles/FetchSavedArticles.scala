@@ -32,14 +32,14 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
           Future.successful(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
           logger.debug(s"no user found for AccessToken ${identityHeaders.accessToken}")
-          Future.successful(Left(new UserNotFoundException("Could not retrieve a user id")))
+          Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
         case Failure(_) =>
           logger.debug(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
-          Future.successful(Left(new IdentityServiceException("Could not get a response from the id api")))
+          Future.successful(Left(new IdentityServiceError("Could not get a response from the id api")))
       }
     }).getOrElse{
       logger.debug(s"Could not retrieve identity headers")
-      Future.successful(Left(MissingAccessTokenException("No access token on request")))
+      Future.successful(Left(MissingAccessTokenError("No access token on request")))
     }
   }
 }

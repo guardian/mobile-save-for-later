@@ -3,7 +3,7 @@ package com.gu.sfl.controller
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.savedarticles.FetchSavedArticles
 import com.gu.sfl.Logging
-import com.gu.sfl.exception.{IdentityServiceException, MissingAccessTokenException, UserNotFoundException}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -23,9 +23,9 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
        case Left(ex) =>
          logger.error(s"Error trying to retrieve saved articles: ${ex.message}")
          processErrorResponse(ex) {
-           case e: IdentityServiceException =>  identityErrorResponse
-           case e: MissingAccessTokenException => missingAccessTokenResponse
-           case e: UserNotFoundException => missingUserResponse
+           case e: IdentityServiceError =>  identityErrorResponse
+           case e: MissingAccessTokenError => missingAccessTokenResponse
+           case e: UserNotFoundError => missingUserResponse
          }
      }
      futureResponse

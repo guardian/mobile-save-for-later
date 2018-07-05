@@ -2,7 +2,7 @@ package com.gu.sfl.savedarticles
 
 import java.time.LocalDateTime
 
-import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceException, MissingAccessTokenException, UserNotFoundException}
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
@@ -35,7 +35,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
     updateResponse map {
       case Left(_) => fail("No IOxception thrown")
-      case Right(e) => e mustEqual(MissingAccessTokenException("No access token on request"))
+      case Right(e) => e mustEqual(MissingAccessTokenError("No access token on request"))
     }
   }
 
@@ -49,7 +49,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
     updateResponse map {
       case Left(_) => fail("No IOxception thrown")
-      case Right(e) => e mustEqual(UserNotFoundException("Could not retrieve a user id"))
+      case Right(e) => e mustEqual(UserNotFoundError("Could not retrieve a user id"))
     }
   }
 
@@ -65,7 +65,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
     updateResponse map {
       case Right(_) => fail("No IOxception thrown")
-      case Left(e) => e mustEqual(IdentityServiceException("Could not retrieve a user from the id api"))
+      case Left(e) => e mustEqual(IdentityServiceError("Could not retrieve a user from the id api"))
     }
   }
 
