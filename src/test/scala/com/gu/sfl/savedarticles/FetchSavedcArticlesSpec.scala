@@ -32,9 +32,9 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   "fetching articles without auth headers results in the correct exception" in new Setup {
     val invalidResult = Await.ready(fetchSavedArticlesImpl.retrieveForUser(Map.empty), Duration.Inf).value.get
 
-    invalidResult match {
-      case Success(_) => fail("No missing auth exception thrown")
-      case Failure(ex) => ex mustEqual(MissingAccessTokenException("No access token on request"))
+    invalidResult map {
+      case Left(_) => fail("No missing auth exception thrown")
+      case Right(ex) => ex mustEqual(MissingAccessTokenException("No access token on request"))
     }
   }
 
@@ -44,30 +44,29 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the identity service provides a user id we retrieve the articles from the persistence layers" in new SetupWithUserId {
-    //savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
-    fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-    //val r = Await.result(res, Duration.Inf)
+    val res = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
+    Await.result(res, Duration.Inf)
     there was one (savedArticlesPersistence).read(argThat(===(userId)))
   }
 
   "when the identity provides a user id the users saved articles are returned" in new SetupWithUserId {
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(savedArticles)))
     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(savedArticles))))
+    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(savedArticles))))
   }
 
   "when the user has no articles then the response contains an empty list" in new SetupWithUserId {
     val emptyArticles = SavedArticles("123454", List.empty)
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(emptyArticles)))
     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
+    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(emptyArticles))))
   }
 
   "when the user has never saved any articles the response contains an empty list" in new SetupWithUserId {
      val emptyArticles = SavedArticles("1", List.empty)
      savedArticlesPersistence.read(argThat(===(userId))).returns(Success(None))
      val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Some(SyncedPrefs(userId, Some(emptyArticles))))
+     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(emptyArticles))))
   }
 
 
@@ -78,18 +77,18 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
   "when the identity service does not provide a user id the correct error is returned" in new SeupWithoutUserId {
     val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
-    futureFetchException match {
-      case Success(_) => fail("No missing user errot")
-      case Failure(ex) => ex mustEqual(new UserNotFoundException("Could not retrieve a user id"))
+    futureFetchException map {
+      case Right(_) => fail("No missing user errot")
+      case Left(ex) => ex mustEqual(new UserNotFoundException("Could not retrieve a user id"))
     }
   }
 
   "when the identity service errors the correct error is returned" in new Setup {
     identityService.userFromRequest(any[IdentityHeader]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
-    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
-    futureFetchException match {
-      case Success(_) => fail("No missing user errot")
-      case Failure(ex) => ex mustEqual(new IdentityServiceException("Could not get a response from the id api"))
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf)
+    futureFetchException map {
+      case Right(_) => fail("No missing user errot")
+      case Left(ex) => ex mustEqual(new IdentityServiceException("Could not get a response from the id api"))
     }
   }
 

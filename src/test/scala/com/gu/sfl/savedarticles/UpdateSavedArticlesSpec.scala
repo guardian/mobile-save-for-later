@@ -33,9 +33,9 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
      val updateResponse = Await.ready(updateSavedArticles.save(Map.empty, savedArticles), Duration.Inf).value.get
 
-    updateResponse match {
-      case Success(_) => fail("No IOxception thrown")
-      case Failure(e) => e mustEqual(MissingAccessTokenException("No access token on request"))
+    updateResponse map {
+      case Left(_) => fail("No IOxception thrown")
+      case Right(e) => e mustEqual(MissingAccessTokenException("No access token on request"))
     }
   }
 
@@ -47,9 +47,9 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   "attempting to update the articles without a userid fails the correct exception" in new SetupWithNoUserId  {
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeaders, savedArticles), Duration.Inf).value.get
 
-    updateResponse match {
-      case Success(_) => fail("No IOxception thrown")
-      case Failure(e) => e mustEqual(UserNotFoundException("Could not retrieve a user id"))
+    updateResponse map {
+      case Left(_) => fail("No IOxception thrown")
+      case Right(e) => e mustEqual(UserNotFoundException("Could not retrieve a user id"))
     }
   }
 
@@ -63,9 +63,9 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     identityService.userFromRequest(any[IdentityHeader]()) returns (Future.failed(IdentityApiRequestError("Did not get identiy api response")))
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeaders, savedArticles), Duration.Inf).value.get
 
-    updateResponse match {
-      case Success(_) => fail("No IOxception thrown")
-      case Failure(e) => e mustEqual(IdentityServiceException("Could not retrieve a user from the id api"))
+    updateResponse map {
+      case Right(_) => fail("No IOxception thrown")
+      case Left(e) => e mustEqual(IdentityServiceException("Could not retrieve a user from the id api"))
     }
   }
 
@@ -75,14 +75,15 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the identity service returns a user id the articles are merged" in new SetUpWithUserId {
-    updateSavedArticles.save(requestHeaders, savedArticles)
+    val updateResponse = updateSavedArticles.save(requestHeaders, savedArticles)
+    Await.result(updateResponse, Duration.Inf)
     there was one(articlesMerger).updateWithRetryAndMerge(argThat(===(userId)), argThat(===(savedArticles)))
   }
 
   "when the identity service returns a user the updated articles are returned" in new SetUpWithUserId  {
-    articlesMerger.updateWithRetryAndMerge(any[String](), any[SavedArticles]()) returns (Success(Some(updatedSavedArticles)))
+    articlesMerger.updateWithRetryAndMerge(any[String](), any[SavedArticles]()) returns (Right(updatedSavedArticles))
     val updateResponse = updateSavedArticles.save(requestHeaders, savedArticles)
-    Await.result(updateResponse, Duration.Inf)  mustEqual(Some(updatedSavedArticles))
+    Await.result(updateResponse, Duration.Inf)  mustEqual(Right(updatedSavedArticles))
   }
 
   trait SetupWithNoUserId extends Setup {

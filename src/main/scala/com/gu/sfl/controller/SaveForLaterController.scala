@@ -25,12 +25,11 @@ trait SaveForLaterController extends Logging {
   def okSavedArticlesResponse(savedArticles: SavedArticles): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticlesResponse("ok", savedArticles))))
   def serverErrorResponse(message: String) = lambdaErrorResponse(StatusCodes.internalServerError, List(Error("Server error.", message)))
 
-  def processErrorResponse(error: SaveForLaterError)(errorResolutions: PartialFunction[SaveForLaterError, LambdaResponse] = PartialFunction.empty) : LambdaResponse = {
-    val errorResponseMaker = errorResolutions.orElse[SaveForLaterError, LambdaResponse] {
-      case _ =>
-        logger.error(s"Could not find correct response for: ${error}")
-        serverErrorResponse(defaultErrorMessage)
+  def processErrorResponse(error: SaveForLaterError)(errorResolutions: PartialFunction[SaveForLaterError, LambdaResponse]) : LambdaResponse = {
+    val lift = errorResolutions.lift
+    lift(error).getOrElse {
+      logger.error(s"Could not find correct response for: ${error}")
+      serverErrorResponse(defaultErrorMessage)
     }
-    errorResponseMaker(error)
   }
 }

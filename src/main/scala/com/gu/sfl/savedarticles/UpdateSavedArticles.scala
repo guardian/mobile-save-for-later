@@ -19,7 +19,8 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {
-        identityService.userFromRequest(identityHeaders) transformWith {
+      val eventualMaybeString = identityService.userFromRequest(identityHeaders)
+      eventualMaybeString transformWith {
           case Success(Some(userId)) =>
             logger.info(s"Attempting to save articles fo user: $userId")
             Future.successful(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))

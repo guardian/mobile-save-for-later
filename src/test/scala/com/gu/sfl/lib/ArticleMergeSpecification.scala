@@ -30,7 +30,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
     "saves the articles if the user does not currently have any articles saved" in new Setup {
       val responseArticles = Success(Some(savedArticles.advanceVersion))
-      val expectedMergeResponse = Success(Some(savedArticles.advanceVersion))
+      val expectedMergeResponse = Right(savedArticles.advanceVersion)
 
       savedArticlesPersistence.read(userId) returns (Success(None))
       savedArticlesPersistence.write(userId, savedArticles) returns (responseArticles)
@@ -44,7 +44,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
     "will update the the users' saved articles if there is no conflict" in new Setup {
       val responseArticles = Success(Some(savedArticles2.advanceVersion))
-      val expectedMergeResponse = Success(Some(savedArticles2.advanceVersion))
+      val expectedMergeResponse = Right(savedArticles2.advanceVersion)
 
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
       savedArticlesPersistence.update(argThat(===(userId)), argThat(===(savedArticles2))) returns(responseArticles)
@@ -63,14 +63,14 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       there were no (savedArticlesPersistence).read(argThat(===(userId)))
       there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there were no (savedArticlesPersistence).update(any[String](), any[SavedArticles]())
-      saved mustEqual(Failure(MaxSavedArticleTransgressionError(s"The limit on number of saved articles is $maxSavedArticlesLimit")))
+      saved mustEqual(Left(MaxSavedArticleTransgressionError(s"The limit on number of saved articles is $maxSavedArticlesLimit")))
     }
 
     "failure to get current articles throws the correct exception" in new Setup {
       savedArticlesPersistence.read(userId) returns (Failure(new IllegalStateException("Bad, bad, bad")))
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      saved shouldEqual (Failure(SavedArticleMergeError("Could not retrieve current articles")))
+      saved shouldEqual (Left(SavedArticleMergeError("Could not retrieve current articles")))
     }
 
     "failure to update the saved articles results in the currect error" in new Setup {
@@ -78,7 +78,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.write(userId, savedArticles) returns (Failure(new IllegalStateException("My mummy told me to be good, but I was naughty")))
 
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
-      saved shouldEqual (Failure(SavedArticleMergeError("Could not update articles")))
+      saved shouldEqual (Left(SavedArticleMergeError("Could not update articles")))
     }
   }
 
