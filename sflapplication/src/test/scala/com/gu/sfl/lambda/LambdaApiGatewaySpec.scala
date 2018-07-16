@@ -9,7 +9,6 @@ import com.gu.sfl.util.ScalaCheckUtils.genCommonAscii
 import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
-import sfl.lambda.{LambdaApiGatewayImpl, LambdaRequest, LambdaResponse}
 
 import scala.concurrent.Future
 

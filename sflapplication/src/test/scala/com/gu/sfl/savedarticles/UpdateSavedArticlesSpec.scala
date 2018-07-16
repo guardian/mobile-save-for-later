@@ -2,15 +2,14 @@ package com.gu.sfl.savedarticles
 
 import java.time.LocalDateTime
 
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
+import com.gu.sfl.identity.{IdentityHeader, IdentityService}
+import com.gu.sfl.lib.SavedArticlesMerger
+import com.gu.sfl.model.{SavedArticle, SavedArticles}
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
-import sfl.identity.{IdentityHeader, IdentityService}
-import sfl.lib.SavedArticlesMerger
-import sfl.model.{SavedArticle, SavedArticles}
-import sfl.savedarticles.UpdateSavedArticlesImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

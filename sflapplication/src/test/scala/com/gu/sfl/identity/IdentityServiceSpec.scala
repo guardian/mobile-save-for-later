@@ -2,14 +2,14 @@ package com.gu.sfl.identity
 
 import java.io.IOException
 
+import com.gu.sfl.exception.IdentityApiRequestError
 import okhttp3._
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import sfl.exception.IdentityApiRequestError
-import sfl.identity.{IdentityConfig, IdentityHeader, IdentityServiceImpl}
-import sfl.lib.GlobalHttpClient
+import com.gu.sfl.identity.IdentityServiceImpl
+import com.gu.sfl.lib.GlobalHttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

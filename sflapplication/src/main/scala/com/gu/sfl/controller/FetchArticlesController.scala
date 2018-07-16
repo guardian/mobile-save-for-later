@@ -1,11 +1,10 @@
-package sfl.controller
+package com.gu.sfl.controller
 
-import sfl.lambda.{LambdaRequest, LambdaResponse}
-import sfl.savedarticles.FetchSavedArticles
-import sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
+import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
+import com.gu.sfl.savedarticles.FetchSavedArticles
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController  {
 

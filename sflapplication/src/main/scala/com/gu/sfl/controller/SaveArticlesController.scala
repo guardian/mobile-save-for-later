@@ -1,4 +1,4 @@
-package sfl.controller
+package com.gu.sfl.controller
 
 import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
@@ -9,7 +9,7 @@ import com.gu.sfl.savedarticles.UpdateSavedArticles
 import com.gu.sfl.util.StatusCodes
 import com.gu.sfl.Logging
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
 

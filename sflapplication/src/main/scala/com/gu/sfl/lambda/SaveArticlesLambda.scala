@@ -1,12 +1,13 @@
-package sfl.lambda
+package com.gu.sfl.lambda
 
 import com.gu.AwsIdentity
 import com.gu.sfl.Logging
-import sfl.controller.SaveArticlesController
-import sfl.identity.{IdentityConfig, IdentityServiceImpl}
-import sfl.lib._
-import sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
-import sfl.savedarticles.UpdateSavedArticlesImpl
+import com.gu.sfl.controller.SaveArticlesController
+import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.lib.{GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
+import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
+import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
+import sfl.lib.SsmConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

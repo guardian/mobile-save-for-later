@@ -1,11 +1,11 @@
-package sfl.savedarticles
+package com.gu.sfl.savedarticles
 
-import com.gu.sfl.Logging
-import sfl.exception._
-import sfl.identity.IdentityService
-import sfl.lib.AuthHeaderParser
-import sfl.model._
-import sfl.persisitence.SavedArticlesPersistence
+import com.gu.sfl.exception._
+import com.gu.sfl.identity.IdentityService
+import com.gu.sfl.lib.AuthHeaderParser
+import com.gu.sfl.{Logging, model}
+import com.gu.sfl.model.{SavedArticles, SyncedPrefs}
+import com.gu.sfl.persisitence.SavedArticlesPersistence
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}

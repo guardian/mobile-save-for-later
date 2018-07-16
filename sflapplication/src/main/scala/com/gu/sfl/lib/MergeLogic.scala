@@ -1,9 +1,10 @@
-package sfl.lib
+package com.gu.sfl.lib
+
+//This is a virtual straight rob from identity
 
 import scala.annotation.tailrec
 import scala.reflect.internal.util.Collections.distinctBy
 
-//This is a virtual straight rob from identity
 object MergeLogic {
 
   implicit class RichList[A](val l: List[A]) {
@@ -32,5 +33,3 @@ object MergeLogic {
   def mergeList[A](before: List[A], after: List[A])(implicit ordering: Ordering[A]): List[A] =
     mergeListBy[A, A](before, after)(identity)
 }
-
-

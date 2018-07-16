@@ -1,16 +1,9 @@
-package sfl.lib
+package com.gu.sfl.lib
 
 import com.gu.sfl.Logging
-<<<<<<< 027bb127efaaf386cd935ee3c4b89ffee6eb3a4b:src/main/scala/com/gu/sfl/lib/SavedArticlesMerger.scala
 import com.gu.sfl.exception.{SaveForLaterError, SavedArticleMergeError}
 import com.gu.sfl.model._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
-=======
-import sfl.exception.{MaxSavedArticleTransgressionError, SaveForLaterError, SavedArticleMergeError}
-import sfl.model._
-import sfl.persisitence.SavedArticlesPersistence
->>>>>>> move main application to sub-project:sflapplication/src/main/scala/gu/sfl/lib/SavedArticlesMerger.scala
-
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 

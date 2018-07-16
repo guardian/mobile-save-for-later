@@ -1,13 +1,11 @@
-package sfl.controller
+package com.gu.sfl.controller
 
 import com.gu.sfl.Logging
-import sfl.exception.SaveForLaterError
-import sfl.lambda.LambdaResponse
-import sfl.lib.Jackson.mapper
-import sfl.model._
-import sfl.util.StatusCodes
-
-import scala.concurrent.Future
+import com.gu.sfl.exception.SaveForLaterError
+import com.gu.sfl.lambda.LambdaResponse
+import com.gu.sfl.model.{Error, ErrorResponse, SavedArticles, SavedArticlesResponse, SyncedPrefs, SyncedPrefsResponse}
+import com.gu.sfl.util.StatusCodes
+import com.gu.sfl.lib.Jackson.mapper
 
 trait SaveForLaterController extends Logging {
 

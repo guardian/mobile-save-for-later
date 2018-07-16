@@ -1,10 +1,10 @@
-package sfl.identity
+package com.gu.sfl.identity
 
 import java.io.IOException
 
-import sfl.exception.IdentityApiRequestError
-import sfl.lib.Jackson._
 import com.gu.sfl.Logging
+import com.gu.sfl.exception.IdentityApiRequestError
+import com.gu.sfl.lib.Jackson._
 import okhttp3._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}

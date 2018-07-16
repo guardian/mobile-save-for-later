@@ -1,13 +1,13 @@
-package sfl.lambda
+package com.gu.sfl.lambda
 
 import java.io.{InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
 
 import com.gu.sfl.Logging
-import sfl.lib.Base64Utils
-import sfl.lib.Jackson._
-import sfl.util.StatusCodes
+import com.gu.sfl.lib.Base64Utils
 import org.apache.commons.io.IOUtils
+import com.gu.sfl.lib.Jackson._
+import com.gu.sfl.util.StatusCodes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

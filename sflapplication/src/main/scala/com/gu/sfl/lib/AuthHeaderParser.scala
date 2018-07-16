@@ -1,7 +1,8 @@
-package sfl.lib
+package com.gu.sfl.lib
 
-import sfl.identity.IdentityHeader
-import sfl.util.HeaderNames.Identity
+import com.gu.sfl.identity.IdentityHeader
+import com.gu.sfl.util.HeaderNames.Identity
+;
 
 trait AuthHeaderParser {
     def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeader] = {

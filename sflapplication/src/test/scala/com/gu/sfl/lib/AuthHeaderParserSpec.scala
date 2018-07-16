@@ -1,9 +1,8 @@
 package com.gu.sfl.lib
 
+import com.gu.sfl.identity.IdentityHeader
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import sfl.identity.IdentityHeader
-import sfl.lib.AuthHeaderParser
 
 class AuthHeaderParserSpec extends Specification {
   

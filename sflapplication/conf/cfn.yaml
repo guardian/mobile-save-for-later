@@ -168,7 +168,7 @@ Resources:
   SaveArticlesLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: sfl.lambda.SaveArticlesLambda::handleRequest
+      Handler: com.gu.sfl.lambda.SaveArticlesLambda::handleRequest
       Role: !GetAtt SaveForLaterRole.Arn
       Runtime: java8
       CodeUri:

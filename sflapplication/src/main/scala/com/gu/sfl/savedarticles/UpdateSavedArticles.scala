@@ -1,10 +1,10 @@
-package sfl.savedarticles
+package com.gu.sfl.savedarticles
 
 import com.gu.sfl.Logging
-import sfl.exception.{IdentityServiceError, MissingAccessTokenError, SaveForLaterError, UserNotFoundError}
-import sfl.identity.IdentityService
-import sfl.lib.{AuthHeaderParser, SavedArticlesMerger}
-import sfl.model.{SavedArticles, SyncedPrefs}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, SaveForLaterError, UserNotFoundError}
+import com.gu.sfl.identity.IdentityService
+import com.gu.sfl.lib.{AuthHeaderParser, SavedArticlesMerger}
+import com.gu.sfl.model.SavedArticles
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

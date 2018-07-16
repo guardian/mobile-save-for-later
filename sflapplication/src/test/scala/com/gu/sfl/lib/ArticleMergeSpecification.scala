@@ -2,14 +2,12 @@ package com.gu.sfl.lib
 
 import java.time.LocalDateTime
 
+import com.gu.sfl.exception.SavedArticleMergeError
+import com.gu.sfl.model.{SavedArticle, SavedArticles}
+import com.gu.sfl.persisitence.SavedArticlesPersistenceImpl
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import sfl.exception.SavedArticleMergeError
-import sfl.lib.{SavedArticlesMergerConfig, SavedArticlesMergerImpl}
-import sfl.model.{SavedArticle, SavedArticles}
-import sfl.persisitence.SavedArticlesPersistenceImpl
-
 import scala.util.{Failure, Success}
 
 class ArticleMergeSpecification extends Specification with Mockito  {

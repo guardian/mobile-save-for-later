@@ -1,4 +1,4 @@
-package sfl.exception
+package com.gu.sfl.exception
 
 sealed trait SaveForLaterError {
   def message: String

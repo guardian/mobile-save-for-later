@@ -1,4 +1,4 @@
-package sfl.persisitence
+package com.gu.sfl.persisitence
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
@@ -6,8 +6,8 @@ import com.gu.scanamo.Scanamo.exec
 import com.gu.scanamo.Table
 import com.gu.scanamo.syntax.{set, _}
 import com.gu.sfl.Logging
-import sfl.lib.Jackson._
-import sfl.model._
+import com.gu.sfl.model.{SavedArticle, SavedArticles}
+import com.gu.sfl.lib.Jackson.mapper
 
 import scala.util.{Failure, Success, Try}
 

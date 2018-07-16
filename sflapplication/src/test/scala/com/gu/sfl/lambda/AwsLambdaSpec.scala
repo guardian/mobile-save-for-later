@@ -1,11 +1,12 @@
 package com.gu.sfl.lambda
 
+
+import com.gu.sfl.Logging
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 import org.apache.logging.log4j.core.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
-import sfl.lambda.{AwsLambda, LambdaRequest}
 
 import scala.util.Try
 

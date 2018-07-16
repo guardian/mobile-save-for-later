@@ -1,4 +1,4 @@
-package sfl.lambda
+package com.gu.sfl.lambda
 
 import java.io.{InputStream, OutputStream}
 
