@@ -1,4 +1,4 @@
-package sfl.model
+package com.gu.sfl.model
 
 import java.io.IOException
 import java.time.format.DateTimeFormatter
@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
-}
 
 @JsonDeserialize(using = classOf[SavedArticleDeserializer])
 @JsonSerialize(using = classOf[SavedArticleSerializer])
