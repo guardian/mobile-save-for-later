@@ -7,7 +7,7 @@ import scala.collection.immutable
 val testAndCompileDependencies: String = "test->test;compile->compile"
 
 lazy val sflapplication = project.enablePlugins(RiffRaffArtifact).settings(List(
-      name := "mobile-save-for-later",
+      name := "save-for-later",
       riffRaffManifestProjectName := s"Mobile::$name"
     ) ++ commonAssemblySettings("sflapplication")
   )
