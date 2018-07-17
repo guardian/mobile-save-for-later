@@ -10,7 +10,7 @@ def projectMaker(projectName: String) = Project(projectName, file(projectName))
     .enablePlugins(RiffRaffArtifact)
     .settings( List (
       name := projectName,
-      riffRaffManifestProjectName := s"Mobile::$name"
+      riffRaffManifestProjectName := s"Mobile::${name.value}"
     ) ++ commonAssemblySettings(projectName)
   )
 
