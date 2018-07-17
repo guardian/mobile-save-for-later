@@ -1,15 +1,17 @@
 import sbtassembly.MergeStrategy
 import Dependencies._
-import sbtassembly.AssemblyPlugin.autoImport.assemblyJarName
+ import sbtassembly.AssemblyPlugin.autoImport.assemblyJarName
 
 import scala.collection.immutable
 
 val testAndCompileDependencies: String = "test->test;compile->compile"
 
-lazy val sflapplication = project.enablePlugins(RiffRaffArtifact).settings(List(
-      name := "save-for-later",
+def projectMaker(projectName: String) = Project(projectName, file(projectName))
+    .enablePlugins(RiffRaffArtifact)
+    .settings( List (
+      name := projectName,
       riffRaffManifestProjectName := s"Mobile::$name"
-    ) ++ commonAssemblySettings("sflapplication")
+    ) ++ commonAssemblySettings(projectName)
   )
 
 def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]]  = commonSettings(module) ++ List (
@@ -72,5 +74,7 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
   )
 }
 
-lazy val root = project.in(file(".")).aggregate(sflapplication)
+lazy val saveforlaterapp = projectMaker("save-for-later-app")
+
+lazy val root = project.in(file(".")).aggregate(saveforlaterapp)
 

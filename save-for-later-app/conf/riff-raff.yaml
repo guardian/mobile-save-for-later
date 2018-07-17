@@ -2,7 +2,7 @@ stacks: [mobile]
 regions: [eu-west-1]
 
 deployments:
-  sflapplication:
+  save-for-later-app:
     type: aws-lambda
     parameters:
       bucket: mobile-dist
