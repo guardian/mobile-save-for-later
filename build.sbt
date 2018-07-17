@@ -26,10 +26,8 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]]  = com
   riffRaffPackageType := assembly.value,
   riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
   riffRaffUploadManifestBucket := Option("riffraff-builds"),
-  riffRaffArtifactResources += (
-    file(s"${name.value}/conf/riff-raff.yaml"), s"riff-raff.yaml",
-    file(s"${name.value}/conf/cfn.yaml"), s"${name.value}-cfn/cfn.yaml"
-  )
+  riffRaffArtifactResources += (file(s"${name.value}/conf/cfn.yaml"), s"${name.value}-cfn/cfn.yaml"),
+  riffRaffArtifactResources += (file(s"${name.value}/conf/riff-raff.yaml"), s"riff-raff.yaml")
 )
 
 def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
