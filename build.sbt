@@ -60,7 +60,6 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
       apacheLog4JCore,
       apacheLog$jApi
     ),
-    name := s"Mobile::${module}",
     organization := "com.gu",
     version := "1.0",
     scalaVersion := "2.12.5",
