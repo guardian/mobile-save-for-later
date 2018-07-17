@@ -2,7 +2,7 @@ stacks: [mobile]
 regions: [eu-west-1]
 
 deployments:
-  save-for-later-app:
+  mobile-save-for-later:
     type: aws-lambda
     parameters:
       bucket: mobile-dist
