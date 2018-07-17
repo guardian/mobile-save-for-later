@@ -74,7 +74,7 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
   )
 }
 
-lazy val saveforlaterapp = projectMaker("save-for-later-app")
+lazy val saveforlaterapp = projectMaker("mobile-save-for-later")
 
 lazy val root = project.in(file(".")).aggregate(saveforlaterapp)
 
