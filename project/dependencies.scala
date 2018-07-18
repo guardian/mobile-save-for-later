@@ -12,6 +12,8 @@ object Dependencies {
   val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307"
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.1.0"
   val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307"
+  val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % "1.11.368"
+
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
   val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
   val jacksonJdk8DataType = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion

@@ -41,6 +41,7 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
       awsDynamo,
       awsLambdaLog,
       awsJavaSdk,
+      awsSqs,
       jackson,
       jacksonDataFormat,
       jacksonJdk8DataType,
@@ -74,6 +75,8 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
 }
 
 lazy val saveforlaterapp = projectMaker("mobile-save-for-later")
+
+lazy val userDeletion = projectMaker("mobile-save-for-later-user-deletion")
 
 lazy val root = project.in(file(".")).aggregate(saveforlaterapp)
 

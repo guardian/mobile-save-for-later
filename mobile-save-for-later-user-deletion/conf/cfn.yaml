@@ -1,0 +1,103 @@
+AwsTemplateFormatVersion: 2010-09-09
+Description: Removes save-for-later data when a user deletes their account
+Parameters:
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: mobile
+  Stage:
+    Description: Stage name
+    Type: String
+    AllowedValues:
+      - CODE
+      - PROD
+  App:
+    Description: Application name
+    Type: Strin
+    Default: mobile-save-for-later-user-deletion
+  DeployBucket:
+    Description: S3 bucket where riff-raff uploads artifacts on deploy
+    Type: String
+    Default: mobile-dist
+
+Resources:
+  UserDeletionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: sts:AssumeRole
+          Principal:1
+            Service:
+              - lambda.amazonaws.com
+      Path: /
+      Policies:
+        PolicyName: dynamo-access
+        PolicyDocument:
+          Statement:
+            Effect: Allow
+            Action:
+              - dynamodb:*
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/mobile-save-for-later-${Stage}-articles
+        PolicyName:  logging
+        PolicyDocument:
+          Statement:
+            Effect: Allow
+            Action:
+              - logs.CreateLogGroup
+              - logs.CreateLogStream
+              - logs.PutLogEvents
+            Resource: "*"
+        PolicyName: invoke-lambda
+        PolicyDocument:
+          Statement:
+            Effect: Allow
+            Action:
+              - lamda:InvokeFunction
+            Resource: "*"
+        PolicyName: sqs-read
+        PolicyDocument:
+          Statements:
+            Effect: Allow
+            Action:
+              - sqs:RecieveMessage
+              - sqs:DeleteMessage
+            Resource:
+
+
+  UserIdDeleteQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: UserIdDeleteQueu
+
+  UserDeletionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${App}-${Stage}
+      Code:
+        S3Bucket:
+          Ref: DeployBucket
+        S3Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar1
+      Environment:
+        Variables:
+          App: !Sub ${App} 
+          Stack: !Sub ${Stack} 
+          Stage: !Sub ${Stage}
+      Description: Lamba that deletes saved for later data for deleted users
+      Handler: com.gu.sfl.userdeletion.DeletionLambda.handler
+      MemorySize: 128
+      Role: !GetAtt UserDeletionRole.Arn
+      Runtime: java8
+      Timeout: 80
+
+  UserDeletionEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref UserDeletionLambda
+      Enabled: true
+      EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
+      StartingPosition: LATEST
+
+
