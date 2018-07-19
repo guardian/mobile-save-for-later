@@ -64,6 +64,7 @@ Resources:
               Action:
                 - sqs:ReceiveMessage
                 - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
               Resource:
                 - !GetAtt UserIdDeleteQueue.Arn
 
@@ -87,11 +88,11 @@ Resources:
           Stack: !Sub ${Stack} 
           Stage: !Sub ${Stage}
       Description: Lamba that deletes saved for later data for deleted users
-      Handler: com.gu.sfl.userdeletion.DeletionLambda.handler
+      Handler: com.gu.sfl.userdeletion.UserDeletionLambda.handler
       MemorySize: 128
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
-      Timeout: 80
+      Timeout: 20
 
   UserDeletionEventSource:
     Type: AWS::Lambda::EventSourceMapping
@@ -99,6 +100,6 @@ Resources:
       FunctionName: !Ref UserDeletionLambda
       Enabled: true
       EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
-
+      BatchSize: 1
 
 
