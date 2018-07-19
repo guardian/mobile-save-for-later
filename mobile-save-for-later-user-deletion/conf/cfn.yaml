@@ -72,7 +72,7 @@ Resources:
   UserIdDeleteQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: UserIdDeleteQueu
+      QueueName: UserIdDeleteQueue
 
   UserDeletionLambda:
     Type: AWS::Lambda::Function
