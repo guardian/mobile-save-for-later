@@ -1,4 +1,4 @@
-AwsTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: '2010-09-09'
 Description: Removes save-for-later data when a user deletes their account
 Parameters:
   Stack:
@@ -13,7 +13,7 @@ Parameters:
       - PROD
   App:
     Description: Application name
-    Type: Strin
+    Type: String
     Default: mobile-save-for-later-user-deletion
   DeployBucket:
     Description: S3 bucket where riff-raff uploads artifacts on deploy
@@ -28,43 +28,44 @@ Resources:
         Statement:
           Effect: Allow
           Action: sts:AssumeRole
-          Principal:1
+          Principal:
             Service:
               - lambda.amazonaws.com
       Path: /
       Policies:
-        PolicyName: dynamo-access
-        PolicyDocument:
-          Statement:
-            Effect: Allow
-            Action:
-              - dynamodb:*
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/mobile-save-for-later-${Stage}-articles
-        PolicyName:  logging
-        PolicyDocument:
-          Statement:
-            Effect: Allow
-            Action:
-              - logs.CreateLogGroup
-              - logs.CreateLogStream
-              - logs.PutLogEvents
-            Resource: "*"
-        PolicyName: invoke-lambda
-        PolicyDocument:
-          Statement:
-            Effect: Allow
-            Action:
-              - lamda:InvokeFunction
-            Resource: "*"
-        PolicyName: sqs-read
-        PolicyDocument:
-          Statements:
-            Effect: Allow
-            Action:
-              - sqs:RecieveMessage
-              - sqs:DeleteMessage
-            Resource:
+        - PolicyName: dynamo-access
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource:
+                - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/mobile-save-for-later-${Stage}-articles
+        - PolicyName: logging
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+        - PolicyName: invoke-lambda
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - lamda:InvokeFunction
+              Resource: "*"
+        - PolicyName: sqs-read
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+              Resource:
+                - !GetAtt UserIdDeleteQueue.Arn
 
 
   UserIdDeleteQueue:
@@ -79,7 +80,7 @@ Resources:
       Code:
         S3Bucket:
           Ref: DeployBucket
-        S3Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar1
+        S3Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
       Environment:
         Variables:
           App: !Sub ${App} 
@@ -98,6 +99,6 @@ Resources:
       FunctionName: !Ref UserDeletionLambda
       Enabled: true
       EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
-      StartingPosition: LATEST
+
 
 
