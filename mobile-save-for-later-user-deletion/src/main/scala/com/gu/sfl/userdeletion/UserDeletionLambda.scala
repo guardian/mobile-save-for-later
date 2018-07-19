@@ -1,6 +1,7 @@
 package com.gu.sfl.userdeletion
 
 import com.amazonaws.services.sqs.model.Message
+import com.gu.sfl.logging.Logging
 
 object UserDeletionLambda extends Logging {
 

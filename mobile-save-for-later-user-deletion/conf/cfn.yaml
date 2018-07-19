@@ -88,7 +88,7 @@ Resources:
           Stack: !Sub ${Stack} 
           Stage: !Sub ${Stage}
       Description: Lamba that deletes saved for later data for deleted users
-      Handler: com.gu.sfl.userdeletion.UserDeletionLambda.handler
+      Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
       MemorySize: 128
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
