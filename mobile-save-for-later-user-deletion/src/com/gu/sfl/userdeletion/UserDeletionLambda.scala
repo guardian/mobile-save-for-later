@@ -1,4 +1,4 @@
-package com.gu.sfl
+package com.gu.sfl.userdeletion
 
 import com.amazonaws.services.sqs.model.Message
 
