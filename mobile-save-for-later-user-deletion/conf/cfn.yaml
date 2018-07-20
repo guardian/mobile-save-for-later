@@ -15,6 +15,11 @@ Parameters:
     Description: Application name
     Type: String
     Default: mobile-save-for-later-user-deletion
+  SaveForLaterApp:
+    Description: Application name of main sfl applcation
+    Type: String
+    Default: mobile-save-for-later
+
   DeployBucket:
     Description: S3 bucket where riff-raff uploads artifacts on deploy
     Type: String
@@ -87,9 +92,10 @@ Resources:
           App: !Sub ${App} 
           Stack: !Sub ${Stack} 
           Stage: !Sub ${Stage}
+          SaveForLaterApp: !Sub ${SaveForLaterApp}
       Description: Lamba that deletes saved for later data for deleted users
       Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
-      MemorySize: 128
+      MemorySize: 384
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
       Timeout: 20

@@ -11,10 +11,12 @@ import com.gu.sfl.lib.Jackson.mapper
 
 import scala.util.{Failure, Success, Try}
 
+//TODO refactor to commom
 case class PersistanceConfig(app: String, stage: String) {
   val tableName = s"$app-$stage-articles"
 }
 
+//Refactor to common
 case class DynamoSavedArticles(userId: String, version: String, articles: String)
 
 object DynamoSavedArticles  {
