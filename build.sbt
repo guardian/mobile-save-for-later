@@ -40,6 +40,7 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
       awsLambda,
       awsDynamo,
       awsLambdaLog,
+      awsLambdaEvent,
       awsJavaSdk,
       awsSqs,
       jackson,
