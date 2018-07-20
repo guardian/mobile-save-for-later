@@ -5,7 +5,8 @@ import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib.{GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
-import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
+import com.gu.sfl.persisitence.SavedArticlesPersistenceImpl
+import com.gu.sfl.persistance.PersistenceConfig
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 import sfl.lib.SsmConfig
 
@@ -24,7 +25,7 @@ object SaveArticlesLambda extends Logging {
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
               new SavedArticlesMergerImpl( SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
-                new SavedArticlesPersistenceImpl( PersistanceConfig(awsIdentity.app, awsIdentity.stage) )
+                new SavedArticlesPersistenceImpl( PersistenceConfig(awsIdentity.app, awsIdentity.stage) )
               )
             )
           )

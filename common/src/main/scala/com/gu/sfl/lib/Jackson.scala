@@ -7,7 +7,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-;
 
 object Jackson {
 
@@ -20,4 +19,5 @@ object Jackson {
   mapper.registerModule(DefaultScalaModule)
   mapper.registerModule(new Jdk8Module())
   mapper.registerModule(new JavaTimeModule())
+
 }

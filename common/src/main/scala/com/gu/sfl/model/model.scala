@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode, Seriali
 import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import com.gu.sfl.lib.Jackson.mapper
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
@@ -58,6 +59,14 @@ case class ErrorResponse(status: String = "error", errors: List[Error])
 
 case class Error(message: String, description: String)
 
+//Refactor to common
+case class DynamoSavedArticles(userId: String, version: String, articles: String)
+
+object DynamoSavedArticles  {
+  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
+}
+
+
 object SavedArticleDateSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
@@ -96,4 +105,6 @@ class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedA
     gen.writeEndObject()
   }
 }
+
+
 

@@ -1,22 +1,16 @@
-package com.gu.sfl.userdeletion
+package coml.gu.sfl.userdeletion.db
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2._
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
-import com.gu.sfl.logging.Logging
-import com.gu.scanamo.Table
 import com.gu.scanamo.Scanamo.exec
+import com.gu.scanamo.Table
 import com.gu.scanamo.syntax._
+import com.gu.sfl.Logging
+import com.gu.sfl.model.DynamoSavedArticles
+import com.gu.sfl.persistance.PersistenceConfig
 import com.gu.sfl.userdeletion.model.User
 
-
-case class DynamoSavedArticles(userId: String, version: String, articles: String)
-
-case class PersistanceConfig(appName: String, stage: String) {
-  val tableName = s"$appName-$stage-articles"
-}
-
-class SflDynamoDb(persistanceConfig: PersistanceConfig) extends Logging {
+class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
 
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
   private val client: AmazonDynamoDB = AmazonDynamoDBClient.builder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()

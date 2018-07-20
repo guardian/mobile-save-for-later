@@ -13,8 +13,10 @@ def projectMaker(projectName: String) = Project(projectName, file(projectName))
       riffRaffManifestProjectName := s"Mobile::${name.value}"
     ) ++ commonAssemblySettings(projectName)
   )
+  .dependsOn(common % "compile->compile").aggregate(common)
 
-def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]]  = commonSettings(module) ++ List (
+
+def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] = commonSettings ++ List (
   assemblyMergeStrategy in assembly := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
     case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" => new MergeFilesStrategy
@@ -29,8 +31,7 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]]  = com
   riffRaffArtifactResources += (file(s"${module}/conf/cfn.yaml"), s"${module}-cfn/cfn.yaml"),
 )
 
-def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
-  List(
+val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     fork := true, // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases"),
@@ -73,7 +74,9 @@ def commonSettings(module: String): immutable.Seq[Def.Setting[_]] = {
       "-Ywarn-dead-code"
    )
   )
-}
+
+lazy val common = project.in(file("common"))
+    .settings(commonSettings: _*)
 
 lazy val saveforlaterapp = projectMaker("mobile-save-for-later")
 

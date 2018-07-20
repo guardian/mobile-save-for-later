@@ -5,7 +5,8 @@ import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib.GlobalHttpClient
-import com.gu.sfl.persisitence.{PersistanceConfig, SavedArticlesPersistenceImpl}
+import com.gu.sfl.persisitence.SavedArticlesPersistenceImpl
+import com.gu.sfl.persistance.PersistenceConfig
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
 import sfl.lib.SsmConfig
 
@@ -23,7 +24,7 @@ object FetchArticlesLambda extends Logging {
           new FetchArticlesController(
             new FetchSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")),GlobalHttpClient.defaultHttpClient),
-              new SavedArticlesPersistenceImpl( PersistanceConfig(awsIdentity.app, awsIdentity.stage) )
+              new SavedArticlesPersistenceImpl( PersistenceConfig(awsIdentity.app, awsIdentity.stage) )
             )
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")

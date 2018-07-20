@@ -6,22 +6,12 @@ import com.gu.scanamo.Scanamo.exec
 import com.gu.scanamo.Table
 import com.gu.scanamo.syntax.{set, _}
 import com.gu.sfl.Logging
-import com.gu.sfl.model.{SavedArticle, SavedArticles}
+import com.gu.sfl.model._
+import com.gu.sfl.persistance.PersistenceConfig
 import com.gu.sfl.lib.Jackson.mapper
 
+
 import scala.util.{Failure, Success, Try}
-
-//TODO refactor to commom
-case class PersistanceConfig(app: String, stage: String) {
-  val tableName = s"$app-$stage-articles"
-}
-
-//Refactor to common
-case class DynamoSavedArticles(userId: String, version: String, articles: String)
-
-object DynamoSavedArticles  {
-  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
-}
 
 trait SavedArticlesPersistence {
   def read(userId: String) : Try[Option[SavedArticles]]
@@ -31,7 +21,7 @@ trait SavedArticlesPersistence {
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
-class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistence with Logging {
+class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends SavedArticlesPersistence with Logging {
 
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
