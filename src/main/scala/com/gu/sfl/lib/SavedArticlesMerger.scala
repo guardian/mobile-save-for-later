@@ -33,6 +33,12 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Either[SaveForLaterError, SavedArticles] = {
 
     val deDupedArticles = savedArticles.deduped
+
+    logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Dupicates removed: ${deDupedArticles.numberOfArticles} ")
+    if (savedArticles.numberOfArticles != deDupedArticles.numberOfArticles) {
+      logger.error(s"Attempt to save duplicate articles ${savedArticles.articles}")
+    }
+
     if( deDupedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
       logger.debug(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")
       val errorMsg = s"The limit on number of saved articles is $maxSavedArticlesLimit"
