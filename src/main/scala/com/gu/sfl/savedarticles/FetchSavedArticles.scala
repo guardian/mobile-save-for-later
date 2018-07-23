@@ -19,7 +19,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
   private def wrapSavedArticles(userId: String, maybeSavedArticles: Try[Option[SavedArticles]]) : Either[SaveForLaterError, SyncedPrefs] = maybeSavedArticles match {
     case Success(Some(articles)) =>
       val deduped = articles.deduped
-      logger.info(s"Retrieved ${articles.articles.length} for user ${userId}, de-duped: ${deduped}")
+      logger.info(s"Retrieved ${articles.articles.length} for user ${userId}, de-duped: ${deduped.articles.length}")
       Right(SyncedPrefs(userId, Some(deduped)))
     case Success(_) => Right(SyncedPrefs(userId, Some(SavedArticles.empty)))
     case _ => Left(RetrieveSavedArticlesError("Could not update articles"))

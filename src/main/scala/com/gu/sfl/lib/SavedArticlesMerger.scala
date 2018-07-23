@@ -36,7 +36,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
     logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Dupicates removed: ${deDupedArticles.numberOfArticles} ")
     if (savedArticles.numberOfArticles != deDupedArticles.numberOfArticles) {
-      logger.error(s"Attempt to save duplicate articles ${savedArticles.articles}")
+      logger.error(s"Attempt to save duplicate articles ${savedArticles.numberOfArticles}, deduped: ${deDupedArticles.numberOfArticles}")
     }
 
     if( deDupedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
