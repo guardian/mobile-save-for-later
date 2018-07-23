@@ -32,19 +32,20 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Either[SaveForLaterError, SavedArticles] = {
 
-    if( savedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
+    val deDupedArticles = savedArticles.deduped
+    if( deDupedArticles.articles.lengthCompare(maxSavedArticlesLimit) > 0 ){
       logger.debug(s"User $userId tried to save ${savedArticles.articles.length} articles. Limit is ${maxSavedArticlesLimit}.")
       val errorMsg = s"The limit on number of saved articles is $maxSavedArticlesLimit"
       Left(MaxSavedArticleTransgressionError(errorMsg))
     } else {
       savedArticlesPersistence.read(userId) match {
-        case Success(Some(currentArticles)) if currentArticles.version == savedArticles.version =>
-          persistMergedArticles(userId, savedArticles)(savedArticlesPersistence.update)
+        case Success(Some(currentArticles)) if currentArticles.version == deDupedArticles.version =>
+          persistMergedArticles(userId, deDupedArticles)(savedArticlesPersistence.update)
         case Success(Some(currentArticles)) =>
-          val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, savedArticles.articles)(_.id))
+          val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deDupedArticles.articles)(_.id))
           persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
         case Success(None) =>
-          persistMergedArticles(userId, savedArticles)(savedArticlesPersistence.write)
+          persistMergedArticles(userId, deDupedArticles)(savedArticlesPersistence.write)
         case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
       }
 
