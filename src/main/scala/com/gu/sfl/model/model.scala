@@ -47,7 +47,9 @@ object SavedArticles {
 
 case class SavedArticles(version: String, articles: List[SavedArticle]) extends SyncedPrefsData {
   override def advanceVersion: SavedArticles = copy(version = nextVersion)
+  lazy val numberOfArticles = articles.length
   def ordered: SavedArticles = copy(articles = articles.sorted.reverse)
+  def deduped = copy( articles = articles.groupBy(_.id).map(_._2.sorted.head).toList.sorted)
 }
 
 case class ErrorResponse(status: String = "error", errors: List[Error])

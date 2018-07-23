@@ -55,6 +55,15 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(savedArticles))))
   }
 
+  "when there are duplicates articles in the returned articles list they are removed" in new SetupWithUserId {
+    savedArticlesPersistence.read((argThat(===(userId)))) returns(Success(Some(savedArticleWithDupes)))
+    val articlesResult = Await.ready(fetchSavedArticlesImpl.retrieveForUser(Map.empty), Duration.Inf).value.get
+    articlesResult map {
+      case Left(_) => fail("Should not fail ever")
+      case Right(fetchedArticles) => fetchedArticles.savedArticles.map(_.articles).getOrElse(List.empty).map(_.id) mustEqual(articleIds)
+    }
+  }
+
   "when the user has no articles then the response contains an empty list" in new SetupWithUserId {
     val emptyArticles = SavedArticles("123454", List.empty)
     savedArticlesPersistence.read(argThat(===(userId))) returns(Success(Some(emptyArticles)))
@@ -106,10 +115,18 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     protected val version = "123432"
 
     val savedArticles = SavedArticles(version, List(
-      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 1, 16, 16, 30), read = true),
+      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 3, 16, 16, 30), read = true),
       SavedArticle("id/2", "p/2", LocalDateTime.of(2018, 2, 17, 17, 30), read = false),
-      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 3, 18, 18, 45), read = true)
+      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 1, 18, 18, 45), read = true)
     ))
+
+    lazy val articleIds = savedArticles.articles.map(_.id)
+
+    lazy val savedArticleWithDupes = savedArticles.copy(
+      articles = SavedArticle("id/1", "p/1", LocalDateTime.of(2014, 1, 16, 7, 30), read = true) :: SavedArticle("id/2", "p/2", LocalDateTime.of(2015, 2, 17, 17, 30), read = false) :: savedArticles.articles)
+
+
+
 
     val identityService = mock[IdentityService]
     val savedArticlesPersistence = mock[SavedArticlesPersistence]
