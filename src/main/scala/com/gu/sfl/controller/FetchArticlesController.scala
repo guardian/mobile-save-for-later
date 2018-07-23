@@ -17,7 +17,7 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
      val futureResponse =  fetchSavedArticles.retrieveForUser(lambdaRequest.headers).map {
        case Right(syncedPrefs) =>
          syncedPrefs.savedArticles.foreach ( sp =>
-            logger.info(s"Returning found: ${sp.articles.size} articles")
+            logger.debug(s"Returning found: ${sp.articles.size} articles")
          )
          okSyncedPrefsResponse(syncedPrefs)
        case Left(error) =>
