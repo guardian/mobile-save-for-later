@@ -17,7 +17,9 @@ trait FetchSavedArticles {
 class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPersistence: SavedArticlesPersistence)(implicit executionContext: ExecutionContext) extends FetchSavedArticles with Logging with AuthHeaderParser{
 
   private def wrapSavedArticles(userId: String, maybeSavedArticles: Try[Option[SavedArticles]]) : Either[SaveForLaterError, SyncedPrefs] = maybeSavedArticles match {
-    case Success(Some(articles)) => Right(SyncedPrefs(userId, Some(articles)))
+    case Success(Some(articles)) =>
+      logger.info(s"Retrieved ${articles.articles.length} for user ${userId}")
+      Right(SyncedPrefs(userId, Some(articles)))
     case Success(_) => Right(SyncedPrefs(userId, Some(SavedArticles.empty)))
     case _ => Left(RetrieveSavedArticlesError("Could not update articles"))
   }
