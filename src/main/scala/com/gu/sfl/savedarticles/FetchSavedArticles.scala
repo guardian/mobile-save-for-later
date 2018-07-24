@@ -22,7 +22,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
       logger.info(s"Retrieved ${articles.articles.length} for user ${userId}, de-duped: ${deduped.articles.length}")
       Right(SyncedPrefs(userId, Some(deduped)))
     case Success(_) => Right(SyncedPrefs(userId, Some(SavedArticles.empty)))
-    case _ => Left(RetrieveSavedArticlesError("Could not update articles"))
+    case _ => Left(RetrieveSavedArticlesError("Could not fetch articles"))
   }
 
   override def retrieveForUser(headers: Map[String, String]): Future[Either[SaveForLaterError, SyncedPrefs]] = {
@@ -34,7 +34,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
           logger.info(s"Got user id ${userId} from identity")
           Future.successful(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
-          logger.debug(s"no user found for AccessToken ${identityHeaders.accessToken}")
+          logger.debug(s"No user found for AccessToken ${identityHeaders.accessToken}")
           Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
         case Failure(_) =>
           logger.debug(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")

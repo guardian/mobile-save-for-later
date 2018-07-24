@@ -40,7 +40,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
-    logger.info(s"Attempting to retrived saved articles for user $userId")
+    logger.info(s"Attempting to retrieve saved articles for user $userId")
     exec(client)(table.get('userId -> userId)) match {
       case Some(Right(sa)) =>
         logger.debug(s"Retrieved articles for: $userId")
@@ -73,7 +73,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
   }
   
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    logger.info(s"Updating saved articles four ${userId}")
+    logger.info(s"Updating saved articles for ${userId}")
     exec(client)(table.update('userId -> userId,
       set('version -> savedArticles.nextVersion) and
       set('articles -> mapper.writeValueAsString(savedArticles.articles)))

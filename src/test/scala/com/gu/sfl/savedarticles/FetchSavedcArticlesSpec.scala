@@ -115,9 +115,9 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     protected val version = "123432"
 
     val savedArticles = SavedArticles(version, List(
-      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 3, 16, 16, 30), read = true),
+      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 1, 16, 16, 30), read = true),
       SavedArticle("id/2", "p/2", LocalDateTime.of(2018, 2, 17, 17, 30), read = false),
-      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 1, 18, 18, 45), read = true)
+      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 3, 18, 18, 45), read = true)
     ))
 
     lazy val articleIds = savedArticles.articles.map(_.id)
