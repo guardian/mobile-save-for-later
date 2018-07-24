@@ -19,11 +19,13 @@ Parameters:
     Description: Application name of main sfl applcation
     Type: String
     Default: mobile-save-for-later
-
   DeployBucket:
     Description: S3 bucket where riff-raff uploads artifacts on deploy
     Type: String
     Default: mobile-dist
+  IdentityDeleteUserSnsTopicArnBase:
+    Description: base form (sans platform) of the identity-account user deletion SNS
+    Type: String
 
 Resources:
   UserDeletionRole:
@@ -73,11 +75,38 @@ Resources:
               Resource:
                 - !GetAtt UserIdDeleteQueue.Arn
 
+  UserIdDeletionQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+              Resource: !GetAtt UserIdDeleteQueue.Arn
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Sub ${IdentityDeleteUserSnsTopicArnBase}-${Stage}
+
+       Queues: !Ref UserIdDeleteQueue
+
 
   UserIdDeleteQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: UserIdDeleteQueue
+      QueueName: !Sub UserIdDeleteQueue-${Stage}
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt UserIdDeletionDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  UserIdDeletionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub UserIdDeleteQueue-deadletter${Stage}
 
   UserDeletionLambda:
     Type: AWS::Lambda::Function

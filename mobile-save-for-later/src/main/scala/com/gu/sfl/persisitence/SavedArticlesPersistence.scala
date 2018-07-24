@@ -1,4 +1,4 @@
-package com.gu.sfl.persisitence
+package com.gu.sfl.persistance
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
@@ -6,12 +6,14 @@ import com.gu.scanamo.Scanamo.exec
 import com.gu.scanamo.Table
 import com.gu.scanamo.syntax.{set, _}
 import com.gu.sfl.Logging
+import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
-import com.gu.sfl.persistance.PersistenceConfig
-import com.gu.sfl.lib.Jackson.mapper
-
 
 import scala.util.{Failure, Success, Try}
+
+case class PersistanceConfig(app: String, stage: String) {
+  val tableName = s"$app-$stage-articles"
+}
 
 trait SavedArticlesPersistence {
   def read(userId: String) : Try[Option[SavedArticles]]
@@ -21,7 +23,7 @@ trait SavedArticlesPersistence {
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
-class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends SavedArticlesPersistence with Logging {
+class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistence with Logging {
 
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
@@ -63,20 +65,20 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
       }
     }
   }
-  
+
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info(s"Updating saved articles for ${userId}")
     exec(client)(table.update('userId -> userId,
       set('version -> savedArticles.nextVersion) and
-      set('articles -> mapper.writeValueAsString(savedArticles.articles)))
+        set('articles -> mapper.writeValueAsString(savedArticles.articles)))
     ) match {
-        case Right(articles) =>
-          logger.debug("Updated articles")
-          Success(Some(articles.ordered))
-        case Left(error) =>
-          val ex = new IllegalStateException(s"${error}")
-          logger.error(s"Error updating articles for userId ${userId}: ${ex.getMessage} ")
-          Failure(ex)
+      case Right(articles) =>
+        logger.debug("Updated articles")
+        Success(Some(articles.ordered))
+      case Left(error) =>
+        val ex = new IllegalStateException(s"${error}")
+        logger.error(s"Error updating articles for userId ${userId}: ${ex.getMessage} ")
+        Failure(ex)
     }
   }
 }

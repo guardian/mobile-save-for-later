@@ -8,7 +8,6 @@ import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import com.gu.sfl.identity.IdentityServiceImpl
 import com.gu.sfl.lib.GlobalHttpClient
 
 import scala.concurrent.Await

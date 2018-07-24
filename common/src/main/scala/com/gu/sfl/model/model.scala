@@ -15,6 +15,7 @@ import com.gu.sfl.lib.Jackson.mapper
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
+}
 
 @JsonDeserialize(using = classOf[SavedArticleDeserializer])
 @JsonSerialize(using = classOf[SavedArticleSerializer])
@@ -49,7 +50,6 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   override def advanceVersion: SavedArticles = copy(version = nextVersion)
   @JsonIgnore
   lazy val numberOfArticles = articles.length
-  //NewestFirst
   def ordered: SavedArticles = copy(articles = articles.sorted)
   def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.max).toList.sorted )
   def mostRecent(limit: Int) = copy( articles = articles.sorted.takeRight(limit)  )
@@ -105,6 +105,4 @@ class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedA
     gen.writeEndObject()
   }
 }
-
-
 

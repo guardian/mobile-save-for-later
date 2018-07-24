@@ -5,23 +5,23 @@ import java.time.LocalDateTime
 import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
-import com.gu.sfl.persisitence.SavedArticlesPersistence
+import com.gu.sfl.persistance.SavedArticlesPersistence
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.util.Success
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Mockito {
 
   "Fetch articles without auth headers does ot call identity api" in new Setup {
-     fetchSavedArticlesImpl.retrieveForUser(Map.empty)
-     there were no(identityService).userFromRequest(any[IdentityHeader]())
+    fetchSavedArticlesImpl.retrieveForUser(Map.empty)
+    there were no(identityService).userFromRequest(any[IdentityHeader]())
   }
 
   "Fetch articles without auth headers does not attempt to retrieve persisitin articles" in new Setup {
@@ -72,10 +72,10 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the user has never saved any articles the response contains an empty list" in new SetupWithUserId {
-     val emptyArticles = SavedArticles("1", List.empty)
-     savedArticlesPersistence.read(argThat(===(userId))).returns(Success(None))
-     val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-     Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(emptyArticles))))
+    val emptyArticles = SavedArticles("1", List.empty)
+    savedArticlesPersistence.read(argThat(===(userId))).returns(Success(None))
+    val savedArticlesFuture = fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
+    Await.result(savedArticlesFuture, Duration.Inf) mustEqual(Right(SyncedPrefs(userId, Some(emptyArticles))))
   }
 
 
@@ -115,9 +115,9 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     protected val version = "123432"
 
     val savedArticles = SavedArticles(version, List(
-      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 1, 16, 16, 30), read = true),
+      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 3, 16, 16, 30), read = true),
       SavedArticle("id/2", "p/2", LocalDateTime.of(2018, 2, 17, 17, 30), read = false),
-      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 3, 18, 18, 45), read = true)
+      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 1, 18, 18, 45), read = true)
     ))
 
     lazy val articleIds = savedArticles.articles.map(_.id)
@@ -125,17 +125,11 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     lazy val savedArticleWithDupes = savedArticles.copy(
       articles = SavedArticle("id/1", "p/1", LocalDateTime.of(2014, 1, 16, 7, 30), read = true) :: SavedArticle("id/2", "p/2", LocalDateTime.of(2015, 2, 17, 17, 30), read = false) :: savedArticles.articles)
 
-
-
-
     val identityService = mock[IdentityService]
     val savedArticlesPersistence = mock[SavedArticlesPersistence]
 
     val fetchSavedArticlesImpl = new FetchSavedArticlesImpl(identityService, savedArticlesPersistence)
     val requestHeaders = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")
     val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
-
-
   }
-
 }

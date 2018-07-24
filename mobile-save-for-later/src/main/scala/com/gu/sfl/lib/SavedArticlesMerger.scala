@@ -3,7 +3,8 @@ package com.gu.sfl.lib
 import com.gu.sfl.Logging
 import com.gu.sfl.exception.{SaveForLaterError, SavedArticleMergeError}
 import com.gu.sfl.model._
-import com.gu.sfl.persisitence.SavedArticlesPersistence
+import com.gu.sfl.persistance.SavedArticlesPersistence
+
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
@@ -39,7 +40,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
         persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
       case Success(Some(currentArticles)) =>
         val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deduplicatedArticles.articles)(_.id))
-       persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
+        persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
       case Success(None) =>
         persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
       case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
