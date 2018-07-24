@@ -18,10 +18,10 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     val version = "1"
 
     val (article1, article2, article3, article4) = (
-      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 1, 16, 16, 30), read = true),
-      SavedArticle("id/2", "p/2", LocalDateTime.of(2018, 2, 17, 17, 30), read = false),
-      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 3, 18, 18, 30), read = true),
-      SavedArticle("id/4", "p/4", LocalDateTime.of(2018, 4, 19, 19, 30), read = true)
+      SavedArticle("id/1", "p/1", LocalDateTime.of(2018, 4, 16, 16, 30), read = true),
+      SavedArticle("id/2", "p/2", LocalDateTime.of(2018, 3, 17, 17, 30), read = false),
+      SavedArticle("id/3", "p/3", LocalDateTime.of(2018, 2, 18, 18, 30), read = true),
+      SavedArticle("id/4", "p/4", LocalDateTime.of(2018, 1, 19, 19, 30), read = true)
     )
 
 
@@ -62,7 +62,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     "will merge articles if there is a cnnflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
-      val expectedMergedArticles = SavedArticles("2", List(article3, article2, article1))
+      val expectedMergedArticles = SavedArticles("2", List(article1, article2, article3))
       savedArticlesPersistence.read(userId) returns(Success(Some(articlesCurrentlySaved)))
       savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedMergedArticles.advanceVersion)))
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
@@ -72,7 +72,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     "will dedupe merged articles if there is a conflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1Dup, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
-      val expectedMergedArticles = SavedArticles("2", List(article3, article2, article1))
+      val expectedMergedArticles = SavedArticles("2", List(article1, article2, article3))
       savedArticlesPersistence.read(userId) returns(Success(Some(articlesCurrentlySaved)))
       savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedMergedArticles.advanceVersion)))
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
