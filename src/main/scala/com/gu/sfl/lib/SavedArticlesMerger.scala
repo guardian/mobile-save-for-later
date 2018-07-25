@@ -1,7 +1,7 @@
 package com.gu.sfl.lib
 
 import com.gu.sfl.Logging
-import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SaveForLaterError, SavedArticleMergeError}
+import com.gu.sfl.exception.{SaveForLaterError, SavedArticleMergeError}
 import com.gu.sfl.model._
 import com.gu.sfl.persisitence.SavedArticlesPersistence
 
@@ -47,6 +47,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
     }
   }
 
+  //This is done here for debugging puposes. To be removed when we are connfident it's no longer needed
   private def getArticlesToPersist(savedArticles: SavedArticles) : SavedArticles = {
     val deDupedArticles = savedArticles.deduped
     logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Dupicates removed: ${deDupedArticles.numberOfArticles} ")

@@ -2,8 +2,8 @@ package com.gu.sfl.lib
 
 import java.time.LocalDateTime
 
-import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
-import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
+import com.gu.sfl.exception.SavedArticleMergeError
+import com.gu.sfl.model.{SavedArticle, SavedArticles}
 import com.gu.sfl.persisitence.SavedArticlesPersistenceImpl
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
