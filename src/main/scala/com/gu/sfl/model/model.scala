@@ -49,9 +49,9 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   override def advanceVersion: SavedArticles = copy(version = nextVersion)
   @JsonIgnore
   lazy val numberOfArticles = articles.length
-  lazy val dedupedArticles = articles.groupBy(_.id).map(_._2.sorted.head).toList.sorted  //NewestFirst
+  //NewestFirst
   def ordered: SavedArticles = copy(articles = articles.sorted.reverse)
-  def deduped: SavedArticles = copy( articles = dedupedArticles.reverse )
+  def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.sorted.head).toList.sorted.reverse )
   def persitable(limit: Int) = copy( articles = articles.sorted.reverse.takeRight(limit)  )
 }
 
