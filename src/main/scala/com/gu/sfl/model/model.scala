@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
-  implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date).reverse
+  implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 
 @JsonDeserialize(using = classOf[SavedArticleDeserializer])
@@ -50,9 +50,9 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   @JsonIgnore
   lazy val numberOfArticles = articles.length
   //NewestFirst
-  def ordered: SavedArticles = copy(articles = articles.sorted.reverse)
-  def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.sorted.head).toList.sorted.reverse )
-  def persitable(limit: Int) = copy( articles = articles.sorted.reverse.takeRight(limit)  )
+  def ordered: SavedArticles = copy(articles = articles.sorted)
+  def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.max).toList.sorted )
+  def persitable(limit: Int) = copy( articles = articles.sorted.takeRight(limit)  )
 }
 
 case class ErrorResponse(status: String = "error", errors: List[Error])
