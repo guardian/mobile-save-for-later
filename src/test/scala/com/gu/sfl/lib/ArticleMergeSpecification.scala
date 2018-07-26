@@ -2,8 +2,8 @@ package com.gu.sfl.lib
 
 import java.time.LocalDateTime
 
-import com.gu.sfl.exception.{MaxSavedArticleTransgressionError, SavedArticleMergeError}
-import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
+import com.gu.sfl.exception.SavedArticleMergeError
+import com.gu.sfl.model.{SavedArticle, SavedArticles}
 import com.gu.sfl.persisitence.SavedArticlesPersistenceImpl
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -62,7 +62,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     "will merge articles if there is a cnnflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
-      val expectedMergedArticles = SavedArticles("2", List(article3, article2, article1))
+      val expectedMergedArticles = SavedArticles("2", List(article1, article2, article3))
       savedArticlesPersistence.read(userId) returns(Success(Some(articlesCurrentlySaved)))
       savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedMergedArticles.advanceVersion)))
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
@@ -72,7 +72,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     "will dedupe merged articles if there is a conflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1Dup, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
-      val expectedMergedArticles = SavedArticles("2", List(article3, article2, article1))
+      val expectedMergedArticles = SavedArticles("2", List(article1, article2, article3))
       savedArticlesPersistence.read(userId) returns(Success(Some(articlesCurrentlySaved)))
       savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedMergedArticles.advanceVersion)))
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
@@ -80,14 +80,38 @@ class ArticleMergeSpecification extends Specification with Mockito  {
     }
     
 
-    "will not try to merge a list of articles with a length greater than the saved article limit" in new Setup {
+    "will select the latest articles up to the limit where the article limit is broken and there is no conflict`" in new Setup {
+      private val maxSavedArticlesLimit = 2
+
+      override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(maxSavedArticlesLimit), savedArticlesPersistence)
+      val expectedArticlesPersisted = savedArticles.copy(articles = List(article2, article3))
+      val expectedMergeResponse = Right(expectedArticlesPersisted.advanceVersion)
+      savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedArticlesPersisted.advanceVersion)))
+      savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
+      val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
+
+      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedArticlesPersisted)))
+      saved mustEqual(expectedMergeResponse)
+    }
+
+    "will select the latest articles up to the limit where the article limit is broken and there is a conflict" in new Setup {
       private val maxSavedArticlesLimit = 2
       override val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(maxSavedArticlesLimit), savedArticlesPersistence)
-      val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
-      there were no (savedArticlesPersistence).read(argThat(===(userId)))
+
+      val articlesCurrentlySaved = SavedArticles("2", List(article1, article2))
+      val articlesToSave = SavedArticles("1", List(article1, article2, article3))
+
+      //Returns an object consisting of the version currently saved and the latest 2 of th
+      val expectedArticlesPersisted = SavedArticles("2", List(article2, article3))
+      val expectedMergeResponse = Right(expectedArticlesPersisted.advanceVersion)
+
+      savedArticlesPersistence.read(any[String]()) returns(Success(Some(articlesCurrentlySaved)))
+      savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedArticlesPersisted.advanceVersion)))
+      val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
       there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
-      there were no (savedArticlesPersistence).update(any[String](), any[SavedArticles]())
-      saved mustEqual(Left(MaxSavedArticleTransgressionError(s"The limit on number of saved articles is $maxSavedArticlesLimit")))
+      there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedArticlesPersisted)))
+      saved mustEqual(expectedMergeResponse)
     }
 
     "will dedupe articles before checking whether the article limit hs been transgressed" in new Setup {

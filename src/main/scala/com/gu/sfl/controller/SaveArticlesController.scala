@@ -1,6 +1,6 @@
 package com.gu.sfl.controller
 
-import com.gu.sfl.exception.{IdentityServiceError, MaxSavedArticleTransgressionError, MissingAccessTokenError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
@@ -42,7 +42,6 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
             case i: IdentityServiceError =>  identityErrorResponse
             case m: MissingAccessTokenError => missingAccessTokenResponse
             case u: UserNotFoundError => missingUserResponse
-            case m: MaxSavedArticleTransgressionError => maximumSavedArticlesErrorResponse(m.message)
           }
      }
   }
