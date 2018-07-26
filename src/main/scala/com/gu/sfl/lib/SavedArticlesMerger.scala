@@ -33,30 +33,24 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Either[SaveForLaterError, SavedArticles] = {
 
-    val articlesToPersist = getArticlesToPersist(savedArticles)
+    val deduplicatedArticles = getDedupedArticles(savedArticles)
 
     savedArticlesPersistence.read(userId) match {
-      case Success(Some(currentArticles)) if currentArticles.version == articlesToPersist.version =>
-        persistMergedArticles(userId, articlesToPersist)(savedArticlesPersistence.update)
+      case Success(Some(currentArticles)) if currentArticles.version == deduplicatedArticles.version =>
+        persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
       case Success(Some(currentArticles)) =>
-        val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, articlesToPersist.articles)(_.id))
+        val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deduplicatedArticles.articles)(_.id))
        persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
       case Success(None) =>
-        persistMergedArticles(userId, articlesToPersist)(savedArticlesPersistence.write)
+        persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
       case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
     }
   }
 
   //This is done here for debugging puposes. To be removed when we are connfident it's no longer needed
-  private def getArticlesToPersist(savedArticles: SavedArticles) : SavedArticles = {
+  private def getDedupedArticles(savedArticles: SavedArticles) : SavedArticles = {
     val deDupedArticles = savedArticles.deduped
-    logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Dupicates removed: ${deDupedArticles.numberOfArticles} ")
-    if (savedArticles.numberOfArticles != deDupedArticles.numberOfArticles) {
-      logger.error(s"Attempt to save duplicate articles ${savedArticles.numberOfArticles}, deduped: ${deDupedArticles.numberOfArticles}")
-    }
-    if (savedArticles.numberOfArticles != deDupedArticles.numberOfArticles) {
-      logger.error(s"Attempt to save duplicate articles ${savedArticles.numberOfArticles}, deduped: ${deDupedArticles.numberOfArticles}")
-    }
+    logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Number with dupicates removed: ${deDupedArticles.numberOfArticles} ")
     deDupedArticles
   }
 }
