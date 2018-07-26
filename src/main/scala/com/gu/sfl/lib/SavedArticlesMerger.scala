@@ -19,7 +19,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
   val maxSavedArticlesLimit: Int = savedArticlesMergerConfig.maxSavedArticlesLimit
 
   private def persistMergedArticles(userId: String, articles: SavedArticles)( persistOperation: (String, SavedArticles) => Try[Option[SavedArticles]] ): Either[SaveForLaterError, SavedArticles] = {
-    val articlesToPersist = articles.persitable(savedArticlesMergerConfig.maxSavedArticlesLimit)
+    val articlesToPersist = articles.mostRecent(savedArticlesMergerConfig.maxSavedArticlesLimit)
     persistOperation(userId, articlesToPersist) match {
       case Success(Some(articles)) =>
         logger.debug(s"success persisting articles for ${userId}")
