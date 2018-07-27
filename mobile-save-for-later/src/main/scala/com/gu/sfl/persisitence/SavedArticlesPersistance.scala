@@ -15,7 +15,13 @@ case class PersistanceConfig(app: String, stage: String) {
   val tableName = s"$app-$stage-articles"
 }
 
-trait SavedArticlesPersistence {
+case class DynamoSavedArticles(userId: String, version: String, articles: String)
+
+object DynamoSavedArticles  {
+  def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
+}
+
+trait SavedArticlesPersistance {
   def read(userId: String) : Try[Option[SavedArticles]]
 
   def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
@@ -23,7 +29,7 @@ trait SavedArticlesPersistence {
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
-class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistence with Logging {
+class SavedArticlesPersistanceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistance with Logging {
 
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
@@ -82,4 +88,3 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistanceConfig) extends
     }
   }
 }
-

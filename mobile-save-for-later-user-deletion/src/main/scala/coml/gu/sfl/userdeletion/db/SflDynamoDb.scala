@@ -8,14 +8,14 @@ import com.gu.scanamo.syntax._
 import com.gu.sfl.Logging
 import com.gu.sfl.model.DynamoSavedArticles
 import com.gu.sfl.persistance.PersistenceConfig
-import com.gu.sfl.userdeletion.model.User
+import com.gu.sfl.userdeletion.model.UserDeleteMessage
 
 class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
 
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
   private val client: AmazonDynamoDB = AmazonDynamoDBClient.builder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
 
-  def deleteSavedArticleasForUser(user: User) : Boolean = {
+  def deleteSavedArticleasForUser(user: UserDeleteMessage) : Boolean = {
     logger.info(s"Deleting record for user id: ${user.userId}")
     val r = Option(exec(client)(table.delete('userId -> user.userId))).isDefined
     r match {

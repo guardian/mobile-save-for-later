@@ -84,15 +84,15 @@ Resources:
           - Effect: Allow
             Principal:
               AWS: "*"
-              Action:
-                - sqs:ReceiveMessage
-                - sqs:DeleteMessage
-              Resource: !GetAtt UserIdDeleteQueue.Arn
-              Condition:
-                ArnEquals:
-                  aws:SourceArn: !Sub ${IdentityDeleteUserSnsTopicArnBase}-${Stage}
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt UserIdDeleteQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub ${IdentityDeleteUserSnsTopicArnBase}-${Stage}
 
-       Queues: !Ref UserIdDeleteQueue
+      Queues:
+        - !Ref UserIdDeleteQueue
 
 
   UserIdDeleteQueue:
@@ -106,7 +106,7 @@ Resources:
   UserIdDeletionDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub UserIdDeleteQueue-deadletter${Stage}
+      QueueName: !Sub UserIdDeleteQueue-deadletter-${Stage}
 
   UserDeletionLambda:
     Type: AWS::Lambda::Function

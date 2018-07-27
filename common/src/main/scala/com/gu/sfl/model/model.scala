@@ -54,7 +54,6 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.max).toList.sorted )
   def mostRecent(limit: Int) = copy( articles = articles.sorted.takeRight(limit)  )
 }
-
 case class ErrorResponse(status: String = "error", errors: List[Error])
 
 case class Error(message: String, description: String)
