@@ -108,6 +108,34 @@ Resources:
     Properties:
       QueueName: !Sub UserIdDeleteQueue-deadletter-${Stage}
 
+  UserDeletionAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub UserDeletionQueueAlert-${Stage}
+      Subscription:
+        - Endpoint: mobile.server.side@theguardian.com
+          Protocol: email
+
+
+  UserDeletionQueueDepthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Ensure that the user ids are being deleted by the user deletion lambda"
+      Namespace: !Sub SaveForLater/${Stage}
+      MetricName: ApproxNumberOfPendingUserIdDeletions
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt 'UserIdDeleteQueue.QueueName'
+      Period: 3600
+      Statistic: Sum
+      EvaluationPeriods: 1
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 10
+      AlarmActions:
+        - Ref: UserDeletionAlarmTopic
+      InsufficientDataActions:
+        - Ref: UserDeletionAlarmTopic
+          
   UserDeletionLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -129,12 +157,6 @@ Resources:
       Runtime: java8
       Timeout: 20
 
-  UserDeletionEventSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      FunctionName: !Ref UserDeletionLambda
-      Enabled: true
-      EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
-      BatchSize: 5
 
+  
 
