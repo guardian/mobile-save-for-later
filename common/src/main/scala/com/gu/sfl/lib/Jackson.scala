@@ -19,5 +19,4 @@ object Jackson {
   mapper.registerModule(DefaultScalaModule)
   mapper.registerModule(new Jdk8Module())
   mapper.registerModule(new JavaTimeModule())
-
 }

@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager
 
 import scala.util.{Failure, Success, Try}
 
-//TODO mocv
 trait Logging {
   val logger = LogManager.getLogger(this.getClass.getName)
 

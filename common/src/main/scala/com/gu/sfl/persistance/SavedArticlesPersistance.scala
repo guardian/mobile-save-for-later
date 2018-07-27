@@ -75,7 +75,7 @@ class SavedArticlesPersistanceImpl(persistanceConfig: PersistanceConfig) extends
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     logger.info(s"Updating saved articles for ${userId}")
     exec(client)(table.update('userId -> userId,
-      set('version -> savedArticles.nextVersion) and
+        set('version -> savedArticles.nextVersion) and
         set('articles -> mapper.writeValueAsString(savedArticles.articles)))
     ) match {
       case Right(articles) =>

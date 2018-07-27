@@ -1,4 +1,4 @@
-package sfl.lib
+package com.gu.sfl.lib
 
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.sfl.Logging

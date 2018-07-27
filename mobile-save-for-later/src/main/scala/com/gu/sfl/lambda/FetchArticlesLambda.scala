@@ -7,7 +7,7 @@ import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib.GlobalHttpClient
 import com.gu.sfl.persistance.{PersistanceConfig, SavedArticlesPersistanceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
-import sfl.lib.SsmConfig
+import com.gu.sfl.lib.SsmConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

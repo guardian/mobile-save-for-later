@@ -58,13 +58,11 @@ case class ErrorResponse(status: String = "error", errors: List[Error])
 
 case class Error(message: String, description: String)
 
-//Refactor to common
 case class DynamoSavedArticles(userId: String, version: String, articles: String)
 
 object DynamoSavedArticles  {
   def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
 }
-
 
 object SavedArticleDateSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
