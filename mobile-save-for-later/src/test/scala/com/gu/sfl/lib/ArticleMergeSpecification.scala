@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import com.gu.sfl.exception.SavedArticleMergeError
 import com.gu.sfl.model.{SavedArticle, SavedArticles}
-import com.gu.sfl.persisitence.SavedArticlesPersistanceImpl
+import com.gu.sfl.persistance.SavedArticlesPersistanceImpl
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -147,7 +147,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
   }
 
   trait Setup extends Scope {
-    val savedArticlesPersistence = mock[SavedArticlesPersistenceImpl]
+    val savedArticlesPersistence = mock[SavedArticlesPersistanceImpl]
     val savedArticlesMerger = new SavedArticlesMergerImpl(SavedArticlesMergerConfig(20), savedArticlesPersistence)
   }
 

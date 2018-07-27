@@ -5,7 +5,7 @@ import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lib.GlobalHttpClient
-import com.gu.sfl.persistance.{PersistanceConfig, PersistenceConfig, SavedArticlesPersistanceImpl}
+import com.gu.sfl.persistance.{PersistanceConfig, SavedArticlesPersistanceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
 import sfl.lib.SsmConfig
 
