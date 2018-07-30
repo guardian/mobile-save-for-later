@@ -1,10 +1,10 @@
 package com.gu.sfl.savedarticles
 
+import com.gu.sfl.Logging
 import com.gu.sfl.exception._
 import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.AuthHeaderParser
 import com.gu.sfl.model._
-import com.gu.sfl.Logging
 import com.gu.sfl.persistence.SavedArticlesPersistence
 
 import scala.concurrent.{ExecutionContext, Future}

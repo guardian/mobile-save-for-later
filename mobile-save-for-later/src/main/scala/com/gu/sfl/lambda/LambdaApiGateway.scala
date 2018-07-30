@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets
 
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Base64Utils
-import org.apache.commons.io.IOUtils
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
+import org.apache.commons.io.IOUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

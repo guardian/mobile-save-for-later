@@ -1,7 +1,6 @@
 package com.gu.sfl.lambda
 
 
-import com.gu.sfl.Logging
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 import org.apache.logging.log4j.core.Logger

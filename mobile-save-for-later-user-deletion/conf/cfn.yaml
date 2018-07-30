@@ -63,7 +63,8 @@ Resources:
               Effect: Allow
               Action:
                 - lamda:InvokeFunction
-              Resource: "*"
+              Resource:
+                - !GetAtt UserDeletionLambda.Arn
         - PolicyName: sqs-read
           PolicyDocument:
             Statement:

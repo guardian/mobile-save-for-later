@@ -4,13 +4,12 @@ import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, User
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
-import com.gu.sfl.model.{SavedArticles, SyncedPrefs, SyncedPrefsResponse}
+import com.gu.sfl.model.SavedArticles
 import com.gu.sfl.savedarticles.UpdateSavedArticles
 import com.gu.sfl.util.StatusCodes
-import com.gu.sfl.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
 

@@ -6,8 +6,7 @@ import com.gu.scanamo.Scanamo.exec
 import com.gu.scanamo.Table
 import com.gu.scanamo.syntax._
 import com.gu.sfl.Logging
-import com.gu.sfl.model.DynamoSavedArticles
-import com.gu.sfl.persistence.PersistenceConfig
+import com.gu.sfl.persistence.{DynamoSavedArticles, PersistenceConfig}
 import com.gu.sfl.userdeletion.model.UserDeleteMessage
 
 class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
@@ -17,9 +16,9 @@ class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
 
   def deleteSavedArticleasForUser(user: UserDeleteMessage) = {
     logger.info(s"Deleting record for user id: ${user.userId}")
-    Option(exec(client)(table.delete('userId -> user.userId))).isDefined match {
-      case true => logger.info("Deleted ok")
-      case false => logger.info("unable to delete user record")
+    Option(exec(client)(table.delete('userId -> user.userId))) match {
+      case Some(_) => logger.info("Deleted ok")
+      case _ => logger.info("unable to delete user record")
     }
   }
 

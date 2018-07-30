@@ -4,10 +4,9 @@ import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
-import com.gu.sfl.lib.{GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
+import com.gu.sfl.lib.{GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl, SsmConfig}
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
-import com.gu.sfl.lib.SsmConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

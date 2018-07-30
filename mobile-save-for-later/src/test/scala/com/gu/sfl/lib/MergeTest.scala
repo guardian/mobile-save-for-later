@@ -1,7 +1,7 @@
 package com.gu.sfl.lib
 
-import org.specs2.mutable.Specification
 import com.gu.sfl.lib.MergeLogic._
+import org.specs2.mutable.Specification
 
 class MergeTest extends Specification {
 

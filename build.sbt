@@ -1,6 +1,6 @@
-import sbtassembly.MergeStrategy
 import Dependencies._
- import sbtassembly.AssemblyPlugin.autoImport.assemblyJarName
+import sbtassembly.AssemblyPlugin.autoImport.assemblyJarName
+import sbtassembly.MergeStrategy
 
 import scala.collection.immutable
 

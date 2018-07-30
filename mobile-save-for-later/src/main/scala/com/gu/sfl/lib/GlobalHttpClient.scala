@@ -1,6 +1,7 @@
 package com.gu.sfl.lib
 
 import java.util.concurrent.TimeUnit
+
 import okhttp3.{ConnectionPool, MediaType, OkHttpClient}
 
 object GlobalHttpClient {

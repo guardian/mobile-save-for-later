@@ -193,7 +193,7 @@ Resources:
   FetchArticlesLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: sfl.lambda.FetchArticlesLambda::handleRequest
+      Handler: com.gu.sfl.lambda.FetchArticlesLambda::handleRequest
       Role: !GetAtt SaveForLaterRole.Arn
       Runtime: java8
       CodeUri:

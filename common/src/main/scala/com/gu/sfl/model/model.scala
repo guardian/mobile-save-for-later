@@ -6,11 +6,10 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, JsonProcessingException}
-import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode, SerializerProvider}
 import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize}
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import com.gu.sfl.lib.Jackson.mapper
+import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode, SerializerProvider}
 
 object SavedArticle {
   implicit val localDateOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
