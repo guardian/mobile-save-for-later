@@ -64,7 +64,7 @@ Resources:
               Action:
                 - lamda:InvokeFunction
               Resource:
-                - !GetAtt UserDeletionLambda.Arn
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${App}-CODE
         - PolicyName: sqs-read
           PolicyDocument:
             Statement:
@@ -156,7 +156,15 @@ Resources:
       MemorySize: 384
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
-      Timeout: 20
+      Timeout: 300
+        
+  UserDeletionEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref UserDeletionLambda
+      Enabled: true
+      EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
+      BatchSize: 5
 
 
   
