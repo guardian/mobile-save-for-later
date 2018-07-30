@@ -7,10 +7,10 @@ import com.gu.scanamo.Table
 import com.gu.scanamo.syntax._
 import com.gu.sfl.Logging
 import com.gu.sfl.model.DynamoSavedArticles
-import com.gu.sfl.persistance.PersistanceConfig
+import com.gu.sfl.persistence.PersistenceConfig
 import com.gu.sfl.userdeletion.model.UserDeleteMessage
 
-class SflDynamoDb(persistanceConfig: PersistanceConfig) extends Logging {
+class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
 
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
   private val client: AmazonDynamoDB = AmazonDynamoDBClient.builder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()

@@ -1,4 +1,4 @@
-package com.gu.sfl.persistance
+package com.gu.sfl.persistence
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
@@ -11,7 +11,7 @@ import com.gu.sfl.model._
 
 import scala.util.{Failure, Success, Try}
 
-case class PersistanceConfig(app: String, stage: String) {
+case class PersistenceConfig(app: String, stage: String) {
   val tableName = s"$app-$stage-articles"
 }
 
@@ -21,7 +21,7 @@ object DynamoSavedArticles  {
   def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles = DynamoSavedArticles(userId, savedArticles.nextVersion, mapper.writeValueAsString(savedArticles.articles))
 }
 
-trait SavedArticlesPersistance {
+trait SavedArticlesPersistence {
   def read(userId: String) : Try[Option[SavedArticles]]
 
   def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
@@ -29,7 +29,7 @@ trait SavedArticlesPersistance {
   def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
-class SavedArticlesPersistanceImpl(persistanceConfig: PersistanceConfig) extends SavedArticlesPersistance with Logging {
+class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends SavedArticlesPersistence with Logging {
 
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)

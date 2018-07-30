@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
-import com.gu.sfl.persistance.SavedArticlesPersistance
+import com.gu.sfl.persistence.SavedArticlesPersistence
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -129,7 +129,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
 
     val identityService = mock[IdentityService]
-    val savedArticlesPersistence = mock[SavedArticlesPersistance]
+    val savedArticlesPersistence = mock[SavedArticlesPersistence]
 
     val fetchSavedArticlesImpl = new FetchSavedArticlesImpl(identityService, savedArticlesPersistence)
     val requestHeaders = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")

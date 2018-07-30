@@ -3,7 +3,7 @@ package com.gu.sfl.lib
 import com.gu.sfl.Logging
 import com.gu.sfl.exception.{SaveForLaterError, SavedArticleMergeError}
 import com.gu.sfl.model._
-import com.gu.sfl.persistance.SavedArticlesPersistance
+import com.gu.sfl.persistence.SavedArticlesPersistence
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
@@ -14,7 +14,7 @@ trait SavedArticlesMerger {
   def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Either[SaveForLaterError, SavedArticles]
 }
 
-class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConfig, savedArticlesPersistence: SavedArticlesPersistance) extends SavedArticlesMerger with Logging {
+class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConfig, savedArticlesPersistence: SavedArticlesPersistence) extends SavedArticlesMerger with Logging {
 
   val maxSavedArticlesLimit: Int = savedArticlesMergerConfig.maxSavedArticlesLimit
 
