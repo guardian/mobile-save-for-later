@@ -17,7 +17,7 @@ class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
 
   def deleteSavedArticleasForUser(user: UserDeleteMessage) = {
     logger.info(s"Deleting record for user id: ${user.userId}")
-    logger.info(Option(exec(client)(table.delete('userId -> user.userId))).fold(s"Unable to delete record for user ${user.userId}")((_: DeleteItemResult) => s"record for ${user.userId}") )
+    logger.info(Option(exec(client)(table.delete('userId -> user.userId))).fold(s"Unable to delete record for user ${user.userId}")((_: DeleteItemResult) => s"Deleted record for ${user.userId}") )
   }
 
 }
