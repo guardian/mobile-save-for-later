@@ -1,0 +1,171 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Removes save-for-later data when a user deletes their account
+Parameters:
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: mobile
+  Stage:
+    Description: Stage name
+    Type: String
+    AllowedValues:
+      - CODE
+      - PROD
+  App:
+    Description: Application name
+    Type: String
+    Default: mobile-save-for-later-user-deletion
+  SaveForLaterApp:
+    Description: Application name of main sfl applcation
+    Type: String
+    Default: mobile-save-for-later
+  DeployBucket:
+    Description: S3 bucket where riff-raff uploads artifacts on deploy
+    Type: String
+    Default: mobile-dist
+  IdentityDeleteUserSnsTopicArnBase:
+    Description: base form (sans platform) of the identity-account user deletion SNS
+    Type: String
+
+Resources:
+  UserDeletionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+      Path: /
+      Policies:
+        - PolicyName: dynamo-access
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource:
+                - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/mobile-save-for-later-${Stage}-articles
+        - PolicyName: logging
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+        - PolicyName: invoke-lambda
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - lamda:InvokeFunction
+              Resource:
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${App}-CODE
+        - PolicyName: sqs-read
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource:
+                - !GetAtt UserIdDeleteQueue.Arn
+
+  UserIdDeletionQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt UserIdDeleteQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub ${IdentityDeleteUserSnsTopicArnBase}-${Stage}
+
+      Queues:
+        - !Ref UserIdDeleteQueue
+
+
+  UserIdDeleteQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub UserIdDeleteQueue-${Stage}
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt UserIdDeletionDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  UserIdDeletionDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub UserIdDeleteQueue-deadletter-${Stage}
+
+  UserDeletionAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub UserDeletionQueueAlert-${Stage}
+      Subscription:
+        - Endpoint: mobile.server.side@theguardian.com
+          Protocol: email
+
+
+  UserDeletionQueueDepthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Ensure that the user ids are being deleted by the user deletion lambda"
+      Namespace: !Sub SaveForLater/${Stage}
+      MetricName: ApproxNumberOfPendingUserIdDeletions
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt 'UserIdDeleteQueue.QueueName'
+      Period: 3600
+      Statistic: Sum
+      EvaluationPeriods: 1
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 10
+      AlarmActions:
+        - Ref: UserDeletionAlarmTopic
+      InsufficientDataActions:
+        - Ref: UserDeletionAlarmTopic
+          
+  UserDeletionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${App}-${Stage}
+      Code:
+        S3Bucket:
+          Ref: DeployBucket
+        S3Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
+      Environment:
+        Variables:
+          App: !Sub ${App} 
+          Stack: !Sub ${Stack} 
+          Stage: !Sub ${Stage}
+          SaveForLaterApp: !Sub ${SaveForLaterApp}
+      Description: Lamba that deletes saved for later data for deleted users
+      Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
+      MemorySize: 384
+      Role: !GetAtt UserDeletionRole.Arn
+      Runtime: java8
+      Timeout: 300
+        
+  UserDeletionEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref UserDeletionLambda
+      Enabled: true
+      EventSourceArn: !GetAtt UserIdDeleteQueue.Arn
+      BatchSize: 5
+
+
+  
+
