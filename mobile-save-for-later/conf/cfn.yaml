@@ -33,11 +33,11 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      TableReadCapacity: 25
-      TableWriteCapacity: 25
+      TableReadCapacity: 1
+      TableWriteCapacity: 1
     PROD:
-      TableReadCapacity: 75
-      TableWriteCapacity: 4500
+      TableReadCapacity: 60
+      TableWriteCapacity: 75
 
 Resources:
   SaveForLaterDynamoTable:
