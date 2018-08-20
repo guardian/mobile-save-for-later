@@ -1,13 +1,13 @@
-#Save for later
+# Save for later
 
 This replaces the old [syncedPrefs service](https://github.com/guardian/identity/tree/master/identity-synced-prefs) formerly provided by the [identity-api](https://github.com/guardian/identity/tree/master/identity-synced-prefs)
 
 
-##Summary
+## Summary
 
 The service is implemented as a pair of aws [lamba functions](https://aws.amazon.com/lambda/) set behind aws [api gateway](https://aws.amazon.com/api-gateway) which you can view and test by going to the api gateway section of the console [here](https://eu-west-1.console.aws.amazon.com/apigateway/home?region=eu-west-1#/apis) 
 
-There's a fetch function (`/syncedPrefs/me`)(GET) and a update function(http POST) `/syncedPrefs/me/savedArticles`. Each endpoint requires a `authorisation` header containing a valid access token. This is used to retrieve the userId from the identity api. 
+There's a fetch function (`/syncedPrefs/me`)(GET) and a update function (http POST) `/syncedPrefs/me/savedArticles`. Each endpoint requires a `authorisation` header containing a valid access token. This is used to retrieve the userId from the identity api. 
 
 To update saved articles a json body is required: This should take the forms
 
@@ -32,4 +32,4 @@ To update saved articles a json body is required: This should take the forms
             }]
          }
          
-Here the `version` property is a timesamp and the `articles` array is all of the users currently saved articles. The version property is used to ensure that saved articles can be synced accross different devices
+Here the `version` property is a timesamp and the `articles` array is all of the users currently saved articles. The version property is used to ensure that saved articles can be synced across different devices
