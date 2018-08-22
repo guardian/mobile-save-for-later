@@ -36,7 +36,10 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
     savedArticlesPersistence.read(userId) match {
       case Success(Some(currentArticles)) if currentArticles.version == deduplicatedArticles.version =>
-        persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
+        if(currentArticles != deduplicatedArticles)
+          persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
+        else
+          Right(deduplicatedArticles)
       case Success(Some(currentArticles)) =>
         val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deduplicatedArticles.articles)(_.id))
         persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)

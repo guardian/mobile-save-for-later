@@ -59,6 +59,18 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       saved shouldEqual (expectedMergeResponse)
     }
 
+    "will not persist saved articles if they are identical to the articles currently saved and there is no conflict" in new Setup {
+      savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
+
+      val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
+      there was one(savedArticlesPersistence).read(argThat(===(userId)))
+      there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
+      there were no(savedArticlesPersistence).update(any[String](), any[SavedArticles]())
+
+      saved shouldEqual(Right(savedArticles))
+
+    }
+
     "will merge articles if there is a cnnflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
@@ -68,7 +80,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
       there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedMergedArticles)))
     }
-
+    
     "will dedupe merged articles if there is a conflict" in new Setup {
       val articlesCurrentlySaved = SavedArticles("2", List(article1Dup, article2))
       val articlesToSave = SavedArticles("1", List(article1, article2, article3))
@@ -78,7 +90,6 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
       there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedMergedArticles)))
     }
-
 
     "will select the latest articles up to the limit where the article limit is broken and there is no conflict`" in new Setup {
       private val maxSavedArticlesLimit = 2
