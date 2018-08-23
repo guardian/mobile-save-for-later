@@ -64,7 +64,7 @@ Resources:
               Action:
                 - lamda:InvokeFunction
               Resource:
-                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${App}-CODE
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${App}-${Stage}
         - PolicyName: sqs-read
           PolicyDocument:
             Statement:
