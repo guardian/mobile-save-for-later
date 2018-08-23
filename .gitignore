@@ -1,3 +1,8 @@
 *.iml
 .idea
 /target
+/common/target
+/mobile-save-for-later/target
+/mobile-save-for-later-user-deletion/target
+/project/target
+/project/project/target
