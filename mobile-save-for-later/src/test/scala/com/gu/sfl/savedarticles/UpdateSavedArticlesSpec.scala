@@ -11,7 +11,7 @@ import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 

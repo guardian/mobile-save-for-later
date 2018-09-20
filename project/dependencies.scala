@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  val awsSdkVersion = "1.11.307"
+  val awsSdkVersion = "1.11.412"
   val log4j2Version = "2.10.0"
   val jacksonVersion = "2.9.4"
   val specsVersion = "4.0.3"
@@ -9,13 +9,15 @@ object Dependencies {
 
   //Dependecies
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.0"
-  val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.307"
+  val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.1.0"
-  val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % "1.11.307"
-  val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % "1.11.368"
+  val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
+  val awsCloudwatch = "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion
+  val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
+  val awsSsm ="com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
 
-  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
+  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
   val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
   val jacksonJdk8DataType = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion
   val jacksonJsrDataType = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion

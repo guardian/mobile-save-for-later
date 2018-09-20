@@ -38,12 +38,14 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
       "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
     ),
     libraryDependencies ++= Seq(
+      awsCloudwatch,
       awsLambda,
       awsDynamo,
       awsLambdaLog,
       awsLambdaEvent,
       awsJavaSdk,
       awsSqs,
+      awsSsm,
       jackson,
       jacksonDataFormat,
       jacksonJdk8DataType,

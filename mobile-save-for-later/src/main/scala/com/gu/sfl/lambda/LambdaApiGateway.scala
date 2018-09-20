@@ -9,7 +9,7 @@ import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
