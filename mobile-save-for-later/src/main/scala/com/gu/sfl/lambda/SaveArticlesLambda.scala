@@ -5,10 +5,10 @@ import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl, SsmConfig}
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
-import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 
 object SaveArticlesLambda extends Logging {
 
@@ -24,13 +24,15 @@ object SaveArticlesLambda extends Logging {
           new SaveArticlesController(
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
-              new SavedArticlesMergerImpl( SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
-                new SavedArticlesPersistenceImpl( PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudwatch )
+              new SavedArticlesMergerImpl(SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
+                new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudwatch)
               )
-            )
+            ),
+            cloudwatch
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
-      }}, "Error initialising save for later controller")
+      }
+    }, "Error initialising save for later controller")
 }
 
 

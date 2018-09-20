@@ -19,11 +19,12 @@ object FetchArticlesLambda extends Logging {
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
           logger.debug(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
+          val cloudWatchImpl = new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient())
           new FetchArticlesController(
             new FetchSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
-              new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient()))
-            )
+              new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudWatchImpl)
+            ), cloudWatchImpl
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
       }
