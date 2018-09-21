@@ -13,22 +13,26 @@ import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
 object FetchArticlesLambda extends Logging {
 
   lazy val ssmConfig = new SsmConfig("save-for-later")
-
+  lazy val cloudWatchImpl = {
+    ssmConfig.identity match {
+      case awsIdentity: AwsIdentity =>
+        new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient())
+    }
+  }
   lazy val savedArticledController: FetchArticlesController = logOnThrown(
     () => {
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
           logger.debug(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
-          val cloudWatchImpl = new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient())
           new FetchArticlesController(
             new FetchSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
               new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudWatchImpl)
-            ), cloudWatchImpl
+            )
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
       }
     }, "Error initialising saved articles controller")
 }
 
-class FetchArticlesLambda extends AwsLambda(function = FetchArticlesLambda.savedArticledController)
+class FetchArticlesLambda extends AwsLambda(function = FetchArticlesLambda.savedArticledController, cloudWatchPublisher = FetchArticlesLambda.cloudWatchImpl)

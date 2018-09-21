@@ -14,21 +14,26 @@ object SaveArticlesLambda extends Logging {
 
   lazy val ssmConfig = new SsmConfig("save-for-later")
 
+  lazy val cloudwatch = {
+    ssmConfig.identity match {
+      case awsIdentity: AwsIdentity =>
+        new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "save", AmazonCloudWatchAsyncClientBuilder.defaultClient())
+    }
+  }
+
   lazy val saveForLaterController: SaveArticlesController = logOnThrown(
     () => {
 
       logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
-          val cloudwatch = new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "save", AmazonCloudWatchAsyncClientBuilder.defaultClient())
           new SaveArticlesController(
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
               new SavedArticlesMergerImpl(SavedArticlesMergerConfig(ssmConfig.config.getInt("savedarticle.limit")),
                 new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudwatch)
               )
-            ),
-            cloudwatch
+            )
           )
         case _ => throw new IllegalStateException("Unable to retrieve configuration")
       }
@@ -36,4 +41,4 @@ object SaveArticlesLambda extends Logging {
 }
 
 
-class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController)
+class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController, SaveArticlesLambda.cloudwatch)
