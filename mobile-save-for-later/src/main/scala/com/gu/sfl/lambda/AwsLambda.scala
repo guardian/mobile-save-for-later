@@ -13,11 +13,12 @@ abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse], clou
 
   private val lambdaApiGateway = new LambdaApiGatewayImpl(function)
 
-  override def handleRequest(input: InputStream, output: OutputStream, context: Context): Unit = Try(lambdaApiGateway.execute(input, output)).recover {
-    case t: Throwable => logger.warn("Error executing lambda: ", t)
-      throw t
+  override def handleRequest(input: InputStream, output: OutputStream, context: Context): Unit = {
+    Try(lambdaApiGateway.execute(input, output)).recover {
+      case t: Throwable => logger.warn("Error executing lambda: ", t)
+        throw t
+    }
+    cloudWatchPublisher.sendMetricsSoFar()
   }
-
-  cloudWatchPublisher.sendMetricsSoFar()
 }
 

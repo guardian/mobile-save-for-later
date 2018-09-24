@@ -36,7 +36,7 @@ Mappings:
       TableReadCapacity: 1
       TableWriteCapacity: 1
     PROD:
-      TableReadCapacity: 60
+      TableReadCapacity: 75
       TableWriteCapacity: 75
 
 Resources:
@@ -83,7 +83,7 @@ Resources:
               Effect: Allow
               Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${App}/${Stage}/${Stack}
         - PolicyName: dynamo-action
-          PolicyDocument: 
+          PolicyDocument:
             Statement:
               Effect: Allow
               Action:
@@ -92,6 +92,13 @@ Resources:
                 - dynamodb:UpdateItem
                 - dynamodb:Query
               Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Stage}-articles
+        - PolicyName: metrics
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+              - cloudwatch:PutMetricData
+              Resource: "*"
 
   FetchArticlesLambdaPermission:
     Type: AWS::Lambda::Permission
