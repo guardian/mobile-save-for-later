@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
 class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
-
+  private val headersToKeep: Set[String] = Set("user-agent", "content-type", "content-length", "accept", "accept-encoding", "x-forwarded-host").map(_.toLowerCase())
   override def defaultErrorMessage: String = "Error saving articles"
 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
@@ -21,8 +21,8 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
         val triedSavedArticles = Try.apply(mapper.readValue[SavedArticles](json))
         triedSavedArticles match {
           case Failure(t) => {
-            val headersWithoutAuth = lambdaRequest.headers.filterNot{ case (k,v) => k.toLowerCase.equals("authorization")}
-            logger.warn(s"Could not read value: $json \nWith headers: ${headersWithoutAuth}" )
+            val headersWithoutAuth = lambdaRequest.headers.filter{ case (k,v) => headersToKeep.contains(k.toLowerCase)}
+            logger.warn(s"Could not read value: $json \nWith headers: $headersWithoutAuth" )
           }
 
           case _ => ()
