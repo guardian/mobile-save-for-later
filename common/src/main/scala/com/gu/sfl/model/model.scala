@@ -48,7 +48,7 @@ object SavedArticles {
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
   def apply(dirtySavedArticles: DirtySavedArticles) : SavedArticles = SavedArticles(dirtySavedArticles.version, buildArticlesWithDates(dirtySavedArticles))
   private def buildArticlesWithDates(dirtySavedArticles: DirtySavedArticles) = {
-    val startingDate = dirtySavedArticles.articles.flatMap(_.date).headOption.map(_.minusSeconds(2)).getOrElse(oldDate)
+    val startingDate = dirtySavedArticles.articles.flatMap(_.date).headOption.map(_.minusDays(1)).getOrElse(oldDate)
     dirtySavedArticles.articles.foldLeft((startingDate, List.empty[SavedArticle])) {
       case ((lastGoodDate, clean), dirtySavedArticle) => {
         dirtySavedArticle match {

@@ -34,9 +34,26 @@ class SavedArticlesTest extends Specification {
       val date = baseDateTime
       val read = true
       val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), None, read),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), Some(baseDateTime), read))
-      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime.minusSeconds(1), read),SavedArticle(s"${id}2", s"${url}2", baseDateTime, read))
+      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime.minusDays(1).plusSeconds(1), read),SavedArticle(s"${id}2", s"${url}2", baseDateTime, read))
       SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
     }
+
+    "Middle missing date" in {
+      val id = "id1"
+      val url = "url"
+      val date = baseDateTime
+      val read = true
+      val dirtyarticles = List(
+        DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), Some(baseDateTime), read),
+        DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), None, read),
+        DirtySavedArticle(Some(s"${id}3"), Some(s"${url}3"), Some(baseDateTime.plusDays(1)), read))
+      val articles = List(
+        SavedArticle(s"${id}1", s"${url}1", baseDateTime, read),
+        SavedArticle(s"${id}2", s"${url}2", baseDateTime.plusSeconds(1), read),
+        SavedArticle(s"${id}3", s"${url}3", baseDateTime.plusDays(1), read))
+      SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
+    }
+
 
     "Last missing date" in {
       val id = "id1"
