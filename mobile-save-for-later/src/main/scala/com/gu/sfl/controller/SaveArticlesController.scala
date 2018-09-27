@@ -20,7 +20,11 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
       case LambdaRequest(Some(json),  _) =>
         val triedSavedArticles = Try.apply(mapper.readValue[SavedArticles](json))
         triedSavedArticles match {
-          case Failure(t) => logger.warn(s"Could not read value: $json")
+          case Failure(t) => {
+            val headersWithoutAuth = lambdaRequest.headers.filterNot{ case (k,v) => k.toLowerCase.equals("authorization")}
+            logger.warn(s"Could not read value: $json \nWith headers: ${headersWithoutAuth}" )
+          }
+
           case _ => ()
         }
         futureSave(triedSavedArticles, lambdaRequest.headers)
