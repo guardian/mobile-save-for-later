@@ -90,10 +90,10 @@ class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDese
   @throws(classOf[JsonProcessingException])
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): DirtySavedArticle = {
     val node: JsonNode = p.readValueAsTree()
-    val id = Option(node.get("id")).filterNot(_.isTextual).map(_.asText())
-    val shortUrl = Option(node.get("shortUrl")).filterNot(_.isTextual).map(_.asText())
-    val read = Option(node.get("read")).filterNot(_.isBoolean).map(_.asBoolean())
-    val date = Option(node.get("date")).filterNot(_.isTextual).map(_.asText()).map(LocalDateTime.parse(_, SavedArticleDateSerializer.formatter))
+    val id = Option(node.get("id")).filter(_.isTextual).map(_.asText())
+    val shortUrl = Option(node.get("shortUrl")).filter(_.isTextual).map(_.asText())
+    val read = Option(node.get("read")).filter(_.isBoolean).map(_.asBoolean())
+    val date = Option(node.get("date")).filter(_.isTextual).map(_.asText()).map(LocalDateTime.parse(_, SavedArticleDateSerializer.formatter))
     DirtySavedArticle(id, shortUrl, date, read)
   }
 }
