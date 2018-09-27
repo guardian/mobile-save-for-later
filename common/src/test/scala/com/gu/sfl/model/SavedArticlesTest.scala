@@ -15,7 +15,7 @@ class SavedArticlesTest extends Specification {
       val url = "url"
       val date = baseDateTime
       val read = true
-      SavedArticles(DirtySavedArticles("", List(DirtySavedArticle(Some(id), Some(url), Some(date), Some(read))))) must beEqualTo(SavedArticles("", List(SavedArticle(id,url,date,read))))
+      SavedArticles(DirtySavedArticles("", List(DirtySavedArticle(Some(id), Some(url), Some(date), read)))) must beEqualTo(SavedArticles("", List(SavedArticle(id,url,date,read))))
     }
     "Two Good Items (order retained)" in {
       val id = "id1"
@@ -23,8 +23,8 @@ class SavedArticlesTest extends Specification {
       val date = baseDateTime
       val read = true
       val range = Range(0, 10).toList
-      val dirtyarticles = range.map(index => DirtySavedArticle(Some(s"$id$index"), Some(s"$url$index"), Some(date.plusDays(index)), Some(true)))
-      val articles = range.map(index => SavedArticle(s"$id$index", s"$url$index", date.plusDays(index), true))
+      val dirtyarticles = range.map(index => DirtySavedArticle(Some(s"$id$index"), Some(s"$url$index"), Some(date.plusDays(index)), read))
+      val articles = range.map(index => SavedArticle(s"$id$index", s"$url$index", date.plusDays(index), read))
       SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
     }
 
@@ -33,8 +33,8 @@ class SavedArticlesTest extends Specification {
       val url = "url"
       val date = baseDateTime
       val read = true
-      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), None, Some(true)),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), Some(baseDateTime), Some(true)))
-      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime.minusSeconds(1), true),SavedArticle(s"${id}2", s"${url}2", baseDateTime, true))
+      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), None, read),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), Some(baseDateTime), read))
+      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime.minusSeconds(1), read),SavedArticle(s"${id}2", s"${url}2", baseDateTime, read))
       SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
     }
 
@@ -43,20 +43,19 @@ class SavedArticlesTest extends Specification {
       val url = "url"
       val date = baseDateTime
       val read = true
-      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), Some(baseDateTime), Some(true)),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), None, Some(true)))
-      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime, true),SavedArticle(s"${id}2", s"${url}2", baseDateTime.plusSeconds(1), true))
+      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), Some(baseDateTime), read),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), None, read))
+      val articles = List(SavedArticle(s"${id}1", s"${url}1", baseDateTime, read),SavedArticle(s"${id}2", s"${url}2", baseDateTime.plusSeconds(1), read))
       SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
     }
 
 
     "All missing dates" in {
-      val oldDate = LocalDateTime.of(1990,1,1,0,0,0)
+      val oldDate = LocalDateTime.of(2010,1,1,0,0,0)
       val id = "id1"
       val url = "url"
-      val date = baseDateTime
       val read = true
-      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), None, Some(true)),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), None, Some(true)))
-      val articles = List(SavedArticle(s"${id}1", s"${url}1", oldDate.plusSeconds(1), true),SavedArticle(s"${id}2", s"${url}2", oldDate.plusSeconds(2), true))
+      val dirtyarticles = List(DirtySavedArticle(Some(s"${id}1"), Some(s"${url}1"), None, read),DirtySavedArticle(Some(s"${id}2"), Some(s"${url}2"), None, read))
+      val articles = List(SavedArticle(s"${id}1", s"${url}1", oldDate.plusSeconds(1), read),SavedArticle(s"${id}2", s"${url}2", oldDate.plusSeconds(2), read))
       SavedArticles(DirtySavedArticles("", dirtyarticles)) must beEqualTo(SavedArticles("", articles))
     }
   }

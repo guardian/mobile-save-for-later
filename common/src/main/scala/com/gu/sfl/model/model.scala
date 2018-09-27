@@ -21,7 +21,7 @@ object SavedArticle {
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
 
 @JsonDeserialize(using = classOf[DirtySavedArticleDeserializer])
-case class DirtySavedArticle(id: Option[String], shortUrl: Option[String], date: Option[LocalDateTime], read: Option[Boolean])
+case class DirtySavedArticle(id: Option[String], shortUrl: Option[String], date: Option[LocalDateTime], read: Boolean)
 
 case class SyncedPrefsResponse(status: String, syncedPrefs: SyncedPrefs)
 
@@ -43,7 +43,7 @@ sealed trait SyncedPrefsData {
 }
 
 object SavedArticles {
-  private val oldDate = LocalDateTime.of(1990,1,1,0,0,0)
+  private val oldDate = LocalDateTime.of(2010,1,1,0,0,0)
   def nextVersion() = Instant.now().toEpochMilli.toString
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
   def apply(dirtySavedArticles: DirtySavedArticles) : SavedArticles = SavedArticles(dirtySavedArticles.version, buildArticlesWithDates(dirtySavedArticles))
@@ -52,7 +52,7 @@ object SavedArticles {
     dirtySavedArticles.articles.foldLeft((startingDate, List.empty[SavedArticle])) {
       case ((lastGoodDate, clean), dirtySavedArticle) => {
         dirtySavedArticle match {
-          case DirtySavedArticle(Some(id), Some(shortUrl), date, Some(read)) => {
+          case DirtySavedArticle(Some(id), Some(shortUrl), date, read) => {
             val thisDate = date.getOrElse(lastGoodDate.plusSeconds(1))
             (thisDate, SavedArticle(id, shortUrl, thisDate, read) :: clean)
           }
@@ -94,7 +94,7 @@ class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDese
     val shortUrl = Option(node.get("shortUrl")).filter(_.isTextual).map(_.asText())
     val read = Option(node.get("read")).filter(_.isBoolean).map(_.asBoolean())
     val date = Option(node.get("date")).filter(_.isTextual).map(_.asText()).map(LocalDateTime.parse(_, SavedArticleDateSerializer.formatter))
-    DirtySavedArticle(id, shortUrl, date, read)
+    DirtySavedArticle(id, shortUrl, date, read.getOrElse(false))
   }
 }
 
