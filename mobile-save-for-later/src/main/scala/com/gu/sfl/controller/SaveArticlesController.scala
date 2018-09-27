@@ -9,7 +9,7 @@ import com.gu.sfl.savedarticles.UpdateSavedArticles
 import com.gu.sfl.util.StatusCodes
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
 
@@ -18,7 +18,16 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     val futureResponse = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
-        futureSave(Try.apply(mapper.readValue[SavedArticles](json)), lambdaRequest.headers)
+        val triedSavedArticles = Try.apply(mapper.readValue[SavedArticles](json))
+        triedSavedArticles match {
+          case Failure(t) => {
+            val headersWithoutAuth = lambdaRequest.headers.filterNot{ case (k,v) => k.toLowerCase.equals("authorization")}
+            logger.warn(s"Could not read value: $json \nWith headers: ${headersWithoutAuth}" )
+          }
+
+          case _ => ()
+        }
+        futureSave(triedSavedArticles, lambdaRequest.headers)
       case LambdaRequest(None,  _) =>
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
