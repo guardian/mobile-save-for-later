@@ -4,7 +4,7 @@ import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, User
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
-import com.gu.sfl.model.SavedArticles
+import com.gu.sfl.model.{DirtySavedArticles, SavedArticles}
 import com.gu.sfl.savedarticles.UpdateSavedArticles
 import com.gu.sfl.util.StatusCodes
 
@@ -18,7 +18,9 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
   override def apply(lambdaRequest: LambdaRequest): Future[LambdaResponse] = {
     val futureResponse = lambdaRequest match {
       case LambdaRequest(Some(json),  _) =>
-        val triedSavedArticles = Try.apply(mapper.readValue[SavedArticles](json))
+        val triedSavedArticles = Try{
+          SavedArticles(mapper.readValue[DirtySavedArticles](json))
+        }
         triedSavedArticles match {
           case Failure(t) => {
             val headersWithoutAuth = lambdaRequest.headers.filter{ case (k,v) => headersToKeep.contains(k.toLowerCase)}
