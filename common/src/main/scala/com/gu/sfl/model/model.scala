@@ -16,9 +16,12 @@ object SavedArticle {
   implicit val ordering: Ordering[SavedArticle] = Ordering.by[SavedArticle, LocalDateTime](_.date)
 }
 
-@JsonDeserialize(using = classOf[SavedArticleDeserializer])
+
 @JsonSerialize(using = classOf[SavedArticleSerializer])
 case class SavedArticle(id: String, shortUrl: String, date: LocalDateTime, read: Boolean)
+
+@JsonDeserialize(using = classOf[DirtySavedArticleDeserializer])
+case class DirtySavedArticle(id: Option[String], shortUrl: Option[String], date: Option[LocalDateTime], read: Boolean)
 
 case class SyncedPrefsResponse(status: String, syncedPrefs: SyncedPrefs)
 
@@ -40,8 +43,25 @@ sealed trait SyncedPrefsData {
 }
 
 object SavedArticles {
+  private val oldDate = LocalDateTime.of(2010,1,1,0,0,0)
   def nextVersion() = Instant.now().toEpochMilli.toString
   def apply(articles: List[SavedArticle]) : SavedArticles = SavedArticles(nextVersion(), articles)
+  def apply(dirtySavedArticles: DirtySavedArticles) : SavedArticles = SavedArticles(dirtySavedArticles.version, buildArticlesWithDates(dirtySavedArticles))
+  private def buildArticlesWithDates(dirtySavedArticles: DirtySavedArticles) = {
+    val startingDate = dirtySavedArticles.articles.flatMap(_.date).headOption.map(_.minusDays(1)).getOrElse(oldDate)
+    dirtySavedArticles.articles.foldLeft((startingDate, List.empty[SavedArticle])) {
+      case ((lastGoodDate, clean), dirtySavedArticle) => {
+        dirtySavedArticle match {
+          case DirtySavedArticle(Some(id), Some(shortUrl), date, read) => {
+            val thisDate = date.getOrElse(lastGoodDate.plusSeconds(1))
+            (thisDate, SavedArticle(id, shortUrl, thisDate, read) :: clean)
+          }
+          case _ => (lastGoodDate, clean)
+        }
+      }
+    }._2.reverse
+  }
+
   val empty = SavedArticles("1", List.empty)
 }
 
@@ -53,6 +73,8 @@ case class SavedArticles(version: String, articles: List[SavedArticle]) extends 
   def deduped: SavedArticles = copy( articles = articles.groupBy(_.id).map(_._2.max).toList.sorted )
   def mostRecent(limit: Int) = copy( articles = articles.sorted.takeRight(limit)  )
 }
+
+case class DirtySavedArticles(version: String, articles: List[DirtySavedArticle])
 case class ErrorResponse(status: String = "error", errors: List[Error])
 
 case class Error(message: String, description: String)
@@ -61,21 +83,18 @@ object SavedArticleDateSerializer {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
 
-class SavedArticleDeserializer(t: Class[SavedArticle]) extends StdDeserializer[SavedArticle](t)  {
-
+class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDeserializer[DirtySavedArticle](t)  {
   def this () = this(null)
-
   @Override
   @throws(classOf[IOException])
   @throws(classOf[JsonProcessingException])
-  override def deserialize(p: JsonParser, ctxt: DeserializationContext): SavedArticle = {
+  override def deserialize(p: JsonParser, ctxt: DeserializationContext): DirtySavedArticle = {
     val node: JsonNode = p.readValueAsTree()
-    val id = node.get("id").asText()
-    val shortUrl = node.get("shortUrl").asText()
-    val read = node.get("read").asBoolean()
-    val str = node.get("date").asText()
-    val date = LocalDateTime.parse(str, SavedArticleDateSerializer.formatter)
-    SavedArticle(id, shortUrl, date, read)
+    val id = Option(node.get("id")).filter(_.isTextual).map(_.asText())
+    val shortUrl = Option(node.get("shortUrl")).filter(_.isTextual).map(_.asText())
+    val read = Option(node.get("read")).filter(_.isBoolean).map(_.asBoolean())
+    val date = Option(node.get("date")).filter(_.isTextual).map(_.asText()).map(LocalDateTime.parse(_, SavedArticleDateSerializer.formatter))
+    DirtySavedArticle(id, shortUrl, date, read.getOrElse(false))
   }
 }
 
