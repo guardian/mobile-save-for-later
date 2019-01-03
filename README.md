@@ -38,7 +38,7 @@ Here the `version` property is a timesamp and the `articles` array is all of the
 
 Quite often userhelp will send queries that require looking up a users' record in dynamo. Usually, you'll want to either check that they have saved articles in the database or perhaps check how many they have
 
-To query the save for later data you'll need to get a users' userId. You can use the [user admin](https://useradmin.gutools.co.uk/) tool to do this. You may need to ask the identity team to grant you permission to login. You will then be able to get a user id from an email address. 
+To query the save for later data you'll need to get a users' userId. You can use the User admin tool to do this. Ask the identity team to grant you permission to login and the url. You will then be able to get a user id from an email address. 
 
 Once you have a userId, you can query the `mobile-save-for-later-PROD-articles` table in [Dynamo](https://eu-west-1.console.aws.amazon.com/dynamodb/home?region=eu-west-1#) and determine whether or not a user has any articles saved
 
