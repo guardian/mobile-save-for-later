@@ -1,9 +1,9 @@
-##Save for later
+## Save for later
 
 This replaces the old [syncedPrefs service](https://github.com/guardian/identity/tree/master/identity-synced-prefs) formerly provided by the [identity-api](https://github.com/guardian/identity/tree/master/identity-synced-prefs)
 
 
-###Summary
+### Summary
 
 The service is implemented as a pair of aws [lamba functions](https://aws.amazon.com/lambda/) set behind aws [api gateway](https://aws.amazon.com/api-gateway) which you can view and test by going to the api gateway section of the console [here](https://eu-west-1.console.aws.amazon.com/apigateway/home?region=eu-west-1#/apis) 
 
@@ -34,7 +34,7 @@ To update saved articles a json body is required: This should take the forms
          
 Here the `version` property is a timesamp and the `articles` array is all of the users currently saved articles. The version property is used to ensure that saved articles can be synced accross different devices
 
-###User Help Queriues
+### User Help Queries
 
 Quite often userhelp will send queries that require looking up a users' record in dynamo. Usually, you'll want to either check that they have saved articles in the database or perhaps check how many they have
 
