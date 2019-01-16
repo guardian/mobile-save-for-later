@@ -23,8 +23,6 @@ object SaveArticlesLambda extends Logging {
 
   lazy val saveForLaterController: SaveArticlesController = logOnThrown(
     () => {
-
-      logger.info("Configuring controller")
       ssmConfig.identity match {
         case awsIdentity: AwsIdentity =>
           new SaveArticlesController(
