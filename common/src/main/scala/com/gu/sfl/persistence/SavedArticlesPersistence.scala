@@ -31,7 +31,6 @@ trait SavedArticlesPersistence {
 }
 
 class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig, cloudWatchMetrics: CloudWatchMetrics) extends SavedArticlesPersistence with Logging {
-
   implicit def toSavedArticles(dynamoSavedArticles: DynamoSavedArticles): SavedArticles = {
     val articles = mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
     SavedArticles(dynamoSavedArticles.version, articles)
@@ -42,7 +41,6 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig, cloudWa
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
     val timer = cloudWatchMetrics.startTimer("dynamo-read")
-    logger.info(s"Attempting to retrieve saved articles for user $userId")
     exec(client)(table.get('userId -> userId)) match {
       case Some(Right(sa)) =>
         timer.success
@@ -51,31 +49,31 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig, cloudWa
       case Some(Left(error)) =>
         timer.fail
         val ex = new IllegalArgumentException(s"$error")
-        logger.debug(s"Error retrieving articles", ex)
+        logger.debug(s"Error retrieving articles for $userId", ex)
         Failure(ex)
       case None =>
         timer.state("empty")
-        logger.error("No articles found for user")
+        logger.error(s"No articles found for user $userId")
         Success(None)
     }
   }
 
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     val timer = cloudWatchMetrics.startTimer("dynamo-write")
-    logger.info(s"Saving articles with userId $userId")
+
     exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
       case Some(Right(articles)) =>
-        logger.debug("Succcesfully saved articles")
+        logger.debug(s"Succcesfully saved articles for $userId")
         timer.success
         Success(Some(articles.ordered))
       case Some(Left(error)) =>
         timer.fail
         val exception = new IllegalArgumentException(s"$error")
-        logger.debug(s"Exception Thrown saving articles:", exception)
+        logger.debug(s"Exception Thrown saving articles for $userId:", exception)
         Failure(exception)
       case None => {
         timer.state("empty")
-        logger.debug("Successfully saved but none retrieved")
+        logger.debug(s"Successfully saved but none retrieved for $userId")
         Success(Some(savedArticles))
       }
     }
@@ -83,7 +81,6 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig, cloudWa
 
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     val timer = cloudWatchMetrics.startTimer("dynamo-update")
-    logger.info(s"Updating saved articles for ${userId}")
     exec(client)(table.update('userId -> userId,
         set('version -> savedArticles.nextVersion) and
         set('articles -> mapper.writeValueAsString(savedArticles.articles)))
