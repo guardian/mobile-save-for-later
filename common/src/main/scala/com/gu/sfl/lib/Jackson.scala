@@ -2,6 +2,7 @@ package com.gu.sfl.lib
 
 import java.text.SimpleDateFormat
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -19,4 +20,5 @@ object Jackson {
   mapper.registerModule(DefaultScalaModule)
   mapper.registerModule(new Jdk8Module())
   mapper.registerModule(new JavaTimeModule())
+  mapper.setSerializationInclusion(Include.NON_ABSENT)
 }
