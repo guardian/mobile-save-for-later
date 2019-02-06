@@ -61,7 +61,7 @@ object SealedCompression {
 
   case object Gzip extends Compression(Compression.decode, Compression.encode, "gzip")
 
-  case object Brotli extends Compression(x => x, x => x, "br")
+
 
   val contentEncodings: Map[String, Compression] = List(Gzip, Brotli).groupBy(_.contentEncoding).mapValues(_.head)
 }
