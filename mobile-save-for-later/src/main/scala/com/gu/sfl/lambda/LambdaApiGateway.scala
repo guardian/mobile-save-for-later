@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
+import com.gu.sfl.util.HeaderNames.acceptEncoding
 import com.gu.sfl.util.SealedCompression.Compression
 import com.gu.sfl.util.{HeaderNames, SealedCompression, StatusCodes}
 import org.apache.commons.io.IOUtils
@@ -155,8 +156,9 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           val lambdaRequest = LambdaRequest(apiLambdaGatewayRequest)
           function(lambdaRequest).map { res =>
             logger.debug(s"ApiGateway  lamda response: $res")
+
             val compression = for {
-              header <- lambdaRequest.headers.get("Accept-Encoding")
+              header <- lambdaRequest.headers.get(acceptEncoding)
               encodings = getEncodings(header)
               firstCompression <- encodings.flatMap(SealedCompression.contentEncodings.get).headOption
             } yield firstCompression
