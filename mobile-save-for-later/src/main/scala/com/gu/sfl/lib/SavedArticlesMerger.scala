@@ -24,6 +24,9 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
       case Success(Some(articles)) =>
         logger.debug(s"success persisting articles for ${userId}")
         Right(articles)
+      case Success(None) =>
+        logger.debug(s"success persisting articles for ${userId} but none returned")
+        Right(articles)
       case Failure(e) =>
         logger.debug(s"Error persisting articles for ${userId}. Error: ${e.getMessage}")
         Left(SavedArticleMergeError("Could not update articles"))

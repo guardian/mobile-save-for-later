@@ -2,7 +2,6 @@ package com.gu.sfl.controller
 
 import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
-import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model.{DirtySavedArticles, SavedArticles}
 import com.gu.sfl.savedarticles.UpdateSavedArticles
@@ -11,7 +10,7 @@ import com.gu.sfl.util.StatusCodes
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
-class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController with Base64Utils {
+class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit executionContext: ExecutionContext) extends Function[LambdaRequest, Future[LambdaResponse]] with SaveForLaterController {
   private val headersToKeep: Set[String] = Set("user-agent", "content-type", "content-length", "accept", "accept-encoding", "x-forwarded-host").map(_.toLowerCase())
   override def defaultErrorMessage: String = "Error saving articles"
 

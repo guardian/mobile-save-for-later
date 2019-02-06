@@ -63,21 +63,21 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
         request must beEqualTo(lambdaRequest)
         Future.successful(lambdaResponse)
       }).execute(
-        stringAsInputStream(mapper.writeValueAsString(ApiGatewayLambdaRequest(lambdaRequest))),
+        stringAsInputStream(mapper.writeValueAsString(ApiGatewayLambdaRequest(lambdaRequest, None))),
         outputStream
       )
-      mapper.readValue[ApiGatewayLambdaResponse](outputStream.toByteArray) must_== ApiGatewayLambdaResponse(lambdaResponse)
+      mapper.readValue[ApiGatewayLambdaResponse](outputStream.toByteArray) must_== ApiGatewayLambdaResponse(lambdaResponse, None)
     }
 
     "lambda request sound across api request in" >> prop { (lambdaRequest: LambdaRequest) => {
-        val renderedRequest: LambdaRequest = LambdaRequest(ApiGatewayLambdaRequest(lambdaRequest))
+        val renderedRequest: LambdaRequest = LambdaRequest(ApiGatewayLambdaRequest(lambdaRequest, None))
         renderedRequest must beEqualTo(lambdaRequest)
         renderedRequest.hashCode() must beEqualTo(lambdaRequest.hashCode())
       }
     }
 
     "lambda response sound across api request in" >> prop { (lambdaResponse: LambdaResponse) => {
-        val renderedResponse: LambdaResponse = LambdaResponse(ApiGatewayLambdaResponse(lambdaResponse))
+        val renderedResponse: LambdaResponse = LambdaResponse(ApiGatewayLambdaResponse(lambdaResponse, None))
         renderedResponse must beEqualTo(lambdaResponse)
         renderedResponse.hashCode() must beEqualTo(lambdaResponse.hashCode())
       }
