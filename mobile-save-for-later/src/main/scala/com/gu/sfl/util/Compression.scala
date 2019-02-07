@@ -8,41 +8,31 @@ import java.util.zip.{Deflater, GZIPInputStream, GZIPOutputStream}
 import org.apache.commons.io.IOUtils
 
 object Base64Helper {
-  val encoder: Base64.Encoder = Base64.getEncoder
-  val decoder: Base64.Decoder = Base64.getDecoder
+  private val encoder: Base64.Encoder = Base64.getEncoder
+  private val decoder: Base64.Decoder = Base64.getDecoder
 
-  def encode(outputStream: OutputStream): OutputStream = {
-    encoder.wrap(outputStream)
-  }
+  def encode(outputStream: OutputStream): OutputStream = encoder.wrap(outputStream)
 
-  def decode(inputStream: InputStream): InputStream = {
-    decoder.wrap(inputStream)
-  }
-
+  def decode(inputStream: InputStream): InputStream = decoder.wrap(inputStream)
 }
 
 object Compression {
-
   def encode(outputStream: OutputStream): OutputStream = {
-    val stream = new GZIPOutputStream(outputStream) {
+    val gZIPOutputStream = new GZIPOutputStream(outputStream) {
       def setLevel(level: Int) = {
         this.`def` = new Deflater(level, true)
       }
     }
-    stream.setLevel(Deflater.BEST_COMPRESSION)
-    stream
+    gZIPOutputStream.setLevel(Deflater.BEST_COMPRESSION) // open for experimentation
+    gZIPOutputStream
   }
 
-  def decode(inputStream: InputStream): InputStream = {
-    new GZIPInputStream(inputStream)
-  }
+  def decode(inputStream: InputStream): InputStream = new GZIPInputStream(inputStream)
 }
 
 object SealedCompression {
 
   sealed class Compression(val decode: InputStream => InputStream, val encode: OutputStream => OutputStream, val contentEncoding: String) {
-
-
     def decodeFromBase64(base64Gzipped: String): String = {
       val byteArrayInputStream = new ByteArrayInputStream(base64Gzipped.getBytes(UTF_8))
       IOUtils.toString(decode(Base64Helper.decode(byteArrayInputStream)), UTF_8)
@@ -60,7 +50,6 @@ object SealedCompression {
   }
 
   case object Gzip extends Compression(Compression.decode, Compression.encode, "gzip")
-
 
 
   val contentEncodings: Map[String, Compression] = List(Gzip, Brotli).groupBy(_.contentEncoding).mapValues(_.head)
