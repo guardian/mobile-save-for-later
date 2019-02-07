@@ -70,14 +70,14 @@ object LambdaRequest {
     val headers = apiGatewayLambdaRequest.headers.map { h => h.map { case (key, value) => (key.toLowerCase, value) } }.getOrElse(Map.empty)
     LambdaRequest(
       apiGatewayLambdaRequest.body.map(apiBody => {
-        val contentEncoding = if (apiGatewayLambdaRequest.isBase64Encoded.contains(true)) {
+        val maybeCompression = if (apiGatewayLambdaRequest.isBase64Encoded.contains(true)) {
           headers.get(HeaderNames.contentEncoding).flatMap(SealedCompression.contentEncodings.get)
         }
         else {
           None
         }
-        contentEncoding match {
-          case Some(c) => c.decodeFromBase64(apiBody)
+        maybeCompression match {
+          case Some(compression) => compression.decodeFromBase64(apiBody)
           case _ => apiBody
         }
       }),
@@ -95,14 +95,14 @@ object LambdaResponse {
   def apply(apiGatewayLambdaResponse: ApiGatewayLambdaResponse): LambdaResponse = {
     val headers = apiGatewayLambdaResponse.headers.map { case (key, value) => (key.toLowerCase, value) }
     apiGatewayLambdaResponse.body.map(apiBody => {
-      val contentEncoding = if (apiGatewayLambdaResponse.isBase64Encoded.contains(true)) {
+      val maybeCompression = if (apiGatewayLambdaResponse.isBase64Encoded.contains(true)) {
         headers.get(HeaderNames.contentEncoding).flatMap(SealedCompression.contentEncodings.get)
       }
       else {
         None
       }
-      contentEncoding match {
-        case Some(c) => c.decodeFromBase64(apiBody)
+      maybeCompression match {
+        case Some(compression) => compression.decodeFromBase64(apiBody)
         case _ => apiBody
       }
     })
@@ -156,13 +156,12 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           val lambdaRequest = LambdaRequest(apiLambdaGatewayRequest)
           function(lambdaRequest).map { res =>
             logger.debug(s"ApiGateway  lamda response: $res")
-
-            val compression = for {
+            val maybeCompression = for {
               header <- lambdaRequest.headers.get(acceptEncoding)
               encodings = getEncodings(header)
               firstCompression <- encodings.flatMap(SealedCompression.contentEncodings.get).headOption
             } yield firstCompression
-            ApiGatewayLambdaResponse(res, compression)
+            ApiGatewayLambdaResponse(res, maybeCompression)
           }
         case Right(_) =>
           logger.debug("Lambda returned error")
