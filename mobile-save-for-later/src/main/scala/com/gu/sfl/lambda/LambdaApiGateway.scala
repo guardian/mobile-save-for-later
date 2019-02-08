@@ -169,7 +169,6 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
       }
 
       val result = Await.result(response, Duration.Inf)
-      outputStream.close()
       mapper.writeValue(outputStream, result)
     }
     finally {

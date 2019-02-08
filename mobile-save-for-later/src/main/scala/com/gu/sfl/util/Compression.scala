@@ -3,6 +3,7 @@ package com.gu.sfl.util
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream, OutputStream}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
+import java.util.zip.Deflater.BEST_COMPRESSION
 import java.util.zip.{Deflater, GZIPInputStream, GZIPOutputStream}
 
 import com.gu.sfl.util.Base64Helper.{base64Decode, base64Encode}
@@ -16,15 +17,16 @@ object Base64Helper {
 
   def base64Decode(inputStream: InputStream): InputStream = decoder.wrap(inputStream)
 }
+class LevelModifiableGZIPOutputStream(outputStream: OutputStream) extends GZIPOutputStream(outputStream) {
+  def setLevel(level: Int): Unit = {
+    this.`def` = new Deflater(level, true)
+  }
+}
 
 object Compression {
   def encode(outputStream: OutputStream): OutputStream = {
-    val gZIPOutputStream = new GZIPOutputStream(outputStream) {
-      def setLevel(level: Int) = {
-        this.`def` = new Deflater(level, true)
-      }
-    }
-    gZIPOutputStream.setLevel(Deflater.BEST_COMPRESSION) // open for experimentation
+    val gZIPOutputStream = new LevelModifiableGZIPOutputStream(outputStream)
+    gZIPOutputStream.setLevel(BEST_COMPRESSION)
     gZIPOutputStream
   }
 
@@ -42,11 +44,11 @@ object SealedCompression {
 
     def encodeToBase64(text: String): String = {
       val byteArrayOutputStream = new ByteArrayOutputStream()
-      val base64Stream = base64Encode(byteArrayOutputStream)
-      val wrappedStream = encode(base64Stream)
-      IOUtils.write(text, wrappedStream, UTF_8)
-      wrappedStream.close()
-      base64Stream.close()
+      val mustBeClosedBase64OutputStream = base64Encode(byteArrayOutputStream)
+      val mustBeClosedCompressingOutputStream = encode(mustBeClosedBase64OutputStream)
+      IOUtils.write(text, mustBeClosedCompressingOutputStream, UTF_8)
+      mustBeClosedCompressingOutputStream.close()
+      mustBeClosedBase64OutputStream.close()
       new String(byteArrayOutputStream.toByteArray, UTF_8)
     }
   }
