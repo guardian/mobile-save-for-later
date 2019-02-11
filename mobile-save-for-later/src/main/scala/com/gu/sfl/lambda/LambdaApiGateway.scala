@@ -17,10 +17,12 @@ import scala.concurrent.{Await, Future}
 object ApiGatewayLambdaResponse {
   val minimalHeaders: Map[String, String] = Map("Content-Type" -> "application/json; charset=UTF-8", "cache-control" -> "max-age=0")
 
-  def apply(lamddaResponse: LambdaResponse, maybeCompression: Option[Compression]): ApiGatewayLambdaResponse = {
+  def apply(lambdaResponse: LambdaResponse, maybeCompression: Option[Compression]): ApiGatewayLambdaResponse = {
+    val requestHeaders: Map[String, String] = minimalHeaders ++ lambdaResponse.headers
     maybeCompression match {
-      case Some(compression) => ApiGatewayLambdaResponse(lamddaResponse.statusCode, lamddaResponse.maybeBody.map(compression.encodeToBase64), minimalHeaders ++ lamddaResponse.headers + (HeaderNames.contentEncoding -> compression.contentEncoding), Some(true))
-      case None => ApiGatewayLambdaResponse(lamddaResponse.statusCode, lamddaResponse.maybeBody, lamddaResponse.headers, None)
+      case Some(compression) =>
+        ApiGatewayLambdaResponse(lambdaResponse.statusCode, lambdaResponse.maybeBody.map(compression.encodeToBase64), requestHeaders + (HeaderNames.contentEncoding -> compression.contentEncoding), Some(true))
+      case None => ApiGatewayLambdaResponse(lambdaResponse.statusCode, lambdaResponse.maybeBody, requestHeaders, None)
     }
   }
 
