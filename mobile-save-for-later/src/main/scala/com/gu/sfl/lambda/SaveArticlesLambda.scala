@@ -10,15 +10,11 @@ import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient, SavedArticlesMergerConf
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 object SaveArticlesConfig {
-  private val identityApihostKey = "IdentityApiHost"
-  private val stageKey = "Stage"
-  private val appKey = "App"
-  private val savedArticleLimitKey = "SavedArticleLimit"
-
-  lazy val identityApiHost = sys.env.getOrElse(identityApihostKey, throw new NullPointerException(identityApihostKey))
-  lazy val app = sys.env.getOrElse(appKey, throw new NullPointerException(appKey))
-  lazy val stage = sys.env.getOrElse(stageKey, throw new NullPointerException(stageKey))
-  lazy val savedArticleLimit = sys.env.getOrElse(savedArticleLimitKey, throw new NullPointerException(savedArticleLimitKey)).toInt
+  private def readSystemKey(key: String): String = sys.env.getOrElse(key, throw new NullPointerException(s"Couldn't load environment variable $key"))
+  lazy val identityApiHost: String = readSystemKey("IdentityApiHost")
+  lazy val app: String = readSystemKey("App")
+  lazy val stage: String = readSystemKey("Stage")
+  lazy val savedArticleLimit: Int = readSystemKey("SavedArticleLimit").toInt
 
 }
 object SaveArticlesLambda extends Logging {
