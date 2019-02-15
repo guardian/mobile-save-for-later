@@ -9,6 +9,9 @@ import com.gu.sfl.lib.CloudWatchPublisher
 import scala.concurrent.Future
 import scala.util.Try
 
+object AwsLambda {
+  def readSystemKey(key: String): String = sys.env.getOrElse(key, throw new NullPointerException(s"Couldn't load environment variable $key"))
+}
 abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse], cloudWatchPublisher: CloudWatchPublisher) extends RequestStreamHandler with Logging {
 
   private val lambdaApiGateway = new LambdaApiGatewayImpl(function)

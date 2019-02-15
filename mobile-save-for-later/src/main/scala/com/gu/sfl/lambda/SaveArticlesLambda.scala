@@ -4,13 +4,14 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClientBuilder
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.lambda.AwsLambda.readSystemKey
 import com.gu.sfl.lambda.SaveArticlesConfig.{app, stage}
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 object SaveArticlesConfig {
-  private def readSystemKey(key: String): String = sys.env.getOrElse(key, throw new NullPointerException(s"Couldn't load environment variable $key"))
+
   lazy val identityApiHost: String = readSystemKey("IdentityApiHost")
   lazy val app: String = readSystemKey("App")
   lazy val stage: String = readSystemKey("Stage")
