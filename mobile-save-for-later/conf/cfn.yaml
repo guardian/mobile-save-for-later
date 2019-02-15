@@ -29,6 +29,12 @@ Parameters:
   CertArn:
     Description: ACM Certificate ARN
     Type: String
+  SavedArticleLimit:
+    Description: Saved article limit
+    Type: Number
+  IdentityApiHost:
+    Description: Identity App Host
+    Type: String
 
 Mappings:
   StageVariables:
@@ -187,6 +193,8 @@ Resources:
           Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
+          SavedArticleLimit: !Ref SavedArticleLimit
+          IdentityApiHost: !Ref IdentityApiHost
       MemorySize: 384
       Timeout: 60
       Events:
@@ -212,6 +220,7 @@ Resources:
           Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
+          IdentityApiHost: !Ref IdentityApiHost
       MemorySize: 394
       Timeout: 60
       Events:
