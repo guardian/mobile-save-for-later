@@ -4,7 +4,7 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClientBuilder
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
-import com.gu.sfl.lambda.AwsLambda.readSystemKey
+import com.gu.sfl.lambda.AwsLambda.readEnvKey
 import com.gu.sfl.lambda.FetchArticlesConfig.{app, stage}
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient}
@@ -12,13 +12,9 @@ import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
 
 object FetchArticlesConfig {
-  private val identityApihostKey = "IdentityApiHost"
-  private val stageKey = "Stage"
-  private val appKey = "App"
-
-  lazy val identityApiHost = readSystemKey(identityApihostKey)
-  lazy val app = readSystemKey(appKey)
-  lazy val stage = readSystemKey(stageKey)
+  lazy val identityApiHost = readEnvKey("IdentityApiHost")
+  lazy val app = readEnvKey("App")
+  lazy val stage = readEnvKey("Stage")
 }
 
 object FetchArticlesLambda extends Logging {
