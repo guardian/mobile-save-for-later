@@ -31,7 +31,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
     } yield {
       identityService.userFromRequest(identityHeaders).transformWith{
         case Success(Some(userId)) =>
-          logger.info(s"Got user id ${userId} from identity")
+          logger.debug(s"Got user id ${userId} from identity")
           Future.successful(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
           logger.debug(s"No user found for AccessToken ${identityHeaders.accessToken}")

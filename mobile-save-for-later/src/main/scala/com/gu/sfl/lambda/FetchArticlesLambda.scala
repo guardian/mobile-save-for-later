@@ -1,37 +1,33 @@
 package com.gu.sfl.lambda
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClientBuilder
-import com.gu.AwsIdentity
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
+import com.gu.sfl.lambda.AwsLambda.readEnvKey
+import com.gu.sfl.lambda.FetchArticlesConfig.{app, stage}
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
-import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient, SsmConfig}
+import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient}
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.FetchSavedArticlesImpl
 
+object FetchArticlesConfig {
+  lazy val identityApiHost = readEnvKey("IdentityApiHost")
+  lazy val app = readEnvKey("App")
+  lazy val stage = readEnvKey("Stage")
+}
+
 object FetchArticlesLambda extends Logging {
 
-  lazy val ssmConfig = new SsmConfig("save-for-later")
-  lazy val cloudWatchImpl = {
-    ssmConfig.identity match {
-      case awsIdentity: AwsIdentity =>
-        new CloudWatchImpl(awsIdentity.app, awsIdentity.stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient())
-    }
-  }
+  lazy val cloudWatchImpl = new CloudWatchImpl(app, stage, "fetch", AmazonCloudWatchAsyncClientBuilder.defaultClient())
   lazy val savedArticledController: FetchArticlesController = logOnThrown(
     () => {
-      ssmConfig.identity match {
-        case awsIdentity: AwsIdentity =>
-          logger.debug(s"Configuring controller with environment variables: Stack: ${awsIdentity.stack} Stage: ${awsIdentity.stage} App; ${awsIdentity.app}")
-          new FetchArticlesController(
-            new FetchSavedArticlesImpl(
-              new IdentityServiceImpl(IdentityConfig(ssmConfig.config.getString("identity.apiHost")), GlobalHttpClient.defaultHttpClient),
-              new SavedArticlesPersistenceImpl(PersistenceConfig(awsIdentity.app, awsIdentity.stage), cloudWatchImpl)
-            )
-          )
-        case _ => throw new IllegalStateException("Unable to retrieve configuration")
-      }
+      new FetchArticlesController(
+        new FetchSavedArticlesImpl(
+          new IdentityServiceImpl(IdentityConfig(FetchArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient),
+          new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage), cloudWatchImpl)
+        )
+      )
     }, "Error initialising saved articles controller")
 }
 
