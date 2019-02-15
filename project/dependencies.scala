@@ -14,7 +14,6 @@ object Dependencies {
   val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
   val awsCloudwatch = "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion
   val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
-  val awsSsm ="com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
 
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
@@ -24,7 +23,6 @@ object Dependencies {
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.6"
   val scanamo = "com.gu" %% "scanamo" % "1.0.0-M6"
-  val guSimpleConfigurationSsm = "com.gu" %% "simple-configuration-ssm" % "1.4.3"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "3.10.0"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
