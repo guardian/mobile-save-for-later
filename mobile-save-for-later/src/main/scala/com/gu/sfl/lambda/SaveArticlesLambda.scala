@@ -1,13 +1,11 @@
 package com.gu.sfl.lambda
-
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClientBuilder
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
 import com.gu.sfl.lambda.AwsLambda.readEnvKey
 import com.gu.sfl.lambda.SaveArticlesConfig.{app, stage}
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
-import com.gu.sfl.lib.{CloudWatchImpl, GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
+import com.gu.sfl.lib.{GlobalHttpClient, SavedArticlesMergerConfig, SavedArticlesMergerImpl}
 import com.gu.sfl.persistence.{PersistenceConfig, SavedArticlesPersistenceImpl}
 import com.gu.sfl.savedarticles.UpdateSavedArticlesImpl
 object SaveArticlesConfig {
@@ -19,15 +17,13 @@ object SaveArticlesConfig {
 
 }
 object SaveArticlesLambda extends Logging {
-  lazy val cloudwatch = new CloudWatchImpl(app, stage, "save", AmazonCloudWatchAsyncClientBuilder.defaultClient())
-
   lazy val saveForLaterController: SaveArticlesController = logOnThrown(
     () => {
           new SaveArticlesController(
             new UpdateSavedArticlesImpl(
               new IdentityServiceImpl(IdentityConfig(SaveArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient),
               new SavedArticlesMergerImpl(SavedArticlesMergerConfig(SaveArticlesConfig.savedArticleLimit),
-                new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage), cloudwatch)
+                new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage))
               )
             )
           )
@@ -35,4 +31,4 @@ object SaveArticlesLambda extends Logging {
 }
 
 
-class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController, SaveArticlesLambda.cloudwatch)
+class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController)

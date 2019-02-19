@@ -38,13 +38,10 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
       "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
     ),
     libraryDependencies ++= Seq(
-      awsCloudwatch,
       awsLambda,
       awsDynamo,
       awsLambdaLog,
-      awsLambdaEvent,
       awsJavaSdk,
-      awsSqs,
       jackson,
       jacksonDataFormat,
       jacksonJdk8DataType,
@@ -80,7 +77,12 @@ lazy val common = project.in(file("common"))
 
 lazy val saveforlaterapp = projectMaker("mobile-save-for-later")
 
-lazy val userDeletion = projectMaker("mobile-save-for-later-user-deletion")
+lazy val userDeletion = projectMaker("mobile-save-for-later-user-deletion").settings(
+  libraryDependencies ++= Seq(
+    awsLambdaEvent,
+    awsSqs
+  )
+)
 
 lazy val root = project.in(file(".")).aggregate(saveforlaterapp)
 
