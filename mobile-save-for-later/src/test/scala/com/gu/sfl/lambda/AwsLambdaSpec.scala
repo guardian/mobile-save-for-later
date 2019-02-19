@@ -3,7 +3,6 @@ package com.gu.sfl.lambda
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
-import com.gu.sfl.lib.CloudWatchPublisher
 import org.apache.logging.log4j.core.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -16,9 +15,7 @@ class AwsLambdaSpec extends Specification with Mockito {
       "Log but not error in" in {
         val mockedLogger = mock[Logger]
         val testException = new IllegalStateException("This is totally illegal")
-        val lambda = new AwsLambda((_: LambdaRequest) => throw testException, new CloudWatchPublisher {
-          override def sendMetricsSoFar(): Unit = ()
-        }) {
+        val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
           override val logger = mockedLogger
 
         }
