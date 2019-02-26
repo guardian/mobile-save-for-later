@@ -33,7 +33,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
 
   override def updateWithRetryAndMerge(userId: String, savedArticles: SavedArticles): Either[SaveForLaterError, SavedArticles] = {
 
-    val deduplicatedArticles = getDedupedArticles(savedArticles)
+    val deduplicatedArticles = savedArticles.deduped
 
     savedArticlesPersistence.read(userId) match {
       case Success(Some(currentArticles)) if currentArticles.version == deduplicatedArticles.version =>
@@ -49,13 +49,5 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
         persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
       case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
     }
-  }
-
-
-  //This is done here for debugging puposes. To be removed when we are connfident it's no longer needed
-  private def getDedupedArticles(savedArticles: SavedArticles) : SavedArticles = {
-    val deDupedArticles = savedArticles.deduped
-    logger.info(s"Saving articles - Number of raw articles from client: ${savedArticles.numberOfArticles}, Number with dupicates removed: ${deDupedArticles.numberOfArticles} ")
-    deDupedArticles
   }
 }
