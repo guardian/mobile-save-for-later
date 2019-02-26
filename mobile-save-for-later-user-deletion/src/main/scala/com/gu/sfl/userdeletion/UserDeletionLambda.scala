@@ -10,9 +10,6 @@ import coml.gu.sfl.userdeletion.db.SflDynamoDb
 import scala.collection.JavaConverters._
 
 object UserDeletionLambda extends Logging {
-
-  logger.info("Lambda loading")
-
   val saveForLaterApp = Option(System.getenv("SaveForLaterApp")).getOrElse(sys.error("No main app name configured"))
   val stage = Option(System.getenv("Stage")).getOrElse(sys.error("No main stage configured"))
 
