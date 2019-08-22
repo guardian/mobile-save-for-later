@@ -157,7 +157,6 @@ Resources:
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
       Timeout: 300
-  C
   UserDeletionEventSource:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
