@@ -122,8 +122,8 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: "Ensure that the user ids are being deleted by the user deletion lambda"
-      Namespace: !Sub SaveForLater/${Stage}
-      MetricName: ApproxNumberOfPendingUserIdDeletions
+      Namespace: "AWS/SQS"
+      MetricName: ApproximateNumberOfMessagesVisible
       Dimensions:
         - Name: QueueName
           Value: !GetAtt 'UserIdDeleteQueue.QueueName'
@@ -157,7 +157,6 @@ Resources:
       Role: !GetAtt UserDeletionRole.Arn
       Runtime: java8
       Timeout: 300
-        
   UserDeletionEventSource:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
