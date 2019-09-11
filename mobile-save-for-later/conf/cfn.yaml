@@ -36,15 +36,6 @@ Parameters:
     Description: Identity App Host
     Type: String
 
-Mappings:
-  StageVariables:
-    CODE:
-      TableReadCapacity: 1
-      TableWriteCapacity: 1
-    PROD:
-      TableReadCapacity: 75
-      TableWriteCapacity: 75
-
 Resources:
   SaveForLaterDynamoTable:
     Type: AWS::DynamoDB::Table
@@ -56,9 +47,7 @@ Resources:
       KeySchema:
         - AttributeName: userId
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
-        WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteCapacity ]
+      BillingMode: PAY_PER_REQUEST
 
   SaveForLaterRole:
     Type: AWS::IAM::Role
