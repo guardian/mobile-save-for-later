@@ -26,6 +26,9 @@ Parameters:
   IdentityDeleteUserSnsTopicArnBase:
     Description: base form (sans platform) of the identity-account user deletion SNS
     Type: String
+  IdentityAccountId:
+    Description: The account ID of the Identity AWS account
+    Type: String
 
 Resources:
   UserDeletionRole:
@@ -84,7 +87,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: "*"
+              AWS: !Ref IdentityAccountId
             Action:
               - sqs:SendMessage
             Resource: !GetAtt UserIdDeleteQueue.Arn
