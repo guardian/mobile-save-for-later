@@ -43,8 +43,8 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
         else
           Right(deduplicatedArticles)
       case Success(Some(currentArticles)) =>
-        logger.info(s"Received version ${deduplicatedArticles.version} from the client but had version ${currentArticles.version} in the database")
         val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deduplicatedArticles.articles)(_.id))
+        logger.info(s"Received version ${deduplicatedArticles.version} from the client but had version ${currentArticles.version} in the database. DB count: ${currentArticles.articles.length}, client count: ${deduplicatedArticles.articles.length}, merged count: ${articlesToSave.articles.length}")
         persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
       case Success(None) =>
         persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
