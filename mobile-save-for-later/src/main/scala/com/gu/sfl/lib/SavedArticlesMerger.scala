@@ -38,15 +38,17 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
     savedArticlesPersistence.read(userId) match {
       case Success(Some(currentArticles)) if currentArticles.version == deduplicatedArticles.version =>
         if(currentArticles != deduplicatedArticles) {
+          logger.info(s"UserId: $userId. Received version ${deduplicatedArticles.version} which matched the database. DB count: ${currentArticles.articles.length}, client count: ${deduplicatedArticles.articles.length}")
           persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
         }
         else
           Right(deduplicatedArticles)
       case Success(Some(currentArticles)) =>
         val articlesToSave = currentArticles.copy(articles = MergeLogic.mergeListBy(currentArticles.articles, deduplicatedArticles.articles)(_.id))
-        logger.info(s"Received version ${deduplicatedArticles.version} from the client but had version ${currentArticles.version} in the database. DB count: ${currentArticles.articles.length}, client count: ${deduplicatedArticles.articles.length}, merged count: ${articlesToSave.articles.length}")
+        logger.info(s"UserId: $userId. Received version ${deduplicatedArticles.version} from the client but had version ${currentArticles.version} in the database. DB count: ${currentArticles.articles.length}, client count: ${deduplicatedArticles.articles.length}, merged count: ${articlesToSave.articles.length}")
         persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
       case Success(None) =>
+        logger.info(s"UserId: $userId. Storing articles for the first time. Version: ${deduplicatedArticles.version}. Client count: ${deduplicatedArticles.articles.length}")
         persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
       case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
     }

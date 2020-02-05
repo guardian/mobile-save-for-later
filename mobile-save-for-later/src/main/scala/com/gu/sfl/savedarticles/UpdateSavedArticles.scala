@@ -22,7 +22,7 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
       val eventualMaybeString = identityService.userFromRequest(identityHeaders)
       eventualMaybeString transformWith {
           case Success(Some(userId)) =>
-            logger.info(s"Attempting to save articles fo user: $userId")
+            logger.debug(s"Storing ${savedArticles.numberOfArticles} articles for user $userId")
             Future.successful(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))
           case Success(_) =>
             logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
