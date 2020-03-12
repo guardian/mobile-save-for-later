@@ -223,6 +223,7 @@ Resources:
           IdentityApiHost: !Ref IdentityApiHost
       MemorySize: 394
       Timeout: 60
+      ReservedConcurrentExecutions: 100
       Events:
         GetApi:
           Type: Api
