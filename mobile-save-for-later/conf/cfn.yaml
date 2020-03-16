@@ -41,9 +41,11 @@ Mappings:
     CODE:
       TableReadCapacity: 1
       TableWriteCapacity: 1
+      ReservedConcurrency: 1
     PROD:
-      TableReadCapacity: 75
-      TableWriteCapacity: 75
+      TableReadCapacity: 100
+      TableWriteCapacity: 50
+      ReservedConcurrency: 50
 
 Resources:
   SaveForLaterDynamoTable:
@@ -222,8 +224,8 @@ Resources:
           App: !Ref App
           IdentityApiHost: !Ref IdentityApiHost
       MemorySize: 394
-      Timeout: 60
-      ReservedConcurrentExecutions: 100
+      Timeout: 20
+      ReservedConcurrentExecutions: !FindInMap [ StageVariables, !Ref Stage, ReservedConcurrency ]
       Events:
         GetApi:
           Type: Api
@@ -231,11 +233,3 @@ Resources:
            Path: "/syncedPrefs/me"
            Method: GET
            RestApiId: !Ref SaveForLaterApi
-
-
-
-
-
-
-
-
