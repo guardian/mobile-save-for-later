@@ -35,6 +35,9 @@ Parameters:
   IdentityApiHost:
     Description: Identity App Host
     Type: String
+  DynamoNotificationTopic:
+    Description: SNS topic to notify when there's a dynamo throttling event
+    Type: String
 
 Mappings:
   StageVariables:
@@ -233,3 +236,37 @@ Resources:
            Path: "/syncedPrefs/me"
            Method: GET
            RestApiId: !Ref SaveForLaterApi
+
+  SaveForLaterReadThrottleEvents:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${App}-${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm
+      Namespace: AWS/DynamoDB
+      MetricName: ReadThrottleEvents
+      Unit: Count
+      Statistic: Sum
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: TableName
+          Value: !Ref SaveForLaterDynamoTable
+      Threshold: 0
+      Period: 60
+      EvaluationPeriods: 1
+      AlarmActions: [ !Ref DynamoNotificationTopic ]
+
+  SaveForLaterWriteThrottleEvents:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${App}-${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm
+      Namespace: AWS/DynamoDB
+      MetricName: WriteThrottleEvents
+      Unit: Count
+      Statistic: Sum
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: TableName
+          Value: !Ref SaveForLaterDynamoTable
+      Threshold: 0
+      Period: 60
+      EvaluationPeriods: 1
+      AlarmActions: [ !Ref DynamoNotificationTopic ]
