@@ -244,7 +244,7 @@ Resources:
       MetricName: ReadThrottleEvents
       Unit: Count
       Statistic: Sum
-      ComparisonOperator: GreaterThanOrEqualToThreshold
+      ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: TableName
           Value: !Ref SaveForLaterDynamoTable
@@ -260,7 +260,7 @@ Resources:
       MetricName: WriteThrottleEvents
       Unit: Count
       Statistic: Sum
-      ComparisonOperator: GreaterThanOrEqualToThreshold
+      ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: TableName
           Value: !Ref SaveForLaterDynamoTable
