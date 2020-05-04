@@ -240,6 +240,7 @@ Resources:
   SaveForLaterReadThrottleEvents:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: !Sub ${App}-${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm
       Namespace: AWS/DynamoDB
       MetricName: ReadThrottleEvents
       Unit: Count
@@ -256,6 +257,7 @@ Resources:
   SaveForLaterWriteThrottleEvents:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: !Sub ${App}-${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm
       Namespace: AWS/DynamoDB
       MetricName: WriteThrottleEvents
       Unit: Count
