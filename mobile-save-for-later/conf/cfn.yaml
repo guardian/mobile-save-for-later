@@ -45,10 +45,12 @@ Mappings:
       TableReadCapacity: 1
       TableWriteCapacity: 1
       ReservedConcurrency: 1
+      AlarmActionsEnabled: FALSE
     PROD:
       TableReadCapacity: 110
       TableWriteCapacity: 75
       ReservedConcurrency: 50
+      AlarmActionsEnabled: TRUE
 
 Resources:
   SaveForLaterDynamoTable:
@@ -252,6 +254,8 @@ Resources:
       Threshold: 0
       Period: 60
       EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      ActionsEnabled: !FindInMap [StageVariables, !Ref Stage, AlarmActionsEnabled]
       AlarmActions: [ !Ref DynamoNotificationTopic ]
 
   SaveForLaterWriteThrottleEvents:
@@ -269,4 +273,6 @@ Resources:
       Threshold: 0
       Period: 60
       EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      ActionsEnabled: !FindInMap [StageVariables, !Ref Stage, AlarmActionsEnabled]
       AlarmActions: [ !Ref DynamoNotificationTopic ]
