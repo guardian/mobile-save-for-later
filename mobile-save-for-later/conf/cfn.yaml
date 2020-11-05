@@ -42,15 +42,42 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      TableReadCapacity: 1
+      TableReadMinCapacity: 1
+      TableReadMaxCapacity: 1
       TableWriteCapacity: 1
       ReservedConcurrency: 1
       AlarmActionsEnabled: FALSE
     PROD:
-      TableReadCapacity: 200
+      TableReadMinCapacity: 110
+      TableReadMaxCapacity: 200
       TableWriteCapacity: 75
       ReservedConcurrency: 50
       AlarmActionsEnabled: TRUE
+
+SaveForLaterReadCapacityScalableTarget:
+  Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+  Properties:
+    MaxCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMaxCapacity]
+    MinCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMinCapacity]
+    ResourceId: !Sub table/${App}-${Stage}-articles
+    RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+    ScalableDimension: "dynamodb:table:ReadCapacityUnits"
+    ServiceNamespace: dynamodb
+    DependsON: SaveForLaterDynamoTable
+
+SaveForLaterReadScalingPolicy:
+  Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+  Properties:
+    PolicyName: ReadAutoScalingPolicy
+    PolicyType: TargetTrackingScaling
+    ScalingTargetId:
+    Ref: SaveForLaterReadCapacityScalableTarget
+    TargetTrackingScalingPolicyConfiguration:
+    TargetValue: 70
+    ScaleInCooldown: 60
+    ScaleOutCooldown: 60
+    PredefinedMetricSpecification:
+    PredefinedMetricType: DynamoDBReadCapacityUtilization
 
 Resources:
   SaveForLaterDynamoTable:
@@ -64,7 +91,7 @@ Resources:
         - AttributeName: userId
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        ReadCapacityUnits: !FindInMap [StageVariables, !Ref Stage, TableReadMinCapacity]
         WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteCapacity ]
 
   SaveForLaterRole:
