@@ -47,7 +47,7 @@ Mappings:
       ReservedConcurrency: 1
       AlarmActionsEnabled: FALSE
     PROD:
-      TableReadCapacity: 200
+      TableReadCapacity: 400
       TableWriteCapacity: 75
       ReservedConcurrency: 50
       AlarmActionsEnabled: TRUE
