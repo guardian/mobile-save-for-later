@@ -51,6 +51,7 @@ Mappings:
 Resources:
   SaveForLaterDynamoTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub ${App}-${Stage}-articles
       AttributeDefinitions:
