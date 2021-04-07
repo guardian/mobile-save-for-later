@@ -42,9 +42,13 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
+      TableReadCapacity: 1
+      TableWriteCapacity: 1
       ReservedConcurrency: 1
       AlarmActionsEnabled: FALSE
     PROD:
+      TableReadCapacity: 200
+      TableWriteCapacity: 75
       ReservedConcurrency: 50
       AlarmActionsEnabled: TRUE
 
@@ -59,7 +63,9 @@ Resources:
       KeySchema:
         - AttributeName: userId
           KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
+      ProvisionedThroughput:
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteCapacity ]
 
   SaveForLaterRole:
     Type: AWS::IAM::Role
