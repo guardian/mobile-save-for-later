@@ -9,3 +9,8 @@ deployments:
       functionNames: [mobile-save-for-later-user-deletion-]
       fileName: mobile-save-for-later-user-deletion.jar
       prefixStack: false
+  mobile-save-for-later-user-deletion-cfn:
+    type: cloud-formation
+    app: mobile-save-for-later-user-deletion
+    parameters:
+      templatePath: cfn.yaml

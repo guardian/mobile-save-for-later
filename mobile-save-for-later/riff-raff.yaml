@@ -9,3 +9,8 @@ deployments:
       functionNames: [mobile-save-for-later-SAVE-, mobile-save-for-later-FETCH-]
       fileName: mobile-save-for-later.jar
       prefixStack: false
+  mobile-save-for-later-cfn:
+    type: cloud-formation
+    app: mobile-save-for-later
+    parameters:
+      templatePath: cfn.yaml
