@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val awsSdkVersion = "1.11.412"
-  val log4j2Version = "2.15.0"
+  val log4j2Version = "2.16.0"
   val jacksonVersion = "2.9.4"
   val specsVersion = "4.0.3"
 
