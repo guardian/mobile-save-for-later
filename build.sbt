@@ -17,11 +17,11 @@ def projectMaker(projectName: String) = Project(projectName, file(projectName))
 
 
 def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] = commonSettings ++ List (
-  assemblyMergeStrategy in assembly := {
+  assembly / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
     case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" => new MergeFilesStrategy
     case x =>
-      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   },
   assemblyJarName := s"${name.value}.jar",
