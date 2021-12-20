@@ -1,3 +1,9 @@
 *.iml
 .idea
 target/
+.metals/
+.vscode/
+.bloop/
+project/.bloop/
+project/metals.sbt
+.bsp/
