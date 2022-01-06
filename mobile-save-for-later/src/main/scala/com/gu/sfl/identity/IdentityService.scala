@@ -46,8 +46,10 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
            val node = mapper.readTree(body.getBytes)
            node.path("id").textValue
          } match {
-           case Success(userId) => promise.success(Some(userId))
-           case Failure(_)  => promise.success(None)
+           case Success(userId) =>
+             promise.success(Option(userId))
+           case Failure(_)  =>
+             promise.success(None)
          }
       }
 
