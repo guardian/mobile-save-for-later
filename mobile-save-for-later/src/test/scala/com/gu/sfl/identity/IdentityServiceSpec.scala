@@ -41,6 +41,16 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
       }
 
     }
+
+    "return future failed when identity returns 503" in new MockErrorResponseScope {
+      val idFailResult =  Await.ready(identityService.userFromRequest(identityHeaders), Duration.Inf).value.get
+
+      idFailResult match {
+        case Success(_) => fail("No IOxception thrown")
+        case Failure(e) => e mustEqual(IdentityApiRequestError("Identity api server error"))
+      }
+
+    }
   }
 
   trait IdentityRequestFailsScope extends MockHttpRequestScope {
@@ -53,6 +63,11 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
   trait MockBadIdResponseScope extends MockHttpRequestScope {
     override val body = """{"status":"error","errors":[{"message":"Access Denied","description":"Access Denied"}]}"""
     override val code = 403
+  }
+
+  trait MockErrorResponseScope extends MockHttpRequestScope {
+    override val body = """service not available"""
+    override val code = 503
   }
 
   trait MockHttpRequestScope extends Scope {

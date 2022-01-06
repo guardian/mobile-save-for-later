@@ -36,22 +36,35 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
       .get()
       .build()
 
+    def extractUserIdFromSuccessResult(response: Response) = {
+      Try {
+        val body = response.body().string()
+        logger.debug(s"Identity api response: $body")
+        val node = mapper.readTree(body.getBytes)
+        node.path("id").textValue
+      } match {
+        case Success(userId) =>
+          // .textValue can return null, so wrap in Option.apply
+          promise.success(Option(userId))
+        case Failure(_) =>
+          promise.success(None)
+      }
+    }
+
     okHttpClient.newCall(
       request
     ).enqueue(new Callback {
       override def onResponse(call: Call, response: Response): Unit = {
-        Try {
-           val body = response.body().string()
-           logger.debug(s"Identity api response: $body")
-           val node = mapper.readTree(body.getBytes)
-           node.path("id").textValue
-         } match {
-           case Success(userId) =>
-             // .textValue can return null, so wrap in Option.apply
-             promise.success(Option(userId))
-           case Failure(_)  =>
-             promise.success(None)
-         }
+        val responseCodeGroup = response.code() / 100
+
+        // 5XX responses should not log users out, so fail the promise instead of returning None
+        if (responseCodeGroup == 5) {
+          promise.failure(IdentityApiRequestError("Identity api server error"))
+        } else if (responseCodeGroup == 2) {
+          extractUserIdFromSuccessResult(response)
+        } else {
+          promise.success(None)
+        }
       }
 
       override def onFailure(call: Call, e: IOException): Unit = promise.failure(IdentityApiRequestError("Did not get identiy api response"))
