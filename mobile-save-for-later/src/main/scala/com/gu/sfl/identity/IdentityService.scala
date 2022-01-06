@@ -21,7 +21,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
 
   override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
 
-    val meUrl = s"${identityConfig.identityApiHost}/user/me"
+    val meUrl = s"${identityConfig.identityApiHost}/user/me/identifiers"
 
     val headers = new Headers.Builder()
       .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
@@ -44,7 +44,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
            val body = response.body().string()
            logger.debug(s"Identity api response: $body")
            val node = mapper.readTree(body.getBytes)
-           node.get("user").path("id").textValue
+           node.path("id").textValue
          } match {
            case Success(userId) => promise.success(Some(userId))
            case Failure(_)  => promise.success(None)

@@ -69,7 +69,12 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
     }
 
     //This is a cutdown of what the actual id response is
-    def body: String = """{ "status": "ok", "user": { "id": "1234" 	} }"""
+    def body: String = """{
+                         |  "id": "1234",
+                         |  "brazeUuid": "aaaaaaaaaa",
+                         |  "puzzleId": "aaaaaaaaaaaaaaaaaaaaa",
+                         |  "googleTagId": "aaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                         |}""".stripMargin
     def code: Int = 200
 
     val httpClient = mock[OkHttpClient]
