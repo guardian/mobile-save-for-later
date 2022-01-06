@@ -47,6 +47,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
            node.path("id").textValue
          } match {
            case Success(userId) =>
+             // .textValue can return null, so wrap in Option.apply
              promise.success(Option(userId))
            case Failure(_)  =>
              promise.success(None)
