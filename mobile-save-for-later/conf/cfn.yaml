@@ -1,279 +1,307 @@
-#AWSTemplateFormatVersion: 2010-09-09
-Transform: AWS::Serverless-2016-10-31
-Description: Implements save for later for mobile
-Parameters:
-  Stack:
-    Description: Stack name
-    Type: String
-    Default: mobile
-  Stage:
-    Description: Stage name
-    Type: String
-    AllowedValues:
-      - CODE
-      - PROD
-  App:
-    Description: Application name
-    Type: String
-    Default: mobile-save-for-later
-  DeployBucket:
-    Description: S3 Bucket where riff-raff uploads artifacts on deploy
-    Type: String
-    Default: mobile-dist
-  HostedZoneId:
-    Description: Id of HostedZone
-    Type: String
-  HostedZoneName:
-    Description: Name of HostedZone
-    Type: String
-  CertArn:
-    Description: ACM Certificate ARN
-    Type: String
-  SavedArticleLimit:
-    Description: Saved article limit
-    Type: Number
-  IdentityApiHost:
-    Description: Identity App Host
-    Type: String
-  DynamoNotificationTopic:
-    Description: SNS topic to notify when there's a dynamo throttling event
-    Type: String
-
-Mappings:
-  StageVariables:
-    CODE:
-      TableReadCapacity: 1
-      TableWriteCapacity: 1
-      ReservedConcurrency: 1
-      AlarmActionsEnabled: FALSE
-    PROD:
-      TableReadCapacity: 200
-      TableWriteCapacity: 75
-      ReservedConcurrency: 50
-      AlarmActionsEnabled: TRUE
-
 Resources:
-  SaveForLaterDynamoTable:
-    Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
+  ApiRoute53:
+    Type: 'AWS::Route53::RecordSetGroup'
     Properties:
-      TableName: !Sub ${App}-${Stage}-articles
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
-        WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteCapacity ]
-
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt
+              - ApiDomainName
+              - DistributionDomainName
+          Type: A
+          Name: !Ref ApiDomainName
+  SaveForLaterWriteThrottleEvents:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: TableName
+          Value: !Ref SaveForLaterDynamoTable
+      AlarmActions:
+        - !Ref DynamoNotificationTopic
+      Namespace: AWS/DynamoDB
+      Period: 60
+      ComparisonOperator: GreaterThanThreshold
+      AlarmName: !Sub '${App}-${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm'
+      ActionsEnabled: !FindInMap
+        - StageVariables
+        - !Ref Stage
+        - AlarmActionsEnabled
+      Statistic: Sum
+      Threshold: 0
+      Unit: Count
+      MetricName: WriteThrottleEvents
+  SaveArticlesLambdaPostApiPermissionStage:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref SaveArticlesLambda
+      SourceArn: !Sub
+        - >-
+          arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/POST/syncedPrefs/me/savedArticles
+        - __Stage__: '*'
+          __ApiId__: !Ref SaveForLaterApi
   SaveForLaterRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action: sts:AssumeRole
       Path: /
       Policies:
         - PolicyName: logs
           PolicyDocument:
             Statement:
-              Effect: Allow
               Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: "*"
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+              Effect: Allow
         - PolicyName: ssm-config
           PolicyDocument:
             Statement:
               Action:
-                - ssm:GetParametersByPath
+                - 'ssm:GetParametersByPath'
+              Resource: !Sub >-
+                arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${App}/${Stage}/${Stack}
               Effect: Allow
-              Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${App}/${Stage}/${Stack}
         - PolicyName: dynamo-action
           PolicyDocument:
             Statement:
-              Effect: Allow
               Action:
-                - dynamodb:GetItem
-                - dynamodb:PutItem
-                - dynamodb:UpdateItem
-                - dynamodb:Query
-              Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Stage}-articles
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:Query'
+              Resource: !Sub >-
+                arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${App}-${Stage}-articles
+              Effect: Allow
         - PolicyName: metrics
           PolicyDocument:
             Statement:
-              Effect: Allow
               Action:
-              - cloudwatch:PutMetricData
-              Resource: "*"
-
-  FetchArticlesLambdaPermission:
-    Type: AWS::Lambda::Permission
+                - 'cloudwatch:PutMetricData'
+              Resource: '*'
+              Effect: Allow
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+  SaveForLaterApiStage:
+    Type: 'AWS::ApiGateway::Stage'
     Properties:
-      FunctionName: !GetAtt FetchArticlesLambda.Arn
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-
-  SaveForLaterApi:
-    Type: AWS::Serverless::Api
-    Properties:
+      DeploymentId: !Ref SaveForLaterApiDeployment7818545d6f
+      RestApiId: !Ref SaveForLaterApi
       StageName: !Ref Stage
-      DefinitionBody:
-        swagger: "2.0"
+  FetchArticlesLambdaGetApiPermissionStage:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref FetchArticlesLambda
+      SourceArn: !Sub
+        - >-
+          arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/GET/syncedPrefs/me
+        - __Stage__: '*'
+          __ApiId__: !Ref SaveForLaterApi
+  SaveForLaterApiDeployment7818545d6f:
+    Type: 'AWS::ApiGateway::Deployment'
+    Properties:
+      RestApiId: !Ref SaveForLaterApi
+      Description: 'RestApi deployment id: 7818545d6f935a518be3b1f7ecebec1729443529'
+      StageName: Stage
+  SaveForLaterReadThrottleEvents:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: TableName
+          Value: !Ref SaveForLaterDynamoTable
+      AlarmActions:
+        - !Ref DynamoNotificationTopic
+      Namespace: AWS/DynamoDB
+      Period: 60
+      ComparisonOperator: GreaterThanThreshold
+      AlarmName: !Sub '${App}-${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm'
+      ActionsEnabled: !FindInMap
+        - StageVariables
+        - !Ref Stage
+        - AlarmActionsEnabled
+      Statistic: Sum
+      Threshold: 0
+      Unit: Count
+      MetricName: ReadThrottleEvents
+  SaveForLaterApi:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Body:
         info:
-          version: "1.0.0"
-          title: !Sub ${App}-${Stage}
+          version: 1.0.0
+          title: !Sub '${App}-${Stage}'
         paths:
-
-          "/syncedPrefs/me":
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchArticlesLambda.Arn}/invocations
-              produces:
-              - application/json
-              responses:
-                "200":
-                  "description": "200 response"
-
-          "/syncedPrefs/me/savedArticles":
+          /syncedPrefs/me/savedArticles:
             post:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SaveArticlesLambda.Arn}/invocations
-              consumes:
-              - application/json
+                uri: !Sub >-
+                  arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SaveArticlesLambda.Arn}/invocations
               produces:
-              - application/json
+                - application/json
               responses:
-                "200":
-                  "description": "200 response"
-
-
-  ApiDomainName:
-    Type: AWS::ApiGateway::DomainName
-    Properties:
-      CertificateArn: !Ref CertArn
-      DomainName: !Sub ${App}.${HostedZoneName}
-
-  ApiRoute53:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneId: !Ref HostedZoneId
-      RecordSets:
-        - Name: !Ref ApiDomainName
-          Type: A
-          AliasTarget:
-            HostedZoneId: Z2FDTNDATAQYW2
-            DNSName: !GetAtt
-              - ApiDomainName
-              - DistributionDomainName
-
+                '200':
+                  description: 200 response
+              consumes:
+                - application/json
+          /syncedPrefs/me:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub >-
+                  arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchArticlesLambda.Arn}/invocations
+              responses:
+                '200':
+                  description: 200 response
+              produces:
+                - application/json
+        swagger: '2.0'
   ApiMapping:
-    Type: AWS::ApiGateway::BasePathMapping
+    Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
-      DomainName: !Ref ApiDomainName
-      RestApiId: !Ref SaveForLaterApi
       Stage: !Ref Stage
-
-
-  SaveArticlesLambda:
-    Type: AWS::Serverless::Function
+      RestApiId: !Ref SaveForLaterApi
+      DomainName: !Ref ApiDomainName
+  FetchArticlesLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
     Properties:
-      Handler: com.gu.sfl.lambda.SaveArticlesLambda::handleRequest
-      Role: !GetAtt SaveForLaterRole.Arn
-      Runtime: java8
-      CodeUri:
-        Bucket: !Ref DeployBucket
-        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
-      FunctionName: !Sub ${App}-SAVE-${Stage}
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt FetchArticlesLambda.Arn
+      Principal: apigateway.amazonaws.com
+  SaveArticlesLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Ref DeployBucket
+        S3Key: !Sub '${Stack}/${Stage}/${App}/${App}.jar'
+      FunctionName: !Sub '${App}-SAVE-${Stage}'
+      Tags:
+        - Value: SAM
+          Key: 'lambda:createdBy'
+      MemorySize: 384
       Environment:
         Variables:
-          Stack: !Ref Stack
           Stage: !Ref Stage
           App: !Ref App
           SavedArticleLimit: !Ref SavedArticleLimit
+          Stack: !Ref Stack
           IdentityApiHost: !Ref IdentityApiHost
-      MemorySize: 384
-      Timeout: 60
-      Events:
-        PostApi:
-          Type: Api
-          Properties:
-           Path: "/syncedPrefs/me/savedArticles"
-           Method: POST
-           RestApiId: !Ref SaveForLaterApi
-
-  FetchArticlesLambda:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: com.gu.sfl.lambda.FetchArticlesLambda::handleRequest
+      Handler: 'com.gu.sfl.lambda.SaveArticlesLambda::handleRequest'
       Role: !GetAtt SaveForLaterRole.Arn
+      Timeout: 60
       Runtime: java8
-      CodeUri:
-        Bucket: !Ref DeployBucket
-        Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
-      FunctionName: !Sub ${App}-FETCH-${Stage}
+  SaveForLaterDynamoTable:
+    DeletionPolicy: Retain
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      KeySchema:
+        - KeyType: HASH
+          AttributeName: userId
+      TableName: !Sub '${App}-${Stage}-articles'
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      ProvisionedThroughput:
+        WriteCapacityUnits: !FindInMap
+          - StageVariables
+          - !Ref Stage
+          - TableWriteCapacity
+        ReadCapacityUnits: !FindInMap
+          - StageVariables
+          - !Ref Stage
+          - TableReadCapacity
+  ApiDomainName:
+    Type: 'AWS::ApiGateway::DomainName'
+    Properties:
+      CertificateArn: !Ref CertArn
+      DomainName: !Sub '${App}.${HostedZoneName}'
+  FetchArticlesLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Ref DeployBucket
+        S3Key: !Sub '${Stack}/${Stage}/${App}/${App}.jar'
+      FunctionName: !Sub '${App}-FETCH-${Stage}'
+      Tags:
+        - Value: SAM
+          Key: 'lambda:createdBy'
+      ReservedConcurrentExecutions: !FindInMap
+        - StageVariables
+        - !Ref Stage
+        - ReservedConcurrency
+      MemorySize: 394
       Environment:
         Variables:
-          Stack: !Ref Stack
-          Stage: !Ref Stage
           App: !Ref App
+          Stage: !Ref Stage
+          Stack: !Ref Stack
           IdentityApiHost: !Ref IdentityApiHost
-      MemorySize: 394
+      Handler: 'com.gu.sfl.lambda.FetchArticlesLambda::handleRequest'
+      Role: !GetAtt SaveForLaterRole.Arn
       Timeout: 20
-      ReservedConcurrentExecutions: !FindInMap [ StageVariables, !Ref Stage, ReservedConcurrency ]
-      Events:
-        GetApi:
-          Type: Api
-          Properties:
-           Path: "/syncedPrefs/me"
-           Method: GET
-           RestApiId: !Ref SaveForLaterApi
-
-  SaveForLaterReadThrottleEvents:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub ${App}-${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm
-      Namespace: AWS/DynamoDB
-      MetricName: ReadThrottleEvents
-      Unit: Count
-      Statistic: Sum
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: TableName
-          Value: !Ref SaveForLaterDynamoTable
-      Threshold: 0
-      Period: 60
-      EvaluationPeriods: 1
-      TreatMissingData: notBreaching
-      ActionsEnabled: !FindInMap [StageVariables, !Ref Stage, AlarmActionsEnabled]
-      AlarmActions: [ !Ref DynamoNotificationTopic ]
-
-  SaveForLaterWriteThrottleEvents:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub ${App}-${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm
-      Namespace: AWS/DynamoDB
-      MetricName: WriteThrottleEvents
-      Unit: Count
-      Statistic: Sum
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: TableName
-          Value: !Ref SaveForLaterDynamoTable
-      Threshold: 0
-      Period: 60
-      EvaluationPeriods: 1
-      TreatMissingData: notBreaching
-      ActionsEnabled: !FindInMap [StageVariables, !Ref Stage, AlarmActionsEnabled]
-      AlarmActions: [ !Ref DynamoNotificationTopic ]
+      Runtime: java8
+Description: Implements save for later for mobile
+Parameters:
+  SavedArticleLimit:
+    Type: Number
+    Description: Saved article limit
+  DynamoNotificationTopic:
+    Type: String
+    Description: SNS topic to notify when there's a dynamo throttling event
+  HostedZoneName:
+    Type: String
+    Description: Name of HostedZone
+  App:
+    Default: mobile-save-for-later
+    Type: String
+    Description: Application name
+  DeployBucket:
+    Default: mobile-dist
+    Type: String
+    Description: S3 Bucket where riff-raff uploads artifacts on deploy
+  CertArn:
+    Type: String
+    Description: ACM Certificate ARN
+  HostedZoneId:
+    Type: String
+    Description: Id of HostedZone
+  IdentityApiHost:
+    Type: String
+    Description: Identity App Host
+  Stack:
+    Default: mobile
+    Type: String
+    Description: Stack name
+  Stage:
+    Type: String
+    Description: Stage name
+    AllowedValues:
+      - CODE
+      - PROD
+Mappings:
+  StageVariables:
+    CODE:
+      ReservedConcurrency: 1
+      AlarmActionsEnabled: false
+      TableReadCapacity: 1
+      TableWriteCapacity: 1
+    PROD:
+      ReservedConcurrency: 50
+      AlarmActionsEnabled: true
+      TableReadCapacity: 200
+      TableWriteCapacity: 75
