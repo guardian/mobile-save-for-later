@@ -13,4 +13,6 @@ deployments:
     type: cloud-formation
     app: mobile-save-for-later
     parameters:
-      templatePath: cfn.yaml
+      templateStagePaths:
+        CODE: MobileSaveForLater-CODE.template.json
+        PROD: MobileSaveForLater-PROD.template.json
