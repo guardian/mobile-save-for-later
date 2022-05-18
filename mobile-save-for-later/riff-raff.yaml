@@ -6,9 +6,15 @@ deployments:
     type: aws-lambda
     parameters:
       bucket: mobile-dist
-      functionNames: [mobile-save-for-later-SAVE-, mobile-save-for-later-FETCH-]
+      functionNames:
+        - mobile-save-for-later-SAVE-
+        - mobile-save-for-later-FETCH-
+        - mobile-save-for-later-SAVE-cdk-
+        - mobile-save-for-later-FETCH-cdk-
       fileName: mobile-save-for-later.jar
       prefixStack: false
+    dependencies:
+      - mobile-save-for-later-cfn
   mobile-save-for-later-cfn:
     type: cloud-formation
     app: mobile-save-for-later
