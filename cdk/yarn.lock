@@ -306,16 +306,16 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@guardian/cdk@43.0.0":
-  version "43.0.0"
-  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-43.0.0.tgz#9a504835cd7be80cb99fe1b2cbcf1c3038c1826b"
-  integrity sha512-e0uRU/3AhmsXTedoiqqAw50YlgsiNRdOFZhR1+UZ3UwvvwgMZSZwISdTjKiuWglDi8SuLFDMdgRRw6529By1YQ==
+"@guardian/cdk@43.3.1-beta.1":
+  version "43.3.1-beta.1"
+  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-43.3.1-beta.1.tgz#a3da33ab0d4ac28e00caec53f46c788f94da8bb9"
+  integrity sha512-7ZVX8XYAdN6eFFm69XtuovHcUqFvZnjrXf/pfMKlzlc1j3SXW80CFXogVryepnjTQEninkRGBpAzBiC/pBccdA==
   dependencies:
-    "@oclif/core" "1.8.0"
+    "@oclif/core" "1.8.1"
     aws-cdk-lib "2.23.0"
-    aws-sdk "^2.1127.0"
+    aws-sdk "^2.1138.0"
     chalk "^4.1.2"
-    codemaker "^1.57.0"
+    codemaker "^1.59.0"
     constructs "10.1.5"
     git-url-parse "^11.6.0"
     inquirer "^8.2.4"
@@ -323,7 +323,7 @@
     lodash.kebabcase "^4.1.1"
     lodash.upperfirst "^4.3.1"
     read-pkg-up "7.0.1"
-    yargs "^17.4.0"
+    yargs "^17.5.1"
 
 "@guardian/eslint-config-typescript@1.0.1":
   version "1.0.1"
@@ -597,10 +597,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@oclif/core@1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.8.0.tgz#ac1e63aebf8ddaf157d3664911d4a0eb2f013b6f"
-  integrity sha512-XAaqkacs4JiCOKWAX43jhuWcs7IdVMQaYWkeRiD8wan/wlmd7/WlvTFzpNeLOwylbty7uwiPQOFVYHdKj6UPvQ==
+"@oclif/core@1.8.1":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.8.1.tgz#1783b83b69c2505c070aabff475964cb75fee27b"
+  integrity sha512-6pNQnkL2Uk9SbRUb12BFminLPhrPab1euNzVl1eh+Q7+X8+JGMw8vgKUfQRlGZesmcd+8fByQMZBaoOAEozJsw==
   dependencies:
     "@oclif/linewrap" "^1.0.0"
     "@oclif/screen" "^3.0.2"
@@ -623,7 +623,7 @@
     natural-orderby "^2.0.3"
     object-treeify "^1.1.33"
     password-prompt "^1.1.2"
-    semver "^7.3.5"
+    semver "^7.3.7"
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
     supports-color "^8.1.1"
@@ -1019,10 +1019,10 @@ aws-cdk@2.23.0:
   optionalDependencies:
     fsevents "2.3.2"
 
-aws-sdk@^2.1127.0:
-  version "2.1133.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1133.0.tgz#db530faaa8dbe98503fd600b4e95efdd1c3996c7"
-  integrity sha512-TK7lcDxkrAc15Lmx030u4Wn3P798oxBVs79DBsD8+cZcW5Y8Gvat+evIZpkDoqh8YsfegvlI2jFg4ECQxKYPVA==
+aws-sdk@^2.1138.0:
+  version "2.1138.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1138.0.tgz#5975e028807a327e0900075de6a054fdd939a1f0"
+  integrity sha512-81Bs7qVf1/NrZBDCVIPpynODNN8fvXLdbsK024VITKFjts6DpvWjWPCsRYvEtaksF6uypMx5D02nTYJ8RiXq9w==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -1316,10 +1316,10 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=
 
-codemaker@^1.57.0:
-  version "1.58.0"
-  resolved "https://registry.yarnpkg.com/codemaker/-/codemaker-1.58.0.tgz#6eefc6feff1200956d620649188563531de4c151"
-  integrity sha512-hV9snVkPiXjHKsYpZD7tTb28LHeXCkvZxiwSph9iWTJJP7+fP9s2inDiHdMHF+Nq+o+JLXKWkE2DP5iNOHAtuA==
+codemaker@^1.59.0:
+  version "1.59.0"
+  resolved "https://registry.yarnpkg.com/codemaker/-/codemaker-1.59.0.tgz#71c8c179b2598f7867678d56859495ccbf6d391d"
+  integrity sha512-pVie4lGQgjejvGGcZnhO//9naGRNeHRq96kFrlfQQGABiToLcCy2/UQtAi2qw7FYrPRKqHn2DBR8PcP4avwEMw==
   dependencies:
     camelcase "^6.3.0"
     decamelize "^5.0.1"
@@ -3768,7 +3768,7 @@ saxes@^5.0.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.1.tgz#a954f931aeba508d307bbf069eff0c01c96116f7"
   integrity sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==
 
-semver@7.x, semver@^7.3.2, semver@^7.3.5, semver@^7.3.6:
+semver@7.x, semver@^7.3.2, semver@^7.3.5, semver@^7.3.6, semver@^7.3.7:
   version "7.3.7"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.7.tgz#12c5b649afdbf9049707796e22a4028814ce523f"
   integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
@@ -4419,10 +4419,10 @@ yargs@^16.2.0:
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
 
-yargs@^17.4.0:
-  version "17.5.0"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.5.0.tgz#2706c5431f8c119002a2b106fc9f58b9bb9097a3"
-  integrity sha512-3sLxVhbAB5OC8qvVRebCLWuouhwh/rswsiDYx3WGxajUk/l4G20SKfrKKFeNIHboUFt2JFgv2yfn+5cgOr/t5A==
+yargs@^17.5.1:
+  version "17.5.1"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.5.1.tgz#e109900cab6fcb7fd44b1d8249166feb0b36e58e"
+  integrity sha512-t6YAJcxDkNX7NFYiVtKvWUz8l+PaKTLiL63mJYWR2GnHq2gjEWISzsLp9wg3aY36dY1j+gfIEL3pIF+XlJJfbA==
   dependencies:
     cliui "^7.0.2"
     escalade "^3.1.1"
