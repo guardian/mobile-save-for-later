@@ -1,16 +1,4 @@
 Resources:
-  ApiRoute53:
-    Type: 'AWS::Route53::RecordSetGroup'
-    Properties:
-      HostedZoneId: !Ref HostedZoneId
-      RecordSets:
-        - AliasTarget:
-            HostedZoneId: Z2FDTNDATAQYW2
-            DNSName: !GetAtt
-              - ApiDomainName
-              - DistributionDomainName
-          Type: A
-          Name: !Ref ApiDomainName
   SaveForLaterWriteThrottleEvents:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
@@ -171,12 +159,6 @@ Resources:
               produces:
                 - application/json
         swagger: '2.0'
-  ApiMapping:
-    Type: 'AWS::ApiGateway::BasePathMapping'
-    Properties:
-      Stage: !Ref Stage
-      RestApiId: !Ref SaveForLaterApi
-      DomainName: !Ref ApiDomainName
   FetchArticlesLambdaPermission:
     Type: 'AWS::Lambda::Permission'
     Properties:
@@ -225,11 +207,6 @@ Resources:
           - StageVariables
           - !Ref Stage
           - TableReadCapacity
-  ApiDomainName:
-    Type: 'AWS::ApiGateway::DomainName'
-    Properties:
-      CertificateArn: !Ref CertArn
-      DomainName: !Sub '${App}.${HostedZoneName}'
   FetchArticlesLambda:
     Type: 'AWS::Lambda::Function'
     Properties:

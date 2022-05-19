@@ -105,11 +105,18 @@ Object {
     "ApiDomainName": Object {
       "Properties": Object {
         "CertificateArn": Object {
-          "Ref": "CertArn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:acm:us-east-1:",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":certificate/0ee21f37-ec53-437c-b572-3c9d294ab749",
+            ],
+          ],
         },
-        "DomainName": Object {
-          "Fn::Sub": "\${App}.\${HostedZoneName}",
-        },
+        "DomainName": "mobile-save-for-later.mobile-aws.code.dev-guardianapis.com",
         "Tags": Array [
           Object {
             "Key": "gu:cdk:version",
@@ -139,17 +146,13 @@ Object {
         "RestApiId": Object {
           "Ref": "SaveForLaterApi",
         },
-        "Stage": Object {
-          "Ref": "Stage",
-        },
+        "Stage": "CODE",
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
     "ApiRoute53": Object {
       "Properties": Object {
-        "HostedZoneId": Object {
-          "Ref": "HostedZoneId",
-        },
+        "HostedZoneId": "Z6PRU8YR6TQDK",
         "RecordSets": Array [
           Object {
             "AliasTarget": Object {
@@ -161,9 +164,7 @@ Object {
               },
               "HostedZoneId": "Z2FDTNDATAQYW2",
             },
-            "Name": Object {
-              "Ref": "ApiDomainName",
-            },
+            "Name": "mobile-save-for-later.mobile-aws.code.dev-guardianapis.com",
             "Type": "A",
           },
         ],
@@ -1732,11 +1733,18 @@ Object {
     "ApiDomainName": Object {
       "Properties": Object {
         "CertificateArn": Object {
-          "Ref": "CertArn",
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:acm:us-east-1:",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":certificate/b4c2902a-fc80-47a9-88b7-7810b88e7e26",
+            ],
+          ],
         },
-        "DomainName": Object {
-          "Fn::Sub": "\${App}.\${HostedZoneName}",
-        },
+        "DomainName": "mobile-save-for-later.mobile-aws.guardianapis.com",
         "Tags": Array [
           Object {
             "Key": "gu:cdk:version",
@@ -1766,17 +1774,13 @@ Object {
         "RestApiId": Object {
           "Ref": "SaveForLaterApi",
         },
-        "Stage": Object {
-          "Ref": "Stage",
-        },
+        "Stage": "PROD",
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
     "ApiRoute53": Object {
       "Properties": Object {
-        "HostedZoneId": Object {
-          "Ref": "HostedZoneId",
-        },
+        "HostedZoneId": "Z1EYB4AREPXE3B",
         "RecordSets": Array [
           Object {
             "AliasTarget": Object {
@@ -1788,9 +1792,7 @@ Object {
               },
               "HostedZoneId": "Z2FDTNDATAQYW2",
             },
-            "Name": Object {
-              "Ref": "ApiDomainName",
-            },
+            "Name": "mobile-save-for-later.mobile-aws.guardianapis.com",
             "Type": "A",
           },
         ],

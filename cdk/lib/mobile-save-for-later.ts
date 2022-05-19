@@ -5,8 +5,10 @@ import { GuStack } from "@guardian/cdk/lib/constructs/core";
 import { GuLambdaFunction } from "@guardian/cdk/lib/constructs/lambda";
 import type { App } from "aws-cdk-lib";
 import { Duration } from "aws-cdk-lib";
+import { CfnBasePathMapping, CfnDomainName } from "aws-cdk-lib/aws-apigateway";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { CfnRecordSetGroup } from "aws-cdk-lib/aws-route53";
 import { CfnInclude } from "aws-cdk-lib/cloudformation-include";
 
 export interface MobileSaveForLaterProps extends GuStackProps {
@@ -127,8 +129,41 @@ export class MobileSaveForLater extends GuStack {
       ],
     });
 
+    // N.B. we cannot use GuCertificate here as we deploy to eu-west-1 but the certificate must be created in us-east-1.
+    // https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-edge-optimized-custom-domain-name.html
+    const certificateArn = `arn:aws:acm:us-east-1:${this.account}:certificate/${props.certificateId}`;
+
+    const cfnDomainName = new CfnDomainName(this, "ApiDomainName", {
+      domainName: props.domainName,
+      certificateArn,
+    });
+
+    new CfnBasePathMapping(this, "ApiMapping", {
+      domainName: cfnDomainName.ref,
+      // Uncomment the lines below to reroute traffic to the new API Gateway instance
+      // restApiId: saveForLaterApi.api.restApiId,
+      // stage: saveForLaterApi.api.deploymentStage.stageName,
+      restApiId: yamlDefinedResources.getResource("SaveForLaterApi").ref,
+      stage: props.stage,
+    });
+
+    new CfnRecordSetGroup(this, "ApiRoute53", {
+      hostedZoneId: props.hostedZoneId,
+      recordSets: [
+        {
+          name: props.domainName,
+          type: "A",
+          aliasTarget: {
+            dnsName: cfnDomainName.attrDistributionDomainName,
+            // This magical value is taken from the AWS docs:
+            // https://docs.amazonaws.cn/en_us/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget-1.html#aws-properties-route53-aliastarget-1-properties
+            hostedZoneId: "Z2FDTNDATAQYW2",
+          },
+        },
+      ],
+    });
+
     // TODO:
-    // Move into cdk: DNS configuration
     // Decide whether to port across or leave in CFN: Dynamo Table & Dynamo Throttle CloudWatch Alarms
   }
 }
