@@ -1322,31 +1322,6 @@ Object {
               },
             },
             Object {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/mobile-save-for-later/CODE/mobile",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "cloudwatch:putMetricData",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            Object {
               "Action": Array [
                 "dynamodb:GetItem",
                 "dynamodb:PutItem",
@@ -1573,31 +1548,6 @@ Object {
                   ],
                 ],
               },
-            },
-            Object {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/mobile-save-for-later/CODE/mobile",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "cloudwatch:putMetricData",
-              "Effect": "Allow",
-              "Resource": "*",
             },
             Object {
               "Action": Array [
@@ -2952,31 +2902,6 @@ Object {
               },
             },
             Object {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/mobile-save-for-later/PROD/mobile",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "cloudwatch:putMetricData",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            Object {
               "Action": Array [
                 "dynamodb:GetItem",
                 "dynamodb:PutItem",
@@ -3203,31 +3128,6 @@ Object {
                   ],
                 ],
               },
-            },
-            Object {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/mobile-save-for-later/PROD/mobile",
-                  ],
-                ],
-              },
-            },
-            Object {
-              "Action": "cloudwatch:putMetricData",
-              "Effect": "Allow",
-              "Resource": "*",
             },
             Object {
               "Action": Array [
