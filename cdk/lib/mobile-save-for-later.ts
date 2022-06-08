@@ -75,22 +75,6 @@ export class MobileSaveForLater extends GuStack {
     );
 
     [saveArticlesLambda, fetchArticlesLambda].map((lambda) => {
-      // permissions for the departmental standard are provided by cdk 'for free' but we cannot
-      // use them here because our parameter path used differs from the departmental standard
-      lambda.addToRolePolicy(
-        new PolicyStatement({
-          actions: ["ssm:GetParametersByPath"],
-          resources: [
-            `arn:aws:ssm:${this.region}:${this.account}:parameter/${app}/${this.stage}/${this.stack}`,
-          ],
-        })
-      );
-      lambda.addToRolePolicy(
-        new PolicyStatement({
-          actions: ["cloudwatch:putMetricData"],
-          resources: ["*"],
-        })
-      );
       lambda.addToRolePolicy(
         new PolicyStatement({
           actions: [
