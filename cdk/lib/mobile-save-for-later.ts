@@ -15,6 +15,7 @@ export interface MobileSaveForLaterProps extends GuStackProps {
   hostedZoneName: string;
   hostedZoneId: string;
   identityApiHost: string;
+  reservedConcurrentExecutions: number;
 }
 
 export class MobileSaveForLater extends GuStack {
@@ -67,7 +68,7 @@ export class MobileSaveForLater extends GuStack {
         handler: "com.gu.sfl.lambda.FetchArticlesLambda::handleRequest",
         functionName: `mobile-save-for-later-FETCH-cdk-${this.stage}`,
         timeout: Duration.seconds(20),
-        reservedConcurrentExecutions: this.stage === "PROD" ? 50 : 1,
+        reservedConcurrentExecutions: props.reservedConcurrentExecutions,
         environment: commonEnvironmentVariables,
         ...commonLambdaProps,
       }

@@ -13,6 +13,7 @@ export const codeProps: MobileSaveForLaterProps = {
   hostedZoneName: "mobile-aws.code.dev-guardianapis.com",
   hostedZoneId: "Z6PRU8YR6TQDK",
   identityApiHost: "https://id.code.dev-guardianapis.com",
+  reservedConcurrentExecutions: 1,
 };
 
 export const prodProps: MobileSaveForLaterProps = {
@@ -23,6 +24,7 @@ export const prodProps: MobileSaveForLaterProps = {
   hostedZoneName: "mobile-aws.guardianapis.com",
   hostedZoneId: "Z1EYB4AREPXE3B",
   identityApiHost: "https://id.guardianapis.com",
+  reservedConcurrentExecutions: 50,
 };
 
 new MobileSaveForLater(app, "MobileSaveForLater-CODE", codeProps);
