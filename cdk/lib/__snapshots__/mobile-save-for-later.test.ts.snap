@@ -19,6 +19,34 @@ Object {
       },
     },
   },
+  "Outputs": Object {
+    "RestApiEndpoint0551178A": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "RestApi0C43BF4B",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "RestApiDeploymentStageprod3855DE66",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
   "Parameters": Object {
     "App": Object {
       "Default": "mobile-save-for-later",
@@ -33,6 +61,11 @@ Object {
       "Default": "mobile-dist",
       "Description": "S3 Bucket where riff-raff uploads artifacts on deploy",
       "Type": "String",
+    },
+    "DistributionBucketName": Object {
+      "Default": "/account/services/artifact.bucket",
+      "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DynamoNotificationTopic": Object {
       "Description": "SNS topic to notify when there's a dynamo throttling event",
@@ -92,7 +125,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
       },
@@ -200,7 +233,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
         "Timeout": 20,
@@ -235,6 +268,417 @@ Object {
           "Fn::GetAtt": "FetchArticlesLambda.Arn",
         },
         "Principal": "apigateway.amazonaws.com",
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApi0C43BF4B": Object {
+      "Properties": Object {
+        "Name": "mobile-save-for-later-api-CODE",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "RestApiAccount7C83CF5A": Object {
+      "DependsOn": Array [
+        "RestApi0C43BF4B",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "RestApiCloudWatchRoleE3ED6605",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "RestApiCloudWatchRoleE3ED6605": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "RestApiDeployment180EC5035ed39622d7840f196ed35b5345f76c92": Object {
+      "DependsOn": Array [
+        "RestApisyncedPrefsmeGET26EA27DA",
+        "RestApisyncedPrefsme43E29A67",
+        "RestApisyncedPrefsmesavedArticlesPOST431289B1",
+        "RestApisyncedPrefsmesavedArticles1FBF9E72",
+        "RestApisyncedPrefsC6D26086",
+      ],
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "RestApiDeploymentStageprod3855DE66": Object {
+      "DependsOn": Array [
+        "RestApiAccount7C83CF5A",
+      ],
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "RestApiDeployment180EC5035ed39622d7840f196ed35b5345f76c92",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "StageName": "prod",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "RestApisyncedPrefsC6D26086": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Fn::GetAtt": Array [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "syncedPrefs",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsme43E29A67": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Ref": "RestApisyncedPrefsC6D26086",
+        },
+        "PathPart": "me",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsmeGET26EA27DA": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "fetcharticleslambda4E2BF026",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Ref": "RestApisyncedPrefsme43E29A67",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApisyncedPrefsmeGETApiPermissionMobileSaveForLaterCODERestApi17248814GETsyncedPrefsme8119A20D": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambda4E2BF026",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              Object {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/GET/syncedPrefs/me",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmeGETApiPermissionTestMobileSaveForLaterCODERestApi17248814GETsyncedPrefsme36E6A8D1": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambda4E2BF026",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/GET/syncedPrefs/me",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmesavedArticles1FBF9E72": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Ref": "RestApisyncedPrefsme43E29A67",
+        },
+        "PathPart": "savedArticles",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOST431289B1": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "savearticleslambda95B3C5F6",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Ref": "RestApisyncedPrefsmesavedArticles1FBF9E72",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOSTApiPermissionMobileSaveForLaterCODERestApi17248814POSTsyncedPrefsmesavedArticlesF9771EF1": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambda95B3C5F6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              Object {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/POST/syncedPrefs/me/savedArticles",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOSTApiPermissionTestMobileSaveForLaterCODERestApi17248814POSTsyncedPrefsmesavedArticles7BBB5472": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambda95B3C5F6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/POST/syncedPrefs/me/savedArticles",
+            ],
+          ],
+        },
       },
       "Type": "AWS::Lambda::Permission",
     },
@@ -295,7 +739,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
         "Timeout": 60,
@@ -392,7 +836,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
       },
@@ -434,7 +878,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
       },
@@ -493,7 +937,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
       },
@@ -628,7 +1072,7 @@ Object {
           },
           Object {
             "Key": "Stage",
-            "Value": "TEST",
+            "Value": "CODE",
           },
         ],
       },
@@ -672,6 +1116,2039 @@ Object {
         "Unit": "Count",
       },
       "Type": "AWS::CloudWatch::Alarm",
+    },
+    "fetcharticleslambda4E2BF026": Object {
+      "DependsOn": Array [
+        "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A",
+        "fetcharticleslambdaServiceRoleC5815D5D",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "mobile/CODE/mobile-save-for-later/mobile-save-for-later.jar",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "APP": "mobile-save-for-later",
+            "App": "mobile-save-for-later",
+            "IdentityApiHost": "https://id.code.dev-guardianapis.com",
+            "STACK": "mobile",
+            "STAGE": "CODE",
+            "Stack": "mobile",
+            "Stage": "CODE",
+          },
+        },
+        "FunctionName": "mobile-save-for-later-FETCH-cdk-CODE",
+        "Handler": "com.gu.sfl.lambda.FetchArticlesLambda::handleRequest",
+        "MemorySize": 1024,
+        "ReservedConcurrentExecutions": 1,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambdaServiceRoleC5815D5D",
+            "Arn",
+          ],
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+        "Timeout": 20,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "fetcharticleslambdaServiceRoleC5815D5D": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/mobile/mobile-save-for-later",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/mobile/mobile-save-for-later/*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:Query",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "SaveForLaterDynamoTable",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A",
+        "Roles": Array [
+          Object {
+            "Ref": "fetcharticleslambdaServiceRoleC5815D5D",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "savearticleslambda95B3C5F6": Object {
+      "DependsOn": Array [
+        "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9",
+        "savearticleslambdaServiceRole0DD4D7BB",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "mobile/CODE/mobile-save-for-later/mobile-save-for-later.jar",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "APP": "mobile-save-for-later",
+            "App": "mobile-save-for-later",
+            "IdentityApiHost": "https://id.code.dev-guardianapis.com",
+            "STACK": "mobile",
+            "STAGE": "CODE",
+            "SavedArticleLimit": "1000",
+            "Stack": "mobile",
+            "Stage": "CODE",
+          },
+        },
+        "FunctionName": "mobile-save-for-later-SAVE-cdk-CODE",
+        "Handler": "com.gu.sfl.lambda.SaveArticlesLambda::handleRequest",
+        "MemorySize": 1024,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambdaServiceRole0DD4D7BB",
+            "Arn",
+          ],
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "savearticleslambdaServiceRole0DD4D7BB": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "CODE",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/mobile/mobile-save-for-later",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/mobile/mobile-save-for-later/*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:Query",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "SaveForLaterDynamoTable",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9",
+        "Roles": Array [
+          Object {
+            "Ref": "savearticleslambdaServiceRole0DD4D7BB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+}
+`;
+
+exports[`The MobileSaveForLater stack matches the snapshot 2`] = `
+Object {
+  "Description": "Implements save for later for mobile",
+  "Mappings": Object {
+    "StageVariables": Object {
+      "CODE": Object {
+        "AlarmActionsEnabled": false,
+        "ReservedConcurrency": 1,
+        "TableReadCapacity": 1,
+        "TableWriteCapacity": 1,
+      },
+      "PROD": Object {
+        "AlarmActionsEnabled": true,
+        "ReservedConcurrency": 50,
+        "TableReadCapacity": 200,
+        "TableWriteCapacity": 75,
+      },
+    },
+  },
+  "Outputs": Object {
+    "RestApiEndpoint0551178A": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "RestApi0C43BF4B",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "RestApiDeploymentStageprod3855DE66",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "App": Object {
+      "Default": "mobile-save-for-later",
+      "Description": "Application name",
+      "Type": "String",
+    },
+    "CertArn": Object {
+      "Description": "ACM Certificate ARN",
+      "Type": "String",
+    },
+    "DeployBucket": Object {
+      "Default": "mobile-dist",
+      "Description": "S3 Bucket where riff-raff uploads artifacts on deploy",
+      "Type": "String",
+    },
+    "DistributionBucketName": Object {
+      "Default": "/account/services/artifact.bucket",
+      "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "DynamoNotificationTopic": Object {
+      "Description": "SNS topic to notify when there's a dynamo throttling event",
+      "Type": "String",
+    },
+    "HostedZoneId": Object {
+      "Description": "Id of HostedZone",
+      "Type": "String",
+    },
+    "HostedZoneName": Object {
+      "Description": "Name of HostedZone",
+      "Type": "String",
+    },
+    "IdentityApiHost": Object {
+      "Description": "Identity App Host",
+      "Type": "String",
+    },
+    "SavedArticleLimit": Object {
+      "Description": "Saved article limit",
+      "Type": "Number",
+    },
+    "Stack": Object {
+      "Default": "mobile",
+      "Description": "Stack name",
+      "Type": "String",
+    },
+    "Stage": Object {
+      "AllowedValues": Array [
+        "CODE",
+        "PROD",
+      ],
+      "Description": "Stage name",
+      "Type": "String",
+    },
+  },
+  "Resources": Object {
+    "ApiDomainName": Object {
+      "Properties": Object {
+        "CertificateArn": Object {
+          "Ref": "CertArn",
+        },
+        "DomainName": Object {
+          "Fn::Sub": "\${App}.\${HostedZoneName}",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::DomainName",
+    },
+    "ApiMapping": Object {
+      "Properties": Object {
+        "DomainName": Object {
+          "Ref": "ApiDomainName",
+        },
+        "RestApiId": Object {
+          "Ref": "SaveForLaterApi",
+        },
+        "Stage": Object {
+          "Ref": "Stage",
+        },
+      },
+      "Type": "AWS::ApiGateway::BasePathMapping",
+    },
+    "ApiRoute53": Object {
+      "Properties": Object {
+        "HostedZoneId": Object {
+          "Ref": "HostedZoneId",
+        },
+        "RecordSets": Array [
+          Object {
+            "AliasTarget": Object {
+              "DNSName": Object {
+                "Fn::GetAtt": Array [
+                  "ApiDomainName",
+                  "DistributionDomainName",
+                ],
+              },
+              "HostedZoneId": "Z2FDTNDATAQYW2",
+            },
+            "Name": Object {
+              "Ref": "ApiDomainName",
+            },
+            "Type": "A",
+          },
+        ],
+      },
+      "Type": "AWS::Route53::RecordSetGroup",
+    },
+    "FetchArticlesLambda": Object {
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DeployBucket",
+          },
+          "S3Key": Object {
+            "Fn::Sub": "\${Stack}/\${Stage}/\${App}/\${App}.jar",
+          },
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "App": Object {
+              "Ref": "App",
+            },
+            "IdentityApiHost": Object {
+              "Ref": "IdentityApiHost",
+            },
+            "Stack": Object {
+              "Ref": "Stack",
+            },
+            "Stage": Object {
+              "Ref": "Stage",
+            },
+          },
+        },
+        "FunctionName": Object {
+          "Fn::Sub": "\${App}-FETCH-\${Stage}",
+        },
+        "Handler": "com.gu.sfl.lambda.FetchArticlesLambda::handleRequest",
+        "MemorySize": 394,
+        "ReservedConcurrentExecutions": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "ReservedConcurrency",
+          ],
+        },
+        "Role": Object {
+          "Fn::GetAtt": "SaveForLaterRole.Arn",
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "lambda:createdBy",
+            "Value": "SAM",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+        "Timeout": 20,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "FetchArticlesLambdaGetApiPermissionStage": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Ref": "FetchArticlesLambda",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Sub": Array [
+            "arn:aws:execute-api:\${AWS::Region}:\${AWS::AccountId}:\${__ApiId__}/\${__Stage__}/GET/syncedPrefs/me",
+            Object {
+              "__ApiId__": Object {
+                "Ref": "SaveForLaterApi",
+              },
+              "__Stage__": "*",
+            },
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "FetchArticlesLambdaPermission": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": "FetchArticlesLambda.Arn",
+        },
+        "Principal": "apigateway.amazonaws.com",
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApi0C43BF4B": Object {
+      "Properties": Object {
+        "Name": "mobile-save-for-later-api-PROD",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "RestApiAccount7C83CF5A": Object {
+      "DependsOn": Array [
+        "RestApi0C43BF4B",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "RestApiCloudWatchRoleE3ED6605",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "RestApiCloudWatchRoleE3ED6605": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "RestApiDeployment180EC503a9713084f6e42c3174f3f6569d53b59c": Object {
+      "DependsOn": Array [
+        "RestApisyncedPrefsmeGET26EA27DA",
+        "RestApisyncedPrefsme43E29A67",
+        "RestApisyncedPrefsmesavedArticlesPOST431289B1",
+        "RestApisyncedPrefsmesavedArticles1FBF9E72",
+        "RestApisyncedPrefsC6D26086",
+      ],
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "RestApiDeploymentStageprod3855DE66": Object {
+      "DependsOn": Array [
+        "RestApiAccount7C83CF5A",
+      ],
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "RestApiDeployment180EC503a9713084f6e42c3174f3f6569d53b59c",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "StageName": "prod",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "RestApisyncedPrefsC6D26086": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Fn::GetAtt": Array [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "syncedPrefs",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsme43E29A67": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Ref": "RestApisyncedPrefsC6D26086",
+        },
+        "PathPart": "me",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsmeGET26EA27DA": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "fetcharticleslambda4E2BF026",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Ref": "RestApisyncedPrefsme43E29A67",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApisyncedPrefsmeGETApiPermissionMobileSaveForLaterPRODRestApi34373EB6GETsyncedPrefsme64F5DB87": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambda4E2BF026",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              Object {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/GET/syncedPrefs/me",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmeGETApiPermissionTestMobileSaveForLaterPRODRestApi34373EB6GETsyncedPrefsmeFCFC8C36": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambda4E2BF026",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/GET/syncedPrefs/me",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmesavedArticles1FBF9E72": Object {
+      "Properties": Object {
+        "ParentId": Object {
+          "Ref": "RestApisyncedPrefsme43E29A67",
+        },
+        "PathPart": "savedArticles",
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOST431289B1": Object {
+      "Properties": Object {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": Object {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "savearticleslambda95B3C5F6",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": Object {
+          "Ref": "RestApisyncedPrefsmesavedArticles1FBF9E72",
+        },
+        "RestApiId": Object {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOSTApiPermissionMobileSaveForLaterPRODRestApi34373EB6POSTsyncedPrefsmesavedArticles6E19EABE": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambda95B3C5F6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              Object {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/POST/syncedPrefs/me/savedArticles",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApisyncedPrefsmesavedArticlesPOSTApiPermissionTestMobileSaveForLaterPRODRestApi34373EB6POSTsyncedPrefsmesavedArticles4E00ABB7": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambda95B3C5F6",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/POST/syncedPrefs/me/savedArticles",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "SaveArticlesLambda": Object {
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DeployBucket",
+          },
+          "S3Key": Object {
+            "Fn::Sub": "\${Stack}/\${Stage}/\${App}/\${App}.jar",
+          },
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "App": Object {
+              "Ref": "App",
+            },
+            "IdentityApiHost": Object {
+              "Ref": "IdentityApiHost",
+            },
+            "SavedArticleLimit": Object {
+              "Ref": "SavedArticleLimit",
+            },
+            "Stack": Object {
+              "Ref": "Stack",
+            },
+            "Stage": Object {
+              "Ref": "Stage",
+            },
+          },
+        },
+        "FunctionName": Object {
+          "Fn::Sub": "\${App}-SAVE-\${Stage}",
+        },
+        "Handler": "com.gu.sfl.lambda.SaveArticlesLambda::handleRequest",
+        "MemorySize": 384,
+        "Role": Object {
+          "Fn::GetAtt": "SaveForLaterRole.Arn",
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "lambda:createdBy",
+            "Value": "SAM",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "SaveArticlesLambdaPostApiPermissionStage": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Ref": "SaveArticlesLambda",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Sub": Array [
+            "arn:aws:execute-api:\${AWS::Region}:\${AWS::AccountId}:\${__ApiId__}/\${__Stage__}/POST/syncedPrefs/me/savedArticles",
+            Object {
+              "__ApiId__": Object {
+                "Ref": "SaveForLaterApi",
+              },
+              "__Stage__": "*",
+            },
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "SaveForLaterApi": Object {
+      "Properties": Object {
+        "Body": Object {
+          "info": Object {
+            "title": Object {
+              "Fn::Sub": "\${App}-\${Stage}",
+            },
+            "version": "1.0.0",
+          },
+          "paths": Object {
+            "/syncedPrefs/me": Object {
+              "get": Object {
+                "produces": Array [
+                  "application/json",
+                ],
+                "responses": Object {
+                  "200": Object {
+                    "description": "200 response",
+                  },
+                },
+                "x-amazon-apigateway-integration": Object {
+                  "httpMethod": "POST",
+                  "type": "aws_proxy",
+                  "uri": Object {
+                    "Fn::Sub": "arn:aws:apigateway:\${AWS::Region}:lambda:path/2015-03-31/functions/\${FetchArticlesLambda.Arn}/invocations",
+                  },
+                },
+              },
+            },
+            "/syncedPrefs/me/savedArticles": Object {
+              "post": Object {
+                "consumes": Array [
+                  "application/json",
+                ],
+                "produces": Array [
+                  "application/json",
+                ],
+                "responses": Object {
+                  "200": Object {
+                    "description": "200 response",
+                  },
+                },
+                "x-amazon-apigateway-integration": Object {
+                  "httpMethod": "POST",
+                  "type": "aws_proxy",
+                  "uri": Object {
+                    "Fn::Sub": "arn:aws:apigateway:\${AWS::Region}:lambda:path/2015-03-31/functions/\${SaveArticlesLambda.Arn}/invocations",
+                  },
+                },
+              },
+            },
+          },
+          "swagger": "2.0",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "SaveForLaterApiDeployment7818545d6f": Object {
+      "Properties": Object {
+        "Description": "RestApi deployment id: 7818545d6f935a518be3b1f7ecebec1729443529",
+        "RestApiId": Object {
+          "Ref": "SaveForLaterApi",
+        },
+        "StageName": "Stage",
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "SaveForLaterApiStage": Object {
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "SaveForLaterApiDeployment7818545d6f",
+        },
+        "RestApiId": Object {
+          "Ref": "SaveForLaterApi",
+        },
+        "StageName": Object {
+          "Ref": "Stage",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "SaveForLaterDynamoTable": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "userId",
+            "AttributeType": "S",
+          },
+        ],
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "userId",
+            "KeyType": "HASH",
+          },
+        ],
+        "ProvisionedThroughput": Object {
+          "ReadCapacityUnits": Object {
+            "Fn::FindInMap": Array [
+              "StageVariables",
+              Object {
+                "Ref": "Stage",
+              },
+              "TableReadCapacity",
+            ],
+          },
+          "WriteCapacityUnits": Object {
+            "Fn::FindInMap": Array [
+              "StageVariables",
+              Object {
+                "Ref": "Stage",
+              },
+              "TableWriteCapacity",
+            ],
+          },
+        },
+        "TableName": Object {
+          "Fn::Sub": "\${App}-\${Stage}-articles",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+    },
+    "SaveForLaterReadThrottleEvents": Object {
+      "Properties": Object {
+        "ActionsEnabled": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "AlarmActionsEnabled",
+          ],
+        },
+        "AlarmActions": Array [
+          Object {
+            "Ref": "DynamoNotificationTopic",
+          },
+        ],
+        "AlarmName": Object {
+          "Fn::Sub": "\${App}-\${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm",
+        },
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": Array [
+          Object {
+            "Name": "TableName",
+            "Value": Object {
+              "Ref": "SaveForLaterDynamoTable",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ReadThrottleEvents",
+        "Namespace": "AWS/DynamoDB",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+        "Unit": "Count",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "SaveForLaterRole": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": Array [
+                  "lambda.amazonaws.com",
+                ],
+              },
+            },
+          ],
+        },
+        "Path": "/",
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Object {
+                "Action": Array [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents",
+                ],
+                "Effect": "Allow",
+                "Resource": "*",
+              },
+            },
+            "PolicyName": "logs",
+          },
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Object {
+                "Action": Array [
+                  "ssm:GetParametersByPath",
+                ],
+                "Effect": "Allow",
+                "Resource": Object {
+                  "Fn::Sub": "arn:aws:ssm:\${AWS::Region}:\${AWS::AccountId}:parameter/\${App}/\${Stage}/\${Stack}",
+                },
+              },
+            },
+            "PolicyName": "ssm-config",
+          },
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Object {
+                "Action": Array [
+                  "dynamodb:GetItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:UpdateItem",
+                  "dynamodb:Query",
+                ],
+                "Effect": "Allow",
+                "Resource": Object {
+                  "Fn::Sub": "arn:aws:dynamodb:\${AWS::Region}:\${AWS::AccountId}:table/\${App}-\${Stage}-articles",
+                },
+              },
+            },
+            "PolicyName": "dynamo-action",
+          },
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Object {
+                "Action": Array [
+                  "cloudwatch:PutMetricData",
+                ],
+                "Effect": "Allow",
+                "Resource": "*",
+              },
+            },
+            "PolicyName": "metrics",
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SaveForLaterWriteThrottleEvents": Object {
+      "Properties": Object {
+        "ActionsEnabled": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "AlarmActionsEnabled",
+          ],
+        },
+        "AlarmActions": Array [
+          Object {
+            "Ref": "DynamoNotificationTopic",
+          },
+        ],
+        "AlarmName": Object {
+          "Fn::Sub": "\${App}-\${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm",
+        },
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": Array [
+          Object {
+            "Name": "TableName",
+            "Value": Object {
+              "Ref": "SaveForLaterDynamoTable",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "WriteThrottleEvents",
+        "Namespace": "AWS/DynamoDB",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+        "Unit": "Count",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "fetcharticleslambda4E2BF026": Object {
+      "DependsOn": Array [
+        "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A",
+        "fetcharticleslambdaServiceRoleC5815D5D",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "mobile/PROD/mobile-save-for-later/mobile-save-for-later.jar",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "APP": "mobile-save-for-later",
+            "App": "mobile-save-for-later",
+            "IdentityApiHost": "https://id.guardianapis.com",
+            "STACK": "mobile",
+            "STAGE": "PROD",
+            "Stack": "mobile",
+            "Stage": "PROD",
+          },
+        },
+        "FunctionName": "mobile-save-for-later-FETCH-cdk-PROD",
+        "Handler": "com.gu.sfl.lambda.FetchArticlesLambda::handleRequest",
+        "MemorySize": 1024,
+        "ReservedConcurrentExecutions": 50,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "fetcharticleslambdaServiceRoleC5815D5D",
+            "Arn",
+          ],
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+        "Timeout": 20,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "fetcharticleslambdaServiceRoleC5815D5D": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/PROD/mobile/mobile-save-for-later",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/PROD/mobile/mobile-save-for-later/*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:Query",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "SaveForLaterDynamoTable",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A",
+        "Roles": Array [
+          Object {
+            "Ref": "fetcharticleslambdaServiceRoleC5815D5D",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "savearticleslambda95B3C5F6": Object {
+      "DependsOn": Array [
+        "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9",
+        "savearticleslambdaServiceRole0DD4D7BB",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "mobile/PROD/mobile-save-for-later/mobile-save-for-later.jar",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "APP": "mobile-save-for-later",
+            "App": "mobile-save-for-later",
+            "IdentityApiHost": "https://id.guardianapis.com",
+            "STACK": "mobile",
+            "STAGE": "PROD",
+            "SavedArticleLimit": "1000",
+            "Stack": "mobile",
+            "Stage": "PROD",
+          },
+        },
+        "FunctionName": "mobile-save-for-later-SAVE-cdk-PROD",
+        "Handler": "com.gu.sfl.lambda.SaveArticlesLambda::handleRequest",
+        "MemorySize": 1024,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "savearticleslambdaServiceRole0DD4D7BB",
+            "Arn",
+          ],
+        },
+        "Runtime": "java8",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "savearticleslambdaServiceRole0DD4D7BB": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "mobile-save-for-later",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/mobile-save-for-later",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "mobile",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": "PROD",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/PROD/mobile/mobile-save-for-later",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/PROD/mobile/mobile-save-for-later/*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:Query",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "SaveForLaterDynamoTable",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "savearticleslambdaServiceRoleDefaultPolicy6E40CEA9",
+        "Roles": Array [
+          Object {
+            "Ref": "savearticleslambdaServiceRole0DD4D7BB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
   },
 }
