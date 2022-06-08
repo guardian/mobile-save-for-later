@@ -19,10 +19,10 @@ source_nvm
 nvm install
 nvm use
 
-npm install -g yarn
-
-yarn install --frozen-lockfile
-
-yarn lint
-yarn test
-yarn synth
+(
+  cd cdk
+  npm ci
+  npm run lint
+  npm test
+  npm run synth
+)
