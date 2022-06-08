@@ -28,7 +28,6 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] = comm
   riffRaffPackageType := assembly.value,
   riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
   riffRaffUploadManifestBucket := Option("riffraff-builds"),
-  riffRaffArtifactResources += (file(s"${module}/conf/cfn.yaml"), s"${module}-cfn/cfn.yaml"),
 )
 
 val commonSettings: immutable.Seq[Def.Setting[_]] = List(
@@ -75,13 +74,17 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
 lazy val common = project.in(file("common"))
     .settings(commonSettings: _*)
 
-lazy val saveforlaterapp = projectMaker("mobile-save-for-later")
+lazy val saveforlaterapp = projectMaker("mobile-save-for-later").settings(
+  riffRaffArtifactResources += (file("cdk/cdk.out/MobileSaveForLater-CODE.template.json"), "mobile-save-for-later-cfn/MobileSaveForLater-CODE.template.json"),
+  riffRaffArtifactResources += (file("cdk/cdk.out/MobileSaveForLater-PROD.template.json"), "mobile-save-for-later-cfn/MobileSaveForLater-PROD.template.json"),
+)
 
 lazy val userDeletion = projectMaker("mobile-save-for-later-user-deletion").settings(
   libraryDependencies ++= Seq(
     awsLambdaEvent,
     awsSqs
-  )
+  ),
+  riffRaffArtifactResources += (file("mobile-save-for-later-user-deletion/conf/cfn.yaml"), "mobile-save-for-later-user-deletion-cfn/cfn.yaml"),
 )
 
 lazy val root = project.in(file(".")).aggregate(saveforlaterapp)
