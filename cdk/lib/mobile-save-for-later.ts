@@ -53,6 +53,7 @@ export class MobileSaveForLater extends GuStack {
       {
         handler: "com.gu.sfl.lambda.SaveArticlesLambda::handleRequest",
         functionName: `mobile-save-for-later-SAVE-cdk-${this.stage}`,
+        timeout: Duration.seconds(60),
         environment: {
           ...commonEnvironmentVariables,
           SavedArticleLimit: "1000",
