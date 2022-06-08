@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+
+sbt "project mobile-save-for-later; clean; compile; riffRaffUpload"
