@@ -8,7 +8,7 @@ const app = new App();
 export const codeProps: MobileSaveForLaterProps = {
   stack: "mobile",
   stage: "CODE",
-  certificateId: "b4c2902a-fc80-47a9-88b7-7810b88e7e26",
+  certificateId: "0ee21f37-ec53-437c-b572-3c9d294ab749",
   domainName: "mobile-save-for-later.mobile-aws.code.dev-guardianapis.com",
   hostedZoneName: "mobile-aws.code.dev-guardianapis.com",
   hostedZoneId: "Z6PRU8YR6TQDK",
@@ -19,7 +19,7 @@ export const codeProps: MobileSaveForLaterProps = {
 export const prodProps: MobileSaveForLaterProps = {
   stack: "mobile",
   stage: "PROD",
-  certificateId: "0ee21f37-ec53-437c-b572-3c9d294ab749",
+  certificateId: "b4c2902a-fc80-47a9-88b7-7810b88e7e26",
   domainName: "mobile-save-for-later.mobile-aws.guardianapis.com",
   hostedZoneName: "mobile-aws.guardianapis.com",
   hostedZoneId: "Z1EYB4AREPXE3B",
