@@ -92,9 +92,13 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     try {
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
-          function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-            logger.debug(s"ApiGateway  lamda response: ${res}")
-            ApiGatewayLambdaResponse(res)
+          if (apiLambdaGatewayRequest.queryStringParameters.exists(_.keys.toList.contains("scale-for-cdk-migration"))) {
+            Future.successful(ApiGatewayLambdaResponse(LambdaResponse(200, None)))
+          } else {
+            function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
+              logger.debug(s"ApiGateway  lamda response: ${res}")
+              ApiGatewayLambdaResponse(res)
+            }
           }
        case Right(_) =>
           logger.debug("Lambda returned error")
