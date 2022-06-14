@@ -144,9 +144,11 @@ Object {
           "Ref": "ApiDomainName",
         },
         "RestApiId": Object {
-          "Ref": "SaveForLaterApi",
+          "Ref": "RestApi0C43BF4B",
         },
-        "Stage": "CODE",
+        "Stage": Object {
+          "Ref": "RestApiDeploymentStageprod3855DE66",
+        },
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
@@ -1722,9 +1724,11 @@ Object {
           "Ref": "ApiDomainName",
         },
         "RestApiId": Object {
-          "Ref": "SaveForLaterApi",
+          "Ref": "RestApi0C43BF4B",
         },
-        "Stage": "PROD",
+        "Stage": Object {
+          "Ref": "RestApiDeploymentStageprod3855DE66",
+        },
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },

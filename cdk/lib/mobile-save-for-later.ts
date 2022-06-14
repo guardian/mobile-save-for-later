@@ -126,11 +126,8 @@ export class MobileSaveForLater extends GuStack {
 
     new CfnBasePathMapping(this, "ApiMapping", {
       domainName: cfnDomainName.ref,
-      // Uncomment the lines below to reroute traffic to the new API Gateway instance
-      // restApiId: saveForLaterApi.api.restApiId,
-      // stage: saveForLaterApi.api.deploymentStage.stageName,
-      restApiId: yamlDefinedResources.getResource("SaveForLaterApi").ref,
-      stage: props.stage,
+      restApiId: saveForLaterApi.api.restApiId,
+      stage: saveForLaterApi.api.deploymentStage.stageName,
     });
 
     new CfnRecordSetGroup(this, "ApiRoute53", {
