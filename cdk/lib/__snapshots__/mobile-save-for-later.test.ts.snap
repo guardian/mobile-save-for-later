@@ -2726,7 +2726,7 @@ Object {
         "FunctionName": "mobile-save-for-later-FETCH-cdk-PROD",
         "Handler": "com.gu.sfl.lambda.FetchArticlesLambda::handleRequest",
         "MemorySize": 1024,
-        "ReservedConcurrentExecutions": 50,
+        "ReservedConcurrentExecutions": 150,
         "Role": Object {
           "Fn::GetAtt": Array [
             "fetcharticleslambdaServiceRoleC5815D5D",
