@@ -39,7 +39,6 @@ export class MobileSaveForLater extends GuStack {
       runtime: Runtime.JAVA_8, // We should upgrade to Java 11 in a future PR
       app,
       fileName: `${app}.jar`,
-      // N.B. these lambdas previously used very specific, low memory sizes (384 & 394); odd choices for a Scala Lambda
     };
 
     const commonEnvironmentVariables = {
