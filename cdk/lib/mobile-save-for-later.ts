@@ -103,7 +103,7 @@ export class MobileSaveForLater extends GuStack {
         snsTopicName: "arn:aws:sns:eu-west-1:201359054765:mobile-server-side",
         http5xxAlarm: {
           tolerated5xxPercentage: 1,
-          numberOfMinutesAboveThresholdBeforeAlarm: 3,
+          numberOfMinutesAboveThresholdBeforeAlarm: 1,
         },
       },
       targets: [
