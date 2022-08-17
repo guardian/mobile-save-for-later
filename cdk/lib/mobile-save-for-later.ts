@@ -99,7 +99,13 @@ export class MobileSaveForLater extends GuStack {
     const saveForLaterApi = new GuApiGatewayWithLambdaByPath(this, {
       app,
       restApiName: `${app}-api-${this.stage}`,
-      monitoringConfiguration: { noMonitoring: true }, //TODO: configure monitoring (this is not setup in current CFN)
+      monitoringConfiguration: {
+        snsTopicName: "arn:aws:sns:eu-west-1:201359054765:mobile-server-side",
+        http5xxAlarm: {
+          tolerated5xxPercentage: 1,
+          numberOfMinutesAboveThresholdBeforeAlarm: 3,
+        },
+      },
       targets: [
         {
           path: "/syncedPrefs/me/savedArticles",
