@@ -150,8 +150,5 @@ export class MobileSaveForLater extends GuStack {
         },
       ],
     });
-
-    // TODO:
-    // Decide whether to port across or leave in CFN: Dynamo Table & Dynamo Throttle CloudWatch Alarms
   }
 }
