@@ -37,10 +37,8 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      AlarmActionsEnabled: false
       TableReadCapacity: 1
       TableWriteCapacity: 1
     PROD:
-      AlarmActionsEnabled: true
       TableReadCapacity: 200
       TableWriteCapacity: 75

@@ -1,5 +1,5 @@
 import { join } from "path";
-import { GuApiGatewayWithLambdaByPath } from "@guardian/cdk";
+import {ApiGatewayAlarms, GuApiGatewayWithLambdaByPath} from "@guardian/cdk";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core";
 import { GuStack } from "@guardian/cdk/lib/constructs/core";
 import { GuLambdaFunction } from "@guardian/cdk/lib/constructs/lambda";
@@ -10,6 +10,7 @@ import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { CfnRecordSetGroup } from "aws-cdk-lib/aws-route53";
 import { CfnInclude } from "aws-cdk-lib/cloudformation-include";
+import { NoMonitoring } from "@guardian/cdk/lib/constructs/cloudwatch";
 
 export interface MobileSaveForLaterProps extends GuStackProps {
   certificateId: string;
@@ -18,6 +19,7 @@ export interface MobileSaveForLaterProps extends GuStackProps {
   hostedZoneId: string;
   identityApiHost: string;
   reservedConcurrentExecutions: number;
+  monitoringConfiguration: NoMonitoring | ApiGatewayAlarms;
 }
 
 export class MobileSaveForLater extends GuStack {
@@ -99,13 +101,7 @@ export class MobileSaveForLater extends GuStack {
     const saveForLaterApi = new GuApiGatewayWithLambdaByPath(this, {
       app,
       restApiName: `${app}-api-${this.stage}`,
-      monitoringConfiguration: {
-        snsTopicName: "arn:aws:sns:eu-west-1:201359054765:mobile-server-side",
-        http5xxAlarm: {
-          tolerated5xxPercentage: 1,
-          numberOfMinutesAboveThresholdBeforeAlarm: 1,
-        },
-      },
+      monitoringConfiguration: props.monitoringConfiguration,
       targets: [
         {
           path: "/syncedPrefs/me/savedArticles",
