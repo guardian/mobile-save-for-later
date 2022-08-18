@@ -14,7 +14,7 @@ export const codeProps: MobileSaveForLaterProps = {
   hostedZoneId: "Z6PRU8YR6TQDK",
   identityApiHost: "https://id.code.dev-guardianapis.com",
   reservedConcurrentExecutions: 1,
-  monitoringConfiguration: { noMonitoring: true }
+  monitoringConfiguration: { noMonitoring: true },
 };
 
 export const prodProps: MobileSaveForLaterProps = {

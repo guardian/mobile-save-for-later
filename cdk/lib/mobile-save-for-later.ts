@@ -1,5 +1,7 @@
 import { join } from "path";
-import {ApiGatewayAlarms, GuApiGatewayWithLambdaByPath} from "@guardian/cdk";
+import { GuApiGatewayWithLambdaByPath } from "@guardian/cdk";
+import type { ApiGatewayAlarms } from "@guardian/cdk";
+import type { NoMonitoring } from "@guardian/cdk/lib/constructs/cloudwatch";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core";
 import { GuStack } from "@guardian/cdk/lib/constructs/core";
 import { GuLambdaFunction } from "@guardian/cdk/lib/constructs/lambda";
@@ -10,7 +12,6 @@ import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { CfnRecordSetGroup } from "aws-cdk-lib/aws-route53";
 import { CfnInclude } from "aws-cdk-lib/cloudformation-include";
-import { NoMonitoring } from "@guardian/cdk/lib/constructs/cloudwatch";
 
 export interface MobileSaveForLaterProps extends GuStackProps {
   certificateId: string;
