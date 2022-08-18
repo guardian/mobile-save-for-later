@@ -6,12 +6,10 @@ Object {
   "Mappings": Object {
     "StageVariables": Object {
       "CODE": Object {
-        "AlarmActionsEnabled": false,
         "TableReadCapacity": 1,
         "TableWriteCapacity": 1,
       },
       "PROD": Object {
-        "AlarmActionsEnabled": true,
         "TableReadCapacity": 200,
         "TableWriteCapacity": 75,
       },
@@ -611,84 +609,6 @@ Object {
       },
       "Type": "AWS::DynamoDB::Table",
     },
-    "SaveForLaterReadThrottleEvents": Object {
-      "Properties": Object {
-        "ActionsEnabled": Object {
-          "Fn::FindInMap": Array [
-            "StageVariables",
-            Object {
-              "Ref": "Stage",
-            },
-            "AlarmActionsEnabled",
-          ],
-        },
-        "AlarmActions": Array [
-          Object {
-            "Ref": "DynamoNotificationTopic",
-          },
-        ],
-        "AlarmName": Object {
-          "Fn::Sub": "\${App}-\${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm",
-        },
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": Array [
-          Object {
-            "Name": "TableName",
-            "Value": Object {
-              "Ref": "SaveForLaterDynamoTable",
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "ReadThrottleEvents",
-        "Namespace": "AWS/DynamoDB",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-        "Unit": "Count",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "SaveForLaterWriteThrottleEvents": Object {
-      "Properties": Object {
-        "ActionsEnabled": Object {
-          "Fn::FindInMap": Array [
-            "StageVariables",
-            Object {
-              "Ref": "Stage",
-            },
-            "AlarmActionsEnabled",
-          ],
-        },
-        "AlarmActions": Array [
-          Object {
-            "Ref": "DynamoNotificationTopic",
-          },
-        ],
-        "AlarmName": Object {
-          "Fn::Sub": "\${App}-\${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm",
-        },
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": Array [
-          Object {
-            "Name": "TableName",
-            "Value": Object {
-              "Ref": "SaveForLaterDynamoTable",
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "WriteThrottleEvents",
-        "Namespace": "AWS/DynamoDB",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-        "Unit": "Count",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
     "fetcharticleslambda4E2BF026": Object {
       "DependsOn": Array [
         "fetcharticleslambdaServiceRoleDefaultPolicy4A85964A",
@@ -1155,12 +1075,10 @@ Object {
   "Mappings": Object {
     "StageVariables": Object {
       "CODE": Object {
-        "AlarmActionsEnabled": false,
         "TableReadCapacity": 1,
         "TableWriteCapacity": 1,
       },
       "PROD": Object {
-        "AlarmActionsEnabled": true,
         "TableReadCapacity": 200,
         "TableWriteCapacity": 75,
       },
@@ -1254,6 +1172,79 @@ Object {
         ],
       },
       "Type": "AWS::ApiGateway::DomainName",
+    },
+    "ApiGatewayHigh5xxPercentageAlarmMobilesaveforlater7A59CCCF": Object {
+      "Properties": Object {
+        "ActionsEnabled": true,
+        "AlarmActions": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:aws:sns:",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                Object {
+                  "Ref": "AWS::AccountId",
+                },
+                ":mobile-server-side",
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "mobile-save-for-later exceeded 1% error rate",
+        "AlarmName": "High 5XX error % from mobile-save-for-later (ApiGateway) in PROD",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "Metrics": Array [
+          Object {
+            "Expression": "100*m1/m2",
+            "Id": "expr_1",
+            "Label": "% of 5XX responses served for mobile-save-for-later",
+          },
+          Object {
+            "Id": "m1",
+            "MetricStat": Object {
+              "Metric": Object {
+                "Dimensions": Array [
+                  Object {
+                    "Name": "ApiName",
+                    "Value": "mobile-save-for-later-api-PROD",
+                  },
+                ],
+                "MetricName": "5XXError",
+                "Namespace": "AWS/ApiGateway",
+              },
+              "Period": 60,
+              "Stat": "Sum",
+            },
+            "ReturnData": false,
+          },
+          Object {
+            "Id": "m2",
+            "MetricStat": Object {
+              "Metric": Object {
+                "Dimensions": Array [
+                  Object {
+                    "Name": "ApiName",
+                    "Value": "mobile-save-for-later-api-PROD",
+                  },
+                ],
+                "MetricName": "Count",
+                "Namespace": "AWS/ApiGateway",
+              },
+              "Period": 60,
+              "Stat": "SampleCount",
+            },
+            "ReturnData": false,
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "ApiMapping": Object {
       "Properties": Object {
@@ -1759,84 +1750,6 @@ Object {
         ],
       },
       "Type": "AWS::DynamoDB::Table",
-    },
-    "SaveForLaterReadThrottleEvents": Object {
-      "Properties": Object {
-        "ActionsEnabled": Object {
-          "Fn::FindInMap": Array [
-            "StageVariables",
-            Object {
-              "Ref": "Stage",
-            },
-            "AlarmActionsEnabled",
-          ],
-        },
-        "AlarmActions": Array [
-          Object {
-            "Ref": "DynamoNotificationTopic",
-          },
-        ],
-        "AlarmName": Object {
-          "Fn::Sub": "\${App}-\${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm",
-        },
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": Array [
-          Object {
-            "Name": "TableName",
-            "Value": Object {
-              "Ref": "SaveForLaterDynamoTable",
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "ReadThrottleEvents",
-        "Namespace": "AWS/DynamoDB",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-        "Unit": "Count",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "SaveForLaterWriteThrottleEvents": Object {
-      "Properties": Object {
-        "ActionsEnabled": Object {
-          "Fn::FindInMap": Array [
-            "StageVariables",
-            Object {
-              "Ref": "Stage",
-            },
-            "AlarmActionsEnabled",
-          ],
-        },
-        "AlarmActions": Array [
-          Object {
-            "Ref": "DynamoNotificationTopic",
-          },
-        ],
-        "AlarmName": Object {
-          "Fn::Sub": "\${App}-\${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm",
-        },
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": Array [
-          Object {
-            "Name": "TableName",
-            "Value": Object {
-              "Ref": "SaveForLaterDynamoTable",
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "WriteThrottleEvents",
-        "Namespace": "AWS/DynamoDB",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-        "Unit": "Count",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "fetcharticleslambda4E2BF026": Object {
       "DependsOn": Array [

@@ -1,48 +1,4 @@
 Resources:
-  SaveForLaterWriteThrottleEvents:
-    Type: 'AWS::CloudWatch::Alarm'
-    Properties:
-      EvaluationPeriods: 1
-      TreatMissingData: notBreaching
-      Dimensions:
-        - Name: TableName
-          Value: !Ref SaveForLaterDynamoTable
-      AlarmActions:
-        - !Ref DynamoNotificationTopic
-      Namespace: AWS/DynamoDB
-      Period: 60
-      ComparisonOperator: GreaterThanThreshold
-      AlarmName: !Sub '${App}-${Stage}-articles-WriteCapacityUnitsLimit-BasicAlarm'
-      ActionsEnabled: !FindInMap
-        - StageVariables
-        - !Ref Stage
-        - AlarmActionsEnabled
-      Statistic: Sum
-      Threshold: 0
-      Unit: Count
-      MetricName: WriteThrottleEvents
-  SaveForLaterReadThrottleEvents:
-    Type: 'AWS::CloudWatch::Alarm'
-    Properties:
-      EvaluationPeriods: 1
-      TreatMissingData: notBreaching
-      Dimensions:
-        - Name: TableName
-          Value: !Ref SaveForLaterDynamoTable
-      AlarmActions:
-        - !Ref DynamoNotificationTopic
-      Namespace: AWS/DynamoDB
-      Period: 60
-      ComparisonOperator: GreaterThanThreshold
-      AlarmName: !Sub '${App}-${Stage}-articles-ReadCapacityUnitsLimit-BasicAlarm'
-      ActionsEnabled: !FindInMap
-        - StageVariables
-        - !Ref Stage
-        - AlarmActionsEnabled
-      Statistic: Sum
-      Threshold: 0
-      Unit: Count
-      MetricName: ReadThrottleEvents
   SaveForLaterDynamoTable:
     DeletionPolicy: Retain
     Type: 'AWS::DynamoDB::Table'
@@ -81,10 +37,8 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      AlarmActionsEnabled: false
       TableReadCapacity: 1
       TableWriteCapacity: 1
     PROD:
-      AlarmActionsEnabled: true
       TableReadCapacity: 200
       TableWriteCapacity: 75

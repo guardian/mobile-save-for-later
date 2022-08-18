@@ -1,5 +1,7 @@
 import { join } from "path";
 import { GuApiGatewayWithLambdaByPath } from "@guardian/cdk";
+import type { ApiGatewayAlarms } from "@guardian/cdk";
+import type { NoMonitoring } from "@guardian/cdk/lib/constructs/cloudwatch";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core";
 import { GuStack } from "@guardian/cdk/lib/constructs/core";
 import { GuLambdaFunction } from "@guardian/cdk/lib/constructs/lambda";
@@ -18,6 +20,7 @@ export interface MobileSaveForLaterProps extends GuStackProps {
   hostedZoneId: string;
   identityApiHost: string;
   reservedConcurrentExecutions: number;
+  monitoringConfiguration: NoMonitoring | ApiGatewayAlarms;
 }
 
 export class MobileSaveForLater extends GuStack {
@@ -99,7 +102,7 @@ export class MobileSaveForLater extends GuStack {
     const saveForLaterApi = new GuApiGatewayWithLambdaByPath(this, {
       app,
       restApiName: `${app}-api-${this.stage}`,
-      monitoringConfiguration: { noMonitoring: true }, //TODO: configure monitoring (this is not setup in current CFN)
+      monitoringConfiguration: props.monitoringConfiguration,
       targets: [
         {
           path: "/syncedPrefs/me/savedArticles",
@@ -144,8 +147,5 @@ export class MobileSaveForLater extends GuStack {
         },
       ],
     });
-
-    // TODO:
-    // Decide whether to port across or leave in CFN: Dynamo Table & Dynamo Throttle CloudWatch Alarms
   }
 }
