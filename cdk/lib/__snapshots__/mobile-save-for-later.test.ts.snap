@@ -10,7 +10,7 @@ Object {
         "TableWriteCapacity": 1,
       },
       "PROD": Object {
-        "TableReadCapacity": 400,
+        "TableReadCapacity": 200,
         "TableWriteCapacity": 75,
       },
     },
@@ -1079,7 +1079,7 @@ Object {
         "TableWriteCapacity": 1,
       },
       "PROD": Object {
-        "TableReadCapacity": 400,
+        "TableReadCapacity": 200,
         "TableWriteCapacity": 75,
       },
     },
