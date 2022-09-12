@@ -40,5 +40,5 @@ Mappings:
       TableReadCapacity: 1
       TableWriteCapacity: 1
     PROD:
-      TableReadCapacity: 400
+      TableReadCapacity: 200
       TableWriteCapacity: 75
