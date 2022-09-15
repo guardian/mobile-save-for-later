@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   val awsSdkVersion = "1.11.412"
   val log4j2Version = "2.17.1"
-  val jacksonVersion = "2.9.4"
+  val jacksonVersion = "2.13.4"
   val specsVersion = "4.0.3"
 
 
@@ -22,7 +22,7 @@ object Dependencies {
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.6"
   val scanamo = "com.gu" %% "scanamo" % "1.0.0-M6"
-  val okHttp = "com.squareup.okhttp3" % "okhttp" % "3.10.0"
+  val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.9.2"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
