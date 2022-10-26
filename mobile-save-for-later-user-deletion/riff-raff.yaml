@@ -5,7 +5,6 @@ deployments:
   mobile-save-for-later-user-deletion:
     type: aws-lambda
     parameters:
-      bucket: mobile-dist
       functionNames: [mobile-save-for-later-user-deletion-]
       fileName: mobile-save-for-later-user-deletion.jar
       prefixStack: false
