@@ -5,7 +5,6 @@ deployments:
   mobile-save-for-later:
     type: aws-lambda
     parameters:
-      bucket: mobile-dist
       functionNames:
         - mobile-save-for-later-SAVE-cdk-
         - mobile-save-for-later-FETCH-cdk-
