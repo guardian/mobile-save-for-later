@@ -1,7 +1,6 @@
 package com.gu.sfl.identity
 
 import java.io.IOException
-
 import com.gu.sfl.Logging
 import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.lib.Jackson._
@@ -12,15 +11,13 @@ import scala.util.{Failure, Success, Try}
 
 case class IdentityConfig(identityApiHost: String)
 
-case class IdentityHeader(auth: String, accessToken: String = "Bearer application_token")
+case class IdentityHeader(auth: String, accessToken: String = "Bearer application_token", isOauth: Boolean = false)
 
 trait IdentityService {
   def userFromRequest(identityHeaders: IdentityHeader) : Future[Option[String]]
 }
 class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient)(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
-
-  override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
-
+  def userFromRequestIdapi(identityHeaders: IdentityHeader): Future[Option[String]] = {
     val meUrl = s"${identityConfig.identityApiHost}/user/me/identifiers"
 
     val headers = new Headers.Builder()
@@ -70,5 +67,19 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
       override def onFailure(call: Call, e: IOException): Unit = promise.failure(IdentityApiRequestError("Did not get identiy api response"))
     })
     promise.future
+  }
+
+  def userFromRequestOauth(identityHeaders: IdentityHeader): Future[Option[String]] = {
+    // TODO: Add support for Okta Oauth Access token here
+    // read the identityHeaders.auth property to get "Bearer token" string
+    val promise = Promise[Option[String]]
+    promise.success(None).future
+  }
+
+  override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
+    identityHeaders.isOauth match {
+      case true => userFromRequestOauth(identityHeaders)
+      case false => userFromRequestIdapi(identityHeaders)
+    }
   }
 }
