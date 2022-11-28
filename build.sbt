@@ -47,6 +47,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
       commonsIo,
       scanamo,
       okHttp,
+      identityAuthCore,
       specsCore,
       specsScalaCheck,
       specsMock

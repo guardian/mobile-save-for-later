@@ -2,9 +2,9 @@ package com.gu.sfl.persistence
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
-import com.gu.scanamo.Scanamo.exec
-import com.gu.scanamo.Table
-import com.gu.scanamo.syntax.{set, _}
+import org.scanamo.{Scanamo, Table}
+import org.scanamo.auto._
+import org.scanamo.syntax._
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
@@ -36,10 +36,12 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
   }
 
   private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
+  //TODO confirm that it's ok to share the same client concurrently in all requests.. I guess if this is a lambda there won't be concurrent requests anyway ?
+  private val scanamo = Scanamo(client)
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
-    exec(client)(table.get('userId -> userId)) match {
+    scanamo.exec(table.get("userId" -> userId)) match {
       case Some(Right(sa)) =>
         logger.debug(s"Retrieved articles for: $userId")
         Success(Some(sa))
@@ -54,7 +56,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
   }
 
   override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    exec(client)(table.put(DynamoSavedArticles(userId, savedArticles))) match {
+    scanamo.exec(table.put(DynamoSavedArticles(userId, savedArticles))) match {
       case Some(Right(articles)) =>
         logger.debug(s"Succcesfully saved articles for $userId")
         Success(Some(articles.ordered))
@@ -70,9 +72,9 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
   }
 
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    exec(client)(table.update('userId -> userId,
-        set('version -> savedArticles.nextVersion) and
-        set('articles -> mapper.writeValueAsString(savedArticles.articles)))
+    scanamo.exec(table.update("userId" -> userId,
+        set("version" -> savedArticles.nextVersion) and
+        set("articles" -> mapper.writeValueAsString(savedArticles.articles)))
     ) match {
       case Right(articles) =>
         logger.debug("Updated articles")
