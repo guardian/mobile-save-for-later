@@ -18,7 +18,7 @@ class AuthHeaderParserSpec extends Specification {
     }
 
     "Get 'isOauth' flag if header is set" in new AuthHeaderScope {
-      val headers = Map("authorization" -> "someAuth", "X-GU-Is-OAuth" -> "true")
+      val headers = Map("authorization" -> "someAuth", "x-gu-is-oauth" -> "true")
       parser.getIdentityHeaders(headers) mustEqual (expectedOauthHeaders)
     }
 

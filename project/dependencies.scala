@@ -26,11 +26,11 @@ object Dependencies {
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.7"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.6"
 }

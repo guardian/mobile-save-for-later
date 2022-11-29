@@ -1,8 +1,10 @@
 package com.gu.sfl.identity
 
+import com.gu.identity.auth.{DefaultAccessClaims, OktaLocalValidator, OktaValidationException, AccessScope => IdentityAccessScope}
+
 import java.io.IOException
 import com.gu.sfl.Logging
-import com.gu.sfl.exception.IdentityApiRequestError
+import com.gu.sfl.exception.{IdentityApiRequestError}
 import com.gu.sfl.lib.Jackson._
 import okhttp3._
 
@@ -13,10 +15,26 @@ case class IdentityConfig(identityApiHost: String)
 
 case class IdentityHeader(auth: String, accessToken: String = "Bearer application_token", isOauth: Boolean = false)
 
-trait IdentityService {
-  def userFromRequest(identityHeaders: IdentityHeader) : Future[Option[String]]
+object AccessScope {
+  /**
+   * Allows the client to read the user's saved for later articles, used by the FetchSavedArticles lambda
+   */
+  case object readSelf extends IdentityAccessScope {
+    val name = "guardian.save-for-later.read.self"
+  }
+
+  /**
+   * Allows the client to update the user's saved for later articles, used by the UpdateSavedArticles lambda
+   */
+  case object updateSelf extends IdentityAccessScope {
+    val name = "guardian.save-for-later.update.self"
+  }
 }
-class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient)(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
+
+trait IdentityService {
+  def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]) : Future[Option[String]]
+}
+class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient, oktaLocalValidator: OktaLocalValidator[DefaultAccessClaims])(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
   def userFromRequestIdapi(identityHeaders: IdentityHeader): Future[Option[String]] = {
     val meUrl = s"${identityConfig.identityApiHost}/user/me/identifiers"
 
@@ -69,16 +87,23 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
     promise.future
   }
 
-  def userFromRequestOauth(identityHeaders: IdentityHeader): Future[Option[String]] = {
-    // TODO: Add support for Okta Oauth Access token here
-    // read the identityHeaders.auth property to get "Bearer token" string
+  def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
     val promise = Promise[Option[String]]
-    promise.success(None).future
+    val claims = oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
+    println(claims.toString)
+    claims match {
+      case Left(e) => {
+        promise.failure(OktaValidationException(e))
+      }
+      case Right(c) => promise.success(Option(c.identityId))
+    }
+
+    promise.future
   }
 
-  override def userFromRequest(identityHeaders: IdentityHeader): Future[Option[String]] = {
+  override def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
     identityHeaders.isOauth match {
-      case true => userFromRequestOauth(identityHeaders)
+      case true => userFromRequestOauth(identityHeaders, requiredScope)
       case false => userFromRequestIdapi(identityHeaders)
     }
   }

@@ -1,5 +1,6 @@
 package com.gu.sfl.lambda
 
+import com.gu.identity.auth.{OktaLocalValidator, OktaTokenValidationConfig}
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
@@ -14,6 +15,8 @@ object FetchArticlesConfig {
   lazy val identityApiHost = readEnvKey("IdentityApiHost")
   lazy val app = readEnvKey("App")
   lazy val stage = readEnvKey("Stage")
+  lazy val identityOktaIssuerUrl = readEnvKey("IdentityOktaIssuerUrl")
+  lazy val identityOktaAudience = readEnvKey("IdentityOktaAudience")
 }
 
 object FetchArticlesLambda extends Logging {
@@ -22,7 +25,7 @@ object FetchArticlesLambda extends Logging {
     () => {
       new FetchArticlesController(
         new FetchSavedArticlesImpl(
-          new IdentityServiceImpl(IdentityConfig(FetchArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient),
+          new IdentityServiceImpl(IdentityConfig(FetchArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient, OktaLocalValidator.fromConfig(OktaTokenValidationConfig(FetchArticlesConfig.identityOktaIssuerUrl, FetchArticlesConfig.identityOktaAudience))),
           new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage))
         )
       )

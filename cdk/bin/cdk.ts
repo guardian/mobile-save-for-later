@@ -15,6 +15,9 @@ export const codeProps: MobileSaveForLaterProps = {
   identityApiHost: "https://id.code.dev-guardianapis.com",
   reservedConcurrentExecutions: 1,
   monitoringConfiguration: { noMonitoring: true },
+  identityOktaIssuerUrl:
+    "https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7",
+  identityOktaAudience: "https://profile.code.dev-theguardian.com/",
 };
 
 export const prodProps: MobileSaveForLaterProps = {
@@ -33,6 +36,9 @@ export const prodProps: MobileSaveForLaterProps = {
       numberOfMinutesAboveThresholdBeforeAlarm: 1,
     },
   },
+  identityOktaIssuerUrl:
+    "https://profile.theguardian.com/oauth2/aus3xgj525jYQRowl417",
+  identityOktaAudience: "https://profile.theguardian.com/",
 };
 
 new MobileSaveForLater(app, "MobileSaveForLater-CODE", codeProps);

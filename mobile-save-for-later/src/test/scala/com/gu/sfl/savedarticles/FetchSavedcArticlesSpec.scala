@@ -1,8 +1,10 @@
 package com.gu.sfl.savedarticles
 
-import java.time.LocalDateTime
+import com.gu.identity.auth.{AccessScope, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaValidationException}
 
-import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
+import java.time.LocalDateTime
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
+import com.gu.sfl.identity.AccessScope.readSelf
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
 import com.gu.sfl.persistence.SavedArticlesPersistence
@@ -10,8 +12,8 @@ import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Success
@@ -21,7 +23,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
   "Fetch articles without auth headers does ot call identity api" in new Setup {
     fetchSavedArticlesImpl.retrieveForUser(Map.empty)
-    there were no(identityService).userFromRequest(any[IdentityHeader]())
+    there were no(identityService).userFromRequest(any[IdentityHeader](), any[List[AccessScope]]())
   }
 
   "Fetch articles without auth headers does not attempt to retrieve persisitin articles" in new Setup {
@@ -40,7 +42,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
 
   "fetching saved articles correctly sends the auth headers to the identity service" in new SetupWithUserId {
     fetchSavedArticlesImpl.retrieveForUser(requestHeaders)
-    there was one (identityService).userFromRequest(argThat(===(identityHeaders)))
+    there was one (identityService).userFromRequest(argThat(===(identityHeaders)), any[List[AccessScope]]())
   }
 
   "when the identity service provides a user id we retrieve the articles from the persistence layers" in new SetupWithUserId {
@@ -93,7 +95,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "when the identity service errors the correct error is returned" in new Setup {
-    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns(Future.failed(IdentityApiRequestError("Did not get identiy api response")))
     val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf)
     futureFetchException map {
       case Right(_) => fail("No missing user errot")
@@ -101,12 +103,39 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     }
   }
 
+  "when the identity service using oauth returns an invalid token error" in new Setup {
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(InvalidOrExpiredToken))
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeadersOauth), Duration.Inf)
+    futureFetchException map {
+      case Right(_) => fail("No invalid token error")
+      case Left(ex) => ex mustEqual OktaOauthValidationError(InvalidOrExpiredToken.message, InvalidOrExpiredToken)
+    }
+  }
+
+  "when the identity service using oauth returns an invalid scopes error" in new Setup {
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredScope(List(readSelf))))
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeadersOauth), Duration.Inf)
+    futureFetchException map {
+      case Right(_) => fail("No missing scopes error")
+      case Left(ex) => ex mustEqual OktaOauthValidationError(MissingRequiredScope(List(readSelf)).message, MissingRequiredScope(List(readSelf)))
+    }
+  }
+
+  "when the identity service using oauth returns an invalid claims error" in new Setup {
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredClaim("claim_name")))
+    val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeadersOauth), Duration.Inf)
+    futureFetchException map {
+      case Right(_) => fail("No missing claims error")
+      case Left(ex) => ex mustEqual OktaOauthValidationError(MissingRequiredClaim("claim_name").message, MissingRequiredClaim("claim_name"))
+    }
+  }
+
   trait SeupWithoutUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.successful(None))
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns(Future.successful(None))
   }
 
   trait SetupWithUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeader]()) returns(Future.successful(Some(userId)))
+    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns(Future.successful(Some(userId)))
   }
 
 
@@ -134,6 +163,6 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     val fetchSavedArticlesImpl = new FetchSavedArticlesImpl(identityService, savedArticlesPersistence)
     val requestHeaders = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token")
     val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
-
+    val requestHeadersOauth = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token", "x-gu-is-oauth" -> "true")
   }
 }

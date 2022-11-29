@@ -1,7 +1,9 @@
 package com.gu.sfl.savedarticles
 
+import com.gu.identity.auth.OktaValidationException
 import com.gu.sfl.Logging
 import com.gu.sfl.exception._
+import com.gu.sfl.identity.AccessScope.readSelf
 import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.AuthHeaderParser
 import com.gu.sfl.model._
@@ -29,13 +31,16 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
     (for {
       identityHeaders <- getIdentityHeaders(headers)
     } yield {
-      identityService.userFromRequest(identityHeaders).transformWith{
+      identityService.userFromRequest(identityHeaders, List(readSelf)).transformWith{
         case Success(Some(userId)) =>
           logger.debug(s"Got user id ${userId} from identity")
           Future.successful(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
           logger.debug(s"No user found for AccessToken ${identityHeaders.accessToken}")
           Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
+        case Failure(OktaValidationException(e)) =>
+          logger.debug(s"Error retrieving userId from okta oauth token")
+          Future.successful(Left(OktaOauthValidationError(e.message, e)))
         case Failure(_) =>
           logger.debug(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
           Future.successful(Left(new IdentityServiceError("Could not get a response from the id api")))
