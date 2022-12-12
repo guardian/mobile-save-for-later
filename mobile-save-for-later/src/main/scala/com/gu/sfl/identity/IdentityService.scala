@@ -1,10 +1,10 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{DefaultAccessClaims, OktaLocalValidator, OktaValidationException, AccessScope => IdentityAccessScope}
+import com.gu.identity.auth.{DefaultAccessClaims, OktaLocalValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
 
 import java.io.IOException
 import com.gu.sfl.Logging
-import com.gu.sfl.exception.{IdentityApiRequestError}
+import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.lib.Jackson._
 import okhttp3._
 
@@ -87,23 +87,15 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
     promise.future
   }
 
-  def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
-    val promise = Promise[Option[String]]
-    val claims = oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
-    println(claims.toString)
-    claims match {
-      case Left(e) => {
-        promise.failure(OktaValidationException(e))
-      }
-      case Right(c) => promise.success(Option(c.identityId))
-    }
-
-    promise.future
-  }
+  def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
+    oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
 
   override def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
     identityHeaders.isOauth match {
-      case true => userFromRequestOauth(identityHeaders, requiredScope)
+      case true => userFromRequestOauth(identityHeaders, requiredScope) match {
+        case Left(e) => Future.failed(OktaValidationException(e))
+        case Right(claims) => Future.successful(Some(claims.identityId))
+      }
       case false => userFromRequestIdapi(identityHeaders)
     }
   }

@@ -5,6 +5,6 @@ object HeaderNames {
   object Identity {
     val accessToken = "X-GU-ID-Client-Access-Token"
     val auth = "authorization"
-    val oauth = "x-gu-is-oauth"
+    val isOauth = "x-gu-is-oauth"
   }
 }

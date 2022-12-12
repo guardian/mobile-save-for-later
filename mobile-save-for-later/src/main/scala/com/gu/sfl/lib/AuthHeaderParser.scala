@@ -8,7 +8,7 @@ trait AuthHeaderParser {
       //Ios sends 'authorisation' whereas android 'Authorisation'
       for {
         auth <- headers.get(Identity.auth)
-        isOauth = headers.contains(Identity.oauth)
+        isOauth = headers.contains(Identity.isOauth)
       } yield (IdentityHeader(auth = auth, isOauth = isOauth))
     }
 }
