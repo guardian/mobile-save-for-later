@@ -21,6 +21,8 @@ export interface MobileSaveForLaterProps extends GuStackProps {
   identityApiHost: string;
   reservedConcurrentExecutions: number;
   monitoringConfiguration: NoMonitoring | ApiGatewayAlarms;
+  identityOktaIssuerUrl: string;
+  identityOktaAudience: string;
 }
 
 export class MobileSaveForLater extends GuStack {
@@ -49,6 +51,8 @@ export class MobileSaveForLater extends GuStack {
       Stack: this.stack,
       Stage: this.stage,
       IdentityApiHost: props.identityApiHost,
+      IdentityOktaIssuerUrl: props.identityOktaIssuerUrl,
+      IdentityOktaAudience: props.identityOktaAudience,
     };
 
     const saveArticlesLambda = new GuLambdaFunction(

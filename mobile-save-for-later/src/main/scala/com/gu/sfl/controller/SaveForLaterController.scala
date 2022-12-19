@@ -23,6 +23,8 @@ trait SaveForLaterController extends Logging {
   def okSavedArticlesResponse(savedArticles: SavedArticles): LambdaResponse = LambdaResponse(StatusCodes.ok, Some(mapper.writeValueAsString(SavedArticlesResponse("ok", savedArticles))))
   def serverErrorResponse(message: String) = lambdaErrorResponse(StatusCodes.internalServerError, List(Error("Server error.", message)))
 
+  def oktaOauthError(message: String, statusCode: Int) = lambdaErrorResponse(statusCode, List(Error("Access Denied", message)))
+
   def processErrorResponse(error: SaveForLaterError)(errorResolutions: PartialFunction[SaveForLaterError, LambdaResponse]) : LambdaResponse = {
     val lift = errorResolutions.lift
     lift(error).getOrElse {

@@ -1,8 +1,10 @@
 package com.gu.sfl.controller
 
-import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, UserNotFoundError}
+import com.gu.identity.auth.{InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.savedarticles.FetchSavedArticles
+import com.gu.sfl.util.StatusCodes
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -24,6 +26,10 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
            case e: IdentityServiceError =>  identityErrorResponse
            case e: MissingAccessTokenError => missingAccessTokenResponse
            case e: UserNotFoundError => missingUserResponse
+           case OktaOauthValidationError(e, InvalidOrExpiredToken) => oktaOauthError(e, StatusCodes.unauthorized)
+           case OktaOauthValidationError(e, MissingRequiredClaim(_)) => oktaOauthError(e, StatusCodes.badRequest)
+           case OktaOauthValidationError(e, MissingRequiredScope(_)) => oktaOauthError(e, StatusCodes.forbidden)
+           case OktaOauthValidationError(e, _) => oktaOauthError(e, StatusCodes.unauthorized)
          }
      }
      futureResponse
