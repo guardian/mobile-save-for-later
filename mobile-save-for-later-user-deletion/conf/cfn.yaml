@@ -125,9 +125,9 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Threshold: 10
       AlarmActions:
-        - Sub: arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
       InsufficientDataActions:
-        - Sub: arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
           
   UserDeletionLambda:
     Type: AWS::Lambda::Function
