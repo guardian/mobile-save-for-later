@@ -110,15 +110,6 @@ Resources:
     Properties:
       QueueName: !Sub UserIdDeleteQueue-deadletter-${Stage}
 
-  UserDeletionAlarmTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub UserDeletionQueueAlert-${Stage}
-      Subscription:
-        - Endpoint: mobile.server.side@theguardian.com
-          Protocol: email
-
-
   UserDeletionQueueDepthAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -134,9 +125,11 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Threshold: 10
       AlarmActions:
-        - Ref: UserDeletionAlarmTopic
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
       InsufficientDataActions:
-        - Ref: UserDeletionAlarmTopic
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
+      OKActions:
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
           
   UserDeletionLambda:
     Type: AWS::Lambda::Function
