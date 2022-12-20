@@ -113,11 +113,7 @@ Resources:
   UserDeletionAlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Sub UserDeletionQueueAlert-${Stage}
-      Subscription:
-        - Endpoint: mobile.server.side@theguardian.com
-          Protocol: email
-
+      TopicName: mobile-server-side
 
   UserDeletionQueueDepthAlarm:
     Type: AWS::CloudWatch::Alarm
