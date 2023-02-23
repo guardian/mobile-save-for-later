@@ -78,3 +78,24 @@ Try(mapper.readValue[List[SavedArticle]](json)) match {
 ````
 
 *NB: I found that when a user record has 350+ articles the resultant string in too long for idea to handle. 
+
+### Running the lambda locally (WIP)
+
+Build a jar of the project by running
+- `sbt "project mobile-save-for-later" riffRaffPackageType`
+
+Get and modify the cloudformation definition
+- Get a definition of the lambda from by clicking `export function` and choosing `Download AWS SAM file` on the lambda aws console
+- Copy this and rename to `template.yaml` and put in the root of the project
+- Delete the lines that say:
+  `RuntimePolicy:
+      UpdateRuntimeOn: Auto`
+- Update the param `CodeUri` with the path to the jar that is outputted as a result of running riffRaffPackageType
+
+Run the lambda service
+- sam local start-lambda --debug
+
+Execute a function
+- aws lambda invoke --function-name "mobilesaveforlaterFETCHcdkCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1
+
+
