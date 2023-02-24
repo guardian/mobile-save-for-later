@@ -18,13 +18,9 @@ class AuthHeaderParserSpec extends Specification {
     }
 
     "Get the scGuU Cookie from the cookie header" in new AuthHeaderScope {
-      val headers = Map("cookie" -> "SC_GU_U=somecookie")
+      val headers = Map("x-gu-id-fowarded-sc-gu-u" -> "somecookie",
+        "x-gu-id-client-access-token" -> "Bearer token")
       parser.getIdentityHeaders(headers) mustEqual (expectedIdentityCookies)
-    }
-
-    "No scGuU Cookie returns none" in new AuthHeaderScope {
-      val headers = Map("cookie" -> "")
-      parser.getIdentityHeaders(headers) mustEqual (None)
     }
 
     "Get 'isOauth' flag if header is set" in new AuthHeaderScope {
@@ -37,7 +33,7 @@ class AuthHeaderParserSpec extends Specification {
   trait AuthHeaderScope extends Scope {
     val parser = new AuthHeaderParser {}
     val expectedIdentityHeaders = Some(IdentityHeadersWithAuth("someAuth"))
-    val expectedIdentityCookies = Some(IdentityHeadersWithCookie("SC_GU_U=somecookie"))
+    val expectedIdentityCookies = Some(IdentityHeadersWithCookie("somecookie", "Bearer token"))
     val expectedOauthHeaders = Some(IdentityHeadersWithAuth("someAuth", isOauth = true))
 
   }

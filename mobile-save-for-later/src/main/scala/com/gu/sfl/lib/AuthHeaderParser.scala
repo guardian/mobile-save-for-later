@@ -11,12 +11,15 @@ trait AuthHeaderParser {
         isOauth = headers.contains(Identity.isOauth)
       } yield IdentityHeadersWithAuth(auth = auth, isOauth = isOauth)
 
-      val cookieOpt = headers.get("cookie") match {
-        case Some("") => None
-        case Some(scGuU) => Some(IdentityHeadersWithCookie(scGuUCookie = scGuU))
-        case None => None
-      }
+      val cookieOpt = for {
+        scGuUCookie <- headers.get(Identity.SCGUUCookie)
+        clientAccessToken <- headers.get(Identity.accessToken)
+      } yield IdentityHeadersWithCookie(scGuUCookie = scGuUCookie, accessToken = clientAccessToken)
 
-      if (authOpt.isDefined) { authOpt } else { cookieOpt }
+      if (authOpt.isDefined) {
+        authOpt
+      } else {
+        cookieOpt
+      }
     }
 }

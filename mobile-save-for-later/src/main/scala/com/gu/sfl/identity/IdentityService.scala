@@ -14,12 +14,13 @@ import scala.util.{Failure, Success, Try}
 case class IdentityConfig(identityApiHost: String)
 
 trait IdentityHeaders {
-  val accessToken: String = "Bearer application_token"
+  val accessToken: String
   val isOauth: Boolean
 }
 
-case class IdentityHeadersWithAuth(auth: String, isOauth:Boolean = false) extends IdentityHeaders
-case class IdentityHeadersWithCookie(scGuUCookie: String, isOauth:Boolean = false) extends IdentityHeaders
+case class IdentityHeadersWithAuth(auth: String, accessToken: String = "Bearer application_token", isOauth: Boolean = false) extends IdentityHeaders
+
+case class IdentityHeadersWithCookie(scGuUCookie: String, accessToken: String, isOauth: Boolean = false) extends IdentityHeaders
 
 object AccessScope {
   /**
@@ -51,7 +52,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
         .build()
       case cookie: IdentityHeadersWithCookie => new Headers.Builder()
         .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
-        .add("cookie", cookie.scGuUCookie)
+        .add("X-GU-ID-FOWARDED-SC-GU-U", cookie.scGuUCookie)
         .build()
     }
 
@@ -102,29 +103,20 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
   def userFromRequestOauth(identityHeaders: IdentityHeadersWithAuth, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
     oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
 
-  // todo tests
   override def userFromRequest(identityHeaders: IdentityHeaders, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
-
     if (identityHeaders.isOauth) {
       identityHeaders match {
-        case auth: IdentityHeadersWithAuth => {
+        case auth: IdentityHeadersWithAuth =>
           userFromRequestOauth(auth, requiredScope) match {
             case Left(e) => Future.failed(OktaValidationException(e))
             case Right(claims) => Future.successful(Some(claims.identityId))
           }
-        }
-        case _ => {
-          Future.failed(OktaValidationException(MissingOrInvalidHeader))
-        }
+        case _ => Future.failed(OktaValidationException(MissingOrInvalidHeader))
       }
     } else {
       identityHeaders match {
-        case auth: IdentityHeadersWithAuth => {
-          userFromRequestIdapi(auth)
-        }
-        case cookie: IdentityHeadersWithCookie => {
-          userFromRequestIdapi(cookie)
-        }
+        case auth: IdentityHeadersWithAuth => userFromRequestIdapi(auth)
+        case cookie: IdentityHeadersWithCookie => userFromRequestIdapi(cookie)
       }
     }
 

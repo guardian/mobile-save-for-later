@@ -21,20 +21,20 @@ import scala.util.{Failure, Success}
 
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
 
-  val identityHeaders = IdentityHeadersWithAuth("auth")
-  val identityHeadersWithCookie = IdentityHeadersWithCookie("cookie")
-  val identityOauthHeaders = IdentityHeadersWithAuth("Bearer authorization_header", isOauth = true)
-  val identityOauthHeadersWithCookie = IdentityHeadersWithCookie("Bearer authorization_header", isOauth = true)
+  val identityHeaders = IdentityHeadersWithAuth("auth", "Bearer authorization_header")
+  val identityHeadersWithCookie = IdentityHeadersWithCookie("cookie", "Bearer authorization_header")
+  val identityOauthHeaders = IdentityHeadersWithAuth("Auth", "Bearer authorization_header", isOauth = true)
+  val identityOauthHeadersWithCookie = IdentityHeadersWithCookie("cookie", "Bearer authorization_header", isOauth = true)
 
   "the identity service using Identity API" should {
     "return the user id when the identity api received expected authorisation headers" in new MockHttpRequestScope {
-      val futureUserId = identityService.userFromRequest(identityHeadersWithCookie, any())
+      val futureUserId = identityService.userFromRequest(identityHeaders, any())
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
     }
 
     // todo cover all unhappy paths?
     "return the user id when the identity api received expected authorisation cookie" in new MockHttpRequestScope {
-      val futureUserId = identityService.userFromRequest(identityHeaders, any())
+      val futureUserId = identityService.userFromRequest(identityHeadersWithCookie, any())
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
     }
 
