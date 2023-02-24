@@ -27,7 +27,7 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
             logger.debug(s"Storing ${savedArticles.numberOfArticles} articles for user $userId")
             Future.successful(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))
           case Success(_) =>
-            logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
+//            logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
             Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
           case Failure(OktaValidationException(e)) =>
             logger.debug(s"Error retrieving userId from okta oauth token")

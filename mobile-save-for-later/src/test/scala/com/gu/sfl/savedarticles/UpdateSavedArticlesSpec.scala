@@ -5,7 +5,7 @@ import com.gu.identity.auth.{AccessScope, InvalidOrExpiredToken, MissingRequired
 import java.time.LocalDateTime
 import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
 import com.gu.sfl.identity.AccessScope.{readSelf, updateSelf}
-import com.gu.sfl.identity.{IdentityHeader, IdentityService}
+import com.gu.sfl.identity.{IdentityHeadersWithAuth, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
 import com.gu.sfl.model.{SavedArticle, SavedArticles}
 import org.specs2.matcher.ThrownMessages
@@ -22,7 +22,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
   "update articles without auth header should not call the id api" in new Setup {
      updateSavedArticles.save(Map.empty, savedArticles)
-     there were no(identityService).userFromRequest(any[IdentityHeader](), any[List[AccessScope]]())
+     there were no(identityService).userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]())
   }
 
   "update articles without auth header should not try to merge articles" in new Setup {
@@ -55,13 +55,13 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "attempting to update the articles does not merge them if the identity request fails" in new SetUpWithUserId {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns (Future.failed(IdentityApiRequestError("Did not get identiy api response")))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns (Future.failed(IdentityApiRequestError("Did not get identiy api response")))
     updateSavedArticles.save(requestHeaders, savedArticles)
     there were no(articlesMerger).updateWithRetryAndMerge(any[String](), any[SavedArticles]())
   }
 
   "attempting to update the articles fails with correct exception them if the identity request fails" in new SetUpWithUserId {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns (Future.failed(IdentityApiRequestError("Did not get identiy api response")))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns (Future.failed(IdentityApiRequestError("Did not get identiy api response")))
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeaders, savedArticles), Duration.Inf).value.get
 
     updateResponse map {
@@ -71,7 +71,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "attempting to update the articles using invalid oauth token error" in new SetUpWithUserId {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(InvalidOrExpiredToken))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(InvalidOrExpiredToken))
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeadersOauth, savedArticles), Duration.Inf).value.get
 
     updateResponse map {
@@ -81,7 +81,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "attempting to update the articles using missing/invalid scopes oauth error" in new SetUpWithUserId {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredScope(List(updateSelf))))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredScope(List(updateSelf))))
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeadersOauth, savedArticles), Duration.Inf).value.get
 
     updateResponse map {
@@ -91,7 +91,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   "attempting to update the articles using missing/invalid scopes oauth error" in new SetUpWithUserId {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredClaim("claim_name")))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns Future.failed(OktaValidationException(MissingRequiredClaim("claim_name")))
     val updateResponse = Await.ready(updateSavedArticles.save(requestHeadersOauth, savedArticles), Duration.Inf).value.get
 
     updateResponse map {
@@ -118,11 +118,11 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
   }
 
   trait SetupWithNoUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns (Future.successful(None))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns (Future.successful(None))
   }
 
   trait SetUpWithUserId extends Setup {
-    identityService.userFromRequest(any[IdentityHeader](), any[List[AccessScope]]()) returns (Future.successful(Some(userId)))
+    identityService.userFromRequest(any[IdentityHeadersWithAuth](), any[List[AccessScope]]()) returns (Future.successful(Some(userId)))
   }
 
   trait Setup extends Scope {
@@ -142,7 +142,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
     val articlesMerger = mock[SavedArticlesMerger]
     val updateSavedArticles = new UpdateSavedArticlesImpl(identityService, articlesMerger)
     val requestHeaders = Map("authorization" -> "some_auth")
-    val identityHeaders = IdentityHeader(auth = "some_auth", accessToken = "Bearer application_token")
+    val identityHeaders = IdentityHeadersWithAuth(auth = "some_auth")
     val requestHeadersOauth = Map("authorization" -> "some_auth", "X-GU-ID-Client-Access-Token" -> "Bearer application_token", "x-gu-is-oauth" -> "true")
   }
 

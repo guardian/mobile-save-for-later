@@ -1,14 +1,22 @@
 package com.gu.sfl.lib
 
-import com.gu.sfl.identity.IdentityHeader
+import com.gu.sfl.identity.{IdentityHeadersWithAuth, IdentityHeadersWithCookie, IdentityHeaders}
 import com.gu.sfl.util.HeaderNames.Identity
 
 trait AuthHeaderParser {
-    def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeader] = {
+    def getIdentityHeaders(headers: Map[String, String]) : Option[IdentityHeaders] = {
       //Ios sends 'authorisation' whereas android 'Authorisation'
-      for {
+      val authOpt = for {
         auth <- headers.get(Identity.auth)
         isOauth = headers.contains(Identity.isOauth)
-      } yield (IdentityHeader(auth = auth, isOauth = isOauth))
+      } yield IdentityHeadersWithAuth(auth = auth, isOauth = isOauth)
+
+      val cookieOpt = headers.get("cookie") match {
+        case Some("") => None
+        case Some(scGuU) => Some(IdentityHeadersWithCookie(scGuUCookie = scGuU))
+        case None => None
+      }
+
+      if (authOpt.isDefined) { authOpt } else { cookieOpt }
     }
 }

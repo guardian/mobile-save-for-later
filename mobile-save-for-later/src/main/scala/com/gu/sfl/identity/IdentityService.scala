@@ -1,6 +1,6 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{DefaultAccessClaims, OktaLocalValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
+import com.gu.identity.auth.{DefaultAccessClaims, MissingOrInvalidHeader, OktaLocalValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
 
 import java.io.IOException
 import com.gu.sfl.Logging
@@ -13,7 +13,13 @@ import scala.util.{Failure, Success, Try}
 
 case class IdentityConfig(identityApiHost: String)
 
-case class IdentityHeader(auth: String, accessToken: String = "Bearer application_token", isOauth: Boolean = false)
+trait IdentityHeaders {
+  val accessToken: String = "Bearer application_token"
+  val isOauth: Boolean
+}
+
+case class IdentityHeadersWithAuth(auth: String, isOauth:Boolean = false) extends IdentityHeaders
+case class IdentityHeadersWithCookie(scGuUCookie: String, isOauth:Boolean = false) extends IdentityHeaders
 
 object AccessScope {
   /**
@@ -32,16 +38,22 @@ object AccessScope {
 }
 
 trait IdentityService {
-  def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]) : Future[Option[String]]
+  def userFromRequest(identityHeaders: IdentityHeaders, requiredScope: List[IdentityAccessScope]) : Future[Option[String]]
 }
 class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient, oktaLocalValidator: OktaLocalValidator[DefaultAccessClaims])(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
-  def userFromRequestIdapi(identityHeaders: IdentityHeader): Future[Option[String]] = {
+  def userFromRequestIdapi(identityHeaders: IdentityHeaders): Future[Option[String]] = {
     val meUrl = s"${identityConfig.identityApiHost}/user/me/identifiers"
 
-    val headers = new Headers.Builder()
-      .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
-      .add("Authorization", identityHeaders.auth)
-      .build()
+    val headers = identityHeaders match {
+      case auth: IdentityHeadersWithAuth => new Headers.Builder()
+        .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
+        .add("Authorization", auth.auth)
+        .build()
+      case cookie: IdentityHeadersWithCookie => new Headers.Builder()
+        .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
+        .add("cookie", cookie.scGuUCookie)
+        .build()
+    }
 
     val promise = Promise[Option[String]]
 
@@ -87,16 +99,35 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
     promise.future
   }
 
-  def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
+  def userFromRequestOauth(identityHeaders: IdentityHeadersWithAuth, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
     oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
 
-  override def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
-    identityHeaders.isOauth match {
-      case true => userFromRequestOauth(identityHeaders, requiredScope) match {
-        case Left(e) => Future.failed(OktaValidationException(e))
-        case Right(claims) => Future.successful(Some(claims.identityId))
+  // todo tests
+  override def userFromRequest(identityHeaders: IdentityHeaders, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
+
+    if (identityHeaders.isOauth) {
+      identityHeaders match {
+        case auth: IdentityHeadersWithAuth => {
+          userFromRequestOauth(auth, requiredScope) match {
+            case Left(e) => Future.failed(OktaValidationException(e))
+            case Right(claims) => Future.successful(Some(claims.identityId))
+          }
+        }
+        case _ => {
+          Future.failed(OktaValidationException(MissingOrInvalidHeader))
+        }
       }
-      case false => userFromRequestIdapi(identityHeaders)
+    } else {
+      identityHeaders match {
+        case auth: IdentityHeadersWithAuth => {
+          userFromRequestIdapi(auth)
+        }
+        case cookie: IdentityHeadersWithCookie => {
+          userFromRequestIdapi(cookie)
+        }
+      }
     }
+
+
   }
 }

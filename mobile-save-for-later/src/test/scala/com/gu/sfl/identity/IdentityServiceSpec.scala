@@ -21,14 +21,19 @@ import scala.util.{Failure, Success}
 
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
 
-  val identityHeaders = IdentityHeader("auth", "access-token")
-
-  val identityOauthHeaders = IdentityHeader("Bearer authorization_header", "unused_access_token", isOauth = true)
+  val identityHeaders = IdentityHeadersWithAuth("auth")
+  val identityOauthHeaders = IdentityHeadersWithAuth("Bearer authorization_header", isOauth = true)
 
   "the identity service using Identity API" should {
-    "return the user id when the identity api returns it" in new MockHttpRequestScope {
+    "return the user id when the identity api received expected authorisation headers" in new MockHttpRequestScope {
       val futureUserId = identityService.userFromRequest(identityHeaders, any())
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
+    }
+
+
+    // todo +unhappy path
+    "return the user id when the identity api received expected authorisation cookie" in new MockHttpRequestScope {
+      ???
     }
 
     "return none when the user id is not found" in new MockBadIdResponseScope {
@@ -37,21 +42,21 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
     }
 
     "the exception is caught when the request to identity fails" in new IdentityRequestFailsScope {
-      val idFailResult =  Await.ready(identityService.userFromRequest(identityHeaders, any()), Duration.Inf).value.get
+      val idFailResult = Await.ready(identityService.userFromRequest(identityHeaders, any()), Duration.Inf).value.get
 
       idFailResult match {
         case Success(_) => fail("No IOxception thrown")
-        case Failure(e) => e mustEqual(IdentityApiRequestError("Did not get identiy api response"))
+        case Failure(e) => e mustEqual (IdentityApiRequestError("Did not get identiy api response"))
       }
 
     }
 
     "return future failed when identity returns 503" in new MockErrorResponseScope {
-      val idFailResult =  Await.ready(identityService.userFromRequest(identityHeaders, any()), Duration.Inf).value.get
+      val idFailResult = Await.ready(identityService.userFromRequest(identityHeaders, any()), Duration.Inf).value.get
 
       idFailResult match {
         case Success(_) => fail("No IOxception thrown")
-        case Failure(e) => e mustEqual(IdentityApiRequestError("Identity api server error"))
+        case Failure(e) => e mustEqual (IdentityApiRequestError("Identity api server error"))
       }
 
     }
@@ -96,6 +101,12 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
         case Failure(e) => e mustEqual (OktaValidationException(MissingRequiredScope(List(readSelf))))
       }
     }
+
+    // todo
+    "return future failed when oauth authentication is attempted with a cookie" in new MockHttpRequestScope {
+      ???
+    }
+
   }
 
   trait IdentityRequestFailsScope extends MockHttpRequestScope {
