@@ -51,7 +51,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
         .add("Authorization", auth.auth)
         .build()
       case cookie: IdentityHeadersWithCookie => new Headers.Builder()
-        .add("X-GU-ID-Client-Access-Token", identityHeaders.accessToken)
+        .add("X-GU-ID-Client-Access-Token", cookie.accessToken)
         .add("X-GU-ID-FOWARDED-SC-GU-U", cookie.scGuUCookie)
         .build()
     }
