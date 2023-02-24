@@ -1,6 +1,6 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{DefaultAccessClaims, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaLocalValidator, OktaValidationException}
+import com.gu.identity.auth.{DefaultAccessClaims, InvalidOrExpiredToken, MissingOrInvalidHeader, MissingRequiredClaim, MissingRequiredScope, OktaLocalValidator, OktaValidationException}
 
 import java.io.IOException
 import com.gu.sfl.exception.IdentityApiRequestError
@@ -22,18 +22,20 @@ import scala.util.{Failure, Success}
 class IdentityServiceSpec extends Specification with ThrownMessages with Mockito {
 
   val identityHeaders = IdentityHeadersWithAuth("auth")
+  val identityHeadersWithCookie = IdentityHeadersWithCookie("cookie")
   val identityOauthHeaders = IdentityHeadersWithAuth("Bearer authorization_header", isOauth = true)
+  val identityOauthHeadersWithCookie = IdentityHeadersWithCookie("Bearer authorization_header", isOauth = true)
 
   "the identity service using Identity API" should {
     "return the user id when the identity api received expected authorisation headers" in new MockHttpRequestScope {
-      val futureUserId = identityService.userFromRequest(identityHeaders, any())
+      val futureUserId = identityService.userFromRequest(identityHeadersWithCookie, any())
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
     }
 
-
-    // todo +unhappy path
+    // todo cover all unhappy paths?
     "return the user id when the identity api received expected authorisation cookie" in new MockHttpRequestScope {
-      ???
+      val futureUserId = identityService.userFromRequest(identityHeaders, any())
+      Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
     }
 
     "return none when the user id is not found" in new MockBadIdResponseScope {
@@ -102,9 +104,14 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
       }
     }
 
-    // todo
     "return future failed when oauth authentication is attempted with a cookie" in new MockHttpRequestScope {
-      ???
+      val futureFailed = identityService.userFromRequest(identityOauthHeadersWithCookie, List(readSelf))
+      val futureFailedResult = Await.ready(futureFailed, Duration.Inf).value.get
+
+      futureFailedResult match {
+        case Success(_) => fail("No IOexception thrown")
+        case Failure(e) => e mustEqual (OktaValidationException(MissingOrInvalidHeader))
+      }
     }
 
   }
