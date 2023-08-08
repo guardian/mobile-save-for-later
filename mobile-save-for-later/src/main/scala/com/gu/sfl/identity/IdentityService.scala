@@ -1,6 +1,6 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{DefaultAccessClaims, OktaLocalValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
+import com.gu.identity.auth.{AccessToken, DefaultAccessClaims, DefaultAccessClaimsParser, OktaLocalAccessTokenValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
 
 import java.io.IOException
 import com.gu.sfl.Logging
@@ -34,7 +34,7 @@ object AccessScope {
 trait IdentityService {
   def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]) : Future[Option[String]]
 }
-class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient, oktaLocalValidator: OktaLocalValidator[DefaultAccessClaims])(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
+class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpClient, oktaLocalAccessTokenValidator: OktaLocalAccessTokenValidator)(implicit executionContext: ExecutionContext) extends IdentityService with Logging {
   def userFromRequestIdapi(identityHeaders: IdentityHeader): Future[Option[String]] = {
     val meUrl = s"${identityConfig.identityApiHost}/user/me/identifiers"
 
@@ -88,7 +88,11 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
   }
 
   def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
-    oktaLocalValidator.claimsFromAccessToken(identityHeaders.auth.stripPrefix("Bearer "), requiredScope)
+    oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(
+      AccessToken(identityHeaders.auth.stripPrefix("Bearer ")),
+      requiredScope,
+      DefaultAccessClaimsParser
+    )
 
   override def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
     identityHeaders.isOauth match {

@@ -1,6 +1,6 @@
 package com.gu.sfl.lambda
 
-import com.gu.identity.auth.{OktaLocalValidator, OktaTokenValidationConfig}
+import com.gu.identity.auth.{OktaAudience, OktaIssuerUrl, OktaLocalAccessTokenValidator, OktaTokenValidationConfig}
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.FetchArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
@@ -21,15 +21,25 @@ object FetchArticlesConfig {
 
 object FetchArticlesLambda extends Logging {
 
-  lazy val savedArticledController: FetchArticlesController = logOnThrown(
+  lazy val fetchArticlesController: FetchArticlesController = logOnThrown(
     () => {
       new FetchArticlesController(
         new FetchSavedArticlesImpl(
-          new IdentityServiceImpl(IdentityConfig(FetchArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient, OktaLocalValidator.fromConfig(OktaTokenValidationConfig(FetchArticlesConfig.identityOktaIssuerUrl, FetchArticlesConfig.identityOktaAudience))),
+          new IdentityServiceImpl(
+            IdentityConfig(FetchArticlesConfig.identityApiHost),
+            GlobalHttpClient.defaultHttpClient,
+            OktaLocalAccessTokenValidator.fromConfig(
+              OktaTokenValidationConfig(
+                OktaIssuerUrl(FetchArticlesConfig.identityOktaIssuerUrl),
+                Some(OktaAudience(FetchArticlesConfig.identityOktaAudience)),
+                None
+              )
+            ).get
+          ),
           new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage))
         )
       )
-    }, "Error initialising saved articles controller")
+    }, "Error initialising fetch articles controller")
 }
 
-class FetchArticlesLambda extends AwsLambda(function = FetchArticlesLambda.savedArticledController)
+class FetchArticlesLambda extends AwsLambda(function = FetchArticlesLambda.fetchArticlesController)
