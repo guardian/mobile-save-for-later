@@ -1,6 +1,6 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{DefaultAccessClaims, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaLocalValidator, OktaValidationException}
+import com.gu.identity.auth.{DefaultAccessClaims, DefaultAccessClaimsParser, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaLocalAccessTokenValidator, OktaValidationException}
 
 import java.io.IOException
 import com.gu.sfl.exception.IdentityApiRequestError
@@ -59,13 +59,13 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
 
   "the identity service using OAuth / Okta" should {
     "return the user id (identityId) from the oauth access token claims" in new MockHttpRequestScope {
-      oktaLocalValidator.claimsFromAccessToken(any(), any()) returns Right(DefaultAccessClaims("email", "1234", Some("username")))
+      oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(any(), any(), DefaultAccessClaimsParser) returns Right(DefaultAccessClaims("email", "1234", Some("username")))
       val futureUserId = identityService.userFromRequest(identityOauthHeaders, List(readSelf))
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
     }
 
     "return future failed when the oauth access token is invalid" in new MockHttpRequestScope {
-      oktaLocalValidator.claimsFromAccessToken(any(), any()) returns Left(InvalidOrExpiredToken)
+      oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(any(), any(), DefaultAccessClaimsParser) returns Left(InvalidOrExpiredToken)
       val futureFailed = identityService.userFromRequest(identityOauthHeaders, List(readSelf))
       val futureFailedResult = Await.ready(futureFailed, Duration.Inf).value.get
 
@@ -76,7 +76,7 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
     }
 
     "return future failed when the oauth access token has missing claims" in new MockHttpRequestScope {
-      oktaLocalValidator.claimsFromAccessToken(any(), any()) returns Left(MissingRequiredClaim("claim_name"))
+      oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(any(), any(), DefaultAccessClaimsParser) returns Left(MissingRequiredClaim("claim_name"))
       val futureFailed = identityService.userFromRequest(identityOauthHeaders, List(readSelf))
       val futureFailedResult = Await.ready(futureFailed, Duration.Inf).value.get
 
@@ -87,7 +87,7 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
     }
 
     "return future failed when the oauth access token has missing scope" in new MockHttpRequestScope {
-      oktaLocalValidator.claimsFromAccessToken(any(), any()) returns Left(MissingRequiredScope(List(readSelf)))
+      oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(any(), any(), DefaultAccessClaimsParser) returns Left(MissingRequiredScope(List(readSelf)))
       val futureFailed = identityService.userFromRequest(identityOauthHeaders, List(updateSelf))
       val futureFailedResult = Await.ready(futureFailed, Duration.Inf).value.get
 
@@ -140,7 +140,7 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
     val httpClient = mock[OkHttpClient]
     val call = mock[Call]
 
-    val oktaLocalValidator = mock[OktaLocalValidator[DefaultAccessClaims]]
+    val oktaLocalAccessTokenValidator = mock[OktaLocalAccessTokenValidator]
 
     def theCallBack(callback: Callback, request: Request): Unit = {
       callback.onResponse(
@@ -161,7 +161,7 @@ class IdentityServiceSpec extends Specification with ThrownMessages with Mockito
       }
     }
   }
-    val identityService = new IdentityServiceImpl(IdentityConfig(identityApiHost = "https://guardianidentiy.com"), httpClient, oktaLocalValidator)
+    val identityService = new IdentityServiceImpl(IdentityConfig(identityApiHost = "https://guardianidentiy.com"), httpClient, oktaLocalAccessTokenValidator)
   }
 
 }
