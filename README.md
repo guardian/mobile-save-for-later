@@ -78,3 +78,7 @@ Try(mapper.readValue[List[SavedArticle]](json)) match {
 ````
 
 *NB: I found that when a user record has 350+ articles the resultant string in too long for idea to handle. 
+
+## Testing the Apps on CODE
+
+[Save For Later App](docs/testing/save-for-later.md)
