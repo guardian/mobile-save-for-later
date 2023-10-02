@@ -11,7 +11,7 @@ import scala.util.Try
 
 class AwsLambdaSpec extends Specification with Mockito {
 
-    "AswLambda" should {
+    "AwsLambda" should {
       "Log but not error in" in {
         val mockedLogger = mock[Logger]
         val testException = new IllegalStateException("This is totally illegal")
