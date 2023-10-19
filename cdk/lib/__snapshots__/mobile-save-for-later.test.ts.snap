@@ -11,7 +11,7 @@ Object {
       },
       "PROD": Object {
         "TableReadCapacity": 200,
-        "TableWriteCapacity": 75,
+        "TableWriteCapacity": 125,
       },
     },
   },
@@ -1084,7 +1084,7 @@ Object {
       },
       "PROD": Object {
         "TableReadCapacity": 200,
-        "TableWriteCapacity": 75,
+        "TableWriteCapacity": 125,
       },
     },
   },
