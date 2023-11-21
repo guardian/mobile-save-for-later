@@ -17,12 +17,14 @@ Parameters:
 Mappings:
   StageVariables:
     CODE:
-      TableReadCapacity: 1
+      TableReadMinCapacity: 1
+      TableReadMaxCapacity: 10
       TableWriteMinCapacity: 1
       TableWriteMaxCapacity: 10
     PROD:
-      TableReadCapacity: 200
-      TableWriteMinCapacity: 75
+      TableReadMinCapacity: 50
+      TableReadMaxCapacity: 400
+      TableWriteMinCapacity: 50
       TableWriteMaxCapacity: 400
 
 Resources:
@@ -39,7 +41,7 @@ Resources:
           AttributeType: S
       ProvisionedThroughput:
         WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteMinCapacity ] # Initial value, autoscaled with below resources
-        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadCapacity ]
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadMinCapacity ] # Initial value, autoscaled with below resources
 
   SaveForLaterWritesScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
@@ -63,3 +65,26 @@ Resources:
         ScaleOutCooldown: 10
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
+          
+  SaveForLaterReadsScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMaxCapacity]
+      MinCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMinCapacity]
+      ResourceId: !Sub "table/${App}-${Stage}-articles"
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  SaveForLaterReadsScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: SaveForLaterReadsScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref SaveForLaterReadsScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 10
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
