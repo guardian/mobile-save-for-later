@@ -61,8 +61,8 @@ Resources:
       ScalingTargetId: !Ref SaveForLaterWritesScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 70.0
-        ScaleInCooldown: 60
-        ScaleOutCooldown: 10
+        ScaleInCooldown: 60 # seconds
+        ScaleOutCooldown: 10 # seconds
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
           
@@ -84,7 +84,7 @@ Resources:
       ScalingTargetId: !Ref SaveForLaterReadsScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 70.0
-        ScaleInCooldown: 60
-        ScaleOutCooldown: 10
+        ScaleInCooldown: 60 # seconds
+        ScaleOutCooldown: 10 # seconds
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBReadCapacityUtilization
