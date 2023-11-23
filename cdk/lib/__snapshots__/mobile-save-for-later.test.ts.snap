@@ -6,12 +6,16 @@ Object {
   "Mappings": Object {
     "StageVariables": Object {
       "CODE": Object {
-        "TableReadCapacity": 1,
-        "TableWriteCapacity": 1,
+        "TableReadMaxCapacity": 10,
+        "TableReadMinCapacity": 1,
+        "TableWriteMaxCapacity": 10,
+        "TableWriteMinCapacity": 1,
       },
       "PROD": Object {
-        "TableReadCapacity": 200,
-        "TableWriteCapacity": 125,
+        "TableReadMaxCapacity": 400,
+        "TableReadMinCapacity": 50,
+        "TableWriteMaxCapacity": 400,
+        "TableWriteMinCapacity": 50,
       },
     },
   },
@@ -572,7 +576,7 @@ Object {
               Object {
                 "Ref": "Stage",
               },
-              "TableReadCapacity",
+              "TableReadMinCapacity",
             ],
           },
           "WriteCapacityUnits": Object {
@@ -581,7 +585,7 @@ Object {
               Object {
                 "Ref": "Stage",
               },
-              "TableWriteCapacity",
+              "TableWriteMinCapacity",
             ],
           },
         },
@@ -608,6 +612,104 @@ Object {
         ],
       },
       "Type": "AWS::DynamoDB::Table",
+    },
+    "SaveForLaterReadsScalableTarget": Object {
+      "Properties": Object {
+        "MaxCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableReadMaxCapacity",
+          ],
+        },
+        "MinCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableReadMinCapacity",
+          ],
+        },
+        "ResourceId": Object {
+          "Fn::Sub": "table/\${App}-\${Stage}-articles",
+        },
+        "RoleARN": Object {
+          "Fn::Sub": "arn:aws:iam::\${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable",
+        },
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "ServiceNamespace": "dynamodb",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "SaveForLaterReadsScalingPolicy": Object {
+      "Properties": Object {
+        "PolicyName": "SaveForLaterReadsScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": Object {
+          "Ref": "SaveForLaterReadsScalableTarget",
+        },
+        "TargetTrackingScalingPolicyConfiguration": Object {
+          "PredefinedMetricSpecification": Object {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization",
+          },
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 10,
+          "TargetValue": 70,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "SaveForLaterWritesScalableTarget": Object {
+      "Properties": Object {
+        "MaxCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableWriteMaxCapacity",
+          ],
+        },
+        "MinCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableWriteMinCapacity",
+          ],
+        },
+        "ResourceId": Object {
+          "Fn::Sub": "table/\${App}-\${Stage}-articles",
+        },
+        "RoleARN": Object {
+          "Fn::Sub": "arn:aws:iam::\${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable",
+        },
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "ServiceNamespace": "dynamodb",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "SaveForLaterWritesScalingPolicy": Object {
+      "Properties": Object {
+        "PolicyName": "SaveForLaterWritesScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": Object {
+          "Ref": "SaveForLaterWritesScalableTarget",
+        },
+        "TargetTrackingScalingPolicyConfiguration": Object {
+          "PredefinedMetricSpecification": Object {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization",
+          },
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 10,
+          "TargetValue": 70,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
     },
     "fetcharticleslambda4E2BF026": Object {
       "DependsOn": Array [
@@ -1079,12 +1181,16 @@ Object {
   "Mappings": Object {
     "StageVariables": Object {
       "CODE": Object {
-        "TableReadCapacity": 1,
-        "TableWriteCapacity": 1,
+        "TableReadMaxCapacity": 10,
+        "TableReadMinCapacity": 1,
+        "TableWriteMaxCapacity": 10,
+        "TableWriteMinCapacity": 1,
       },
       "PROD": Object {
-        "TableReadCapacity": 200,
-        "TableWriteCapacity": 125,
+        "TableReadMaxCapacity": 400,
+        "TableReadMinCapacity": 50,
+        "TableWriteMaxCapacity": 400,
+        "TableWriteMinCapacity": 50,
       },
     },
   },
@@ -1718,7 +1824,7 @@ Object {
               Object {
                 "Ref": "Stage",
               },
-              "TableReadCapacity",
+              "TableReadMinCapacity",
             ],
           },
           "WriteCapacityUnits": Object {
@@ -1727,7 +1833,7 @@ Object {
               Object {
                 "Ref": "Stage",
               },
-              "TableWriteCapacity",
+              "TableWriteMinCapacity",
             ],
           },
         },
@@ -1754,6 +1860,104 @@ Object {
         ],
       },
       "Type": "AWS::DynamoDB::Table",
+    },
+    "SaveForLaterReadsScalableTarget": Object {
+      "Properties": Object {
+        "MaxCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableReadMaxCapacity",
+          ],
+        },
+        "MinCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableReadMinCapacity",
+          ],
+        },
+        "ResourceId": Object {
+          "Fn::Sub": "table/\${App}-\${Stage}-articles",
+        },
+        "RoleARN": Object {
+          "Fn::Sub": "arn:aws:iam::\${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable",
+        },
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "ServiceNamespace": "dynamodb",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "SaveForLaterReadsScalingPolicy": Object {
+      "Properties": Object {
+        "PolicyName": "SaveForLaterReadsScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": Object {
+          "Ref": "SaveForLaterReadsScalableTarget",
+        },
+        "TargetTrackingScalingPolicyConfiguration": Object {
+          "PredefinedMetricSpecification": Object {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization",
+          },
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 10,
+          "TargetValue": 70,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "SaveForLaterWritesScalableTarget": Object {
+      "Properties": Object {
+        "MaxCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableWriteMaxCapacity",
+          ],
+        },
+        "MinCapacity": Object {
+          "Fn::FindInMap": Array [
+            "StageVariables",
+            Object {
+              "Ref": "Stage",
+            },
+            "TableWriteMinCapacity",
+          ],
+        },
+        "ResourceId": Object {
+          "Fn::Sub": "table/\${App}-\${Stage}-articles",
+        },
+        "RoleARN": Object {
+          "Fn::Sub": "arn:aws:iam::\${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable",
+        },
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "ServiceNamespace": "dynamodb",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "SaveForLaterWritesScalingPolicy": Object {
+      "Properties": Object {
+        "PolicyName": "SaveForLaterWritesScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": Object {
+          "Ref": "SaveForLaterWritesScalableTarget",
+        },
+        "TargetTrackingScalingPolicyConfiguration": Object {
+          "PredefinedMetricSpecification": Object {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization",
+          },
+          "ScaleInCooldown": 60,
+          "ScaleOutCooldown": 10,
+          "TargetValue": 70,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
     },
     "fetcharticleslambda4E2BF026": Object {
       "DependsOn": Array [
