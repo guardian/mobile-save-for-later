@@ -60,7 +60,7 @@ Resources:
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref SaveForLaterWritesScalableTarget
       TargetTrackingScalingPolicyConfiguration:
-        TargetValue: 70.0
+        TargetValue: 70.0 # Target percentage of consumed throughput
         ScaleInCooldown: 60 # seconds
         ScaleOutCooldown: 10 # seconds
         PredefinedMetricSpecification:
@@ -83,7 +83,7 @@ Resources:
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref SaveForLaterReadsScalableTarget
       TargetTrackingScalingPolicyConfiguration:
-        TargetValue: 70.0
+        TargetValue: 70.0 # Target percentage of consumed throughput
         ScaleInCooldown: 60 # seconds
         ScaleOutCooldown: 10 # seconds
         PredefinedMetricSpecification:
