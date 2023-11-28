@@ -1,6 +1,6 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{AccessToken, DefaultAccessClaims, DefaultAccessClaimsParser, OktaLocalAccessTokenValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
+import com.gu.identity.auth.{AccessToken, DefaultAccessClaims, OktaLocalAccessTokenValidator, OktaValidationException, ValidationError, AccessScope => IdentityAccessScope}
 
 import java.io.IOException
 import com.gu.sfl.Logging
@@ -90,8 +90,7 @@ class IdentityServiceImpl(identityConfig: IdentityConfig, okHttpClient: OkHttpCl
   def userFromRequestOauth(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Either[ValidationError, DefaultAccessClaims] =
     oktaLocalAccessTokenValidator.parsedClaimsFromAccessToken(
       AccessToken(identityHeaders.auth.stripPrefix("Bearer ")),
-      requiredScope,
-      DefaultAccessClaimsParser
+      requiredScope
     )
 
   override def userFromRequest(identityHeaders: IdentityHeader, requiredScope: List[IdentityAccessScope]): Future[Option[String]] = {
