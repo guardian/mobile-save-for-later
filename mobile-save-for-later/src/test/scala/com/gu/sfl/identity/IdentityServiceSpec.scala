@@ -3,7 +3,6 @@ package com.gu.sfl.identity
 import com.gu.identity.auth.{
   AccessToken,
   DefaultAccessClaims,
-  DefaultAccessClaimsParser,
   InvalidOrExpiredToken,
   MissingRequiredClaim,
   MissingRequiredScope,
@@ -92,8 +91,7 @@ class IdentityServiceSpec
       oktaLocalAccessTokenValidator
         .parsedClaimsFromAccessToken[DefaultAccessClaims](
           accessToken,
-          List(readSelf),
-          DefaultAccessClaimsParser
+          List(readSelf)
         ) returns
         Right(DefaultAccessClaims("email", "1234", Some("username")))
       val futureUserId =
@@ -105,8 +103,7 @@ class IdentityServiceSpec
       oktaLocalAccessTokenValidator
         .parsedClaimsFromAccessToken[DefaultAccessClaims](
           accessToken,
-          List(readSelf),
-          DefaultAccessClaimsParser
+          List(readSelf)
         ) returns Left(InvalidOrExpiredToken)
       val futureFailed =
         identityService.userFromRequest(identityOauthHeaders, List(readSelf))
@@ -123,8 +120,7 @@ class IdentityServiceSpec
       oktaLocalAccessTokenValidator
         .parsedClaimsFromAccessToken[DefaultAccessClaims](
           accessToken,
-          List(readSelf),
-          DefaultAccessClaimsParser
+          List(readSelf)
         ) returns Left(MissingRequiredClaim("claim_name"))
       val futureFailed =
         identityService.userFromRequest(identityOauthHeaders, List(readSelf))
@@ -143,8 +139,7 @@ class IdentityServiceSpec
       oktaLocalAccessTokenValidator
         .parsedClaimsFromAccessToken[DefaultAccessClaims](
           accessToken,
-          List(updateSelf),
-          DefaultAccessClaimsParser
+          List(updateSelf)
         ) returns Left(MissingRequiredScope(List(readSelf)))
       val futureFailed =
         identityService.userFromRequest(identityOauthHeaders, List(updateSelf))
