@@ -6,8 +6,6 @@ object Dependencies {
   val jacksonVersion = "2.14.0"
   val specsVersion = "4.0.3"
 
-
-  //Dependecies
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.0"
   val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.0"
@@ -26,7 +24,7 @@ object Dependencies {
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.12"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.15"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
