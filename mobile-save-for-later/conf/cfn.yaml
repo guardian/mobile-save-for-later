@@ -42,6 +42,9 @@ Resources:
       ProvisionedThroughput:
         WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteMinCapacity ] # Initial value, autoscaled with below resources
         ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadMinCapacity ] # Initial value, autoscaled with below resources
+      Tags:
+        - Key: devx-backup-enabled
+          Value: true
 
   SaveForLaterWritesScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
