@@ -1,24 +1,3 @@
-Resources:
-  SaveForLaterDynamoTable:
-    DeletionPolicy: Retain
-    Type: 'AWS::DynamoDB::Table'
-    Properties:
-      KeySchema:
-        - KeyType: HASH
-          AttributeName: userId
-      TableName: !Sub '${App}-${Stage}-articles'
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-      ProvisionedThroughput:
-        WriteCapacityUnits: !FindInMap
-          - StageVariables
-          - !Ref Stage
-          - TableWriteCapacity
-        ReadCapacityUnits: !FindInMap
-          - StageVariables
-          - !Ref Stage
-          - TableReadCapacity
 Description: Implements save for later for mobile
 Parameters:
   DynamoNotificationTopic:
@@ -34,11 +13,81 @@ Parameters:
     AllowedValues:
       - CODE
       - PROD
+
 Mappings:
   StageVariables:
     CODE:
-      TableReadCapacity: 1
-      TableWriteCapacity: 1
+      TableReadMinCapacity: 1
+      TableReadMaxCapacity: 10
+      TableWriteMinCapacity: 1
+      TableWriteMaxCapacity: 10
     PROD:
-      TableReadCapacity: 200
-      TableWriteCapacity: 75
+      TableReadMinCapacity: 50
+      TableReadMaxCapacity: 400
+      TableWriteMinCapacity: 50
+      TableWriteMaxCapacity: 400
+
+Resources:
+  SaveForLaterDynamoTable:
+    DeletionPolicy: Retain
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      KeySchema:
+        - KeyType: HASH
+          AttributeName: userId
+      TableName: !Sub '${App}-${Stage}-articles'
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      ProvisionedThroughput:
+        WriteCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableWriteMinCapacity ] # Initial value, autoscaled with below resources
+        ReadCapacityUnits: !FindInMap [ StageVariables, !Ref Stage, TableReadMinCapacity ] # Initial value, autoscaled with below resources
+      Tags:
+        - Key: devx-backup-enabled
+          Value: true
+
+  SaveForLaterWritesScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !FindInMap [StageVariables, !Ref Stage, TableWriteMaxCapacity]
+      MinCapacity: !FindInMap [StageVariables, !Ref Stage, TableWriteMinCapacity]
+      ResourceId: !Sub "table/${App}-${Stage}-articles"
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  SaveForLaterWritesScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: SaveForLaterWritesScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref SaveForLaterWritesScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0 # Target percentage of consumed throughput
+        ScaleInCooldown: 60 # seconds
+        ScaleOutCooldown: 10 # seconds
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+          
+  SaveForLaterReadsScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMaxCapacity]
+      MinCapacity: !FindInMap [StageVariables, !Ref Stage, TableReadMinCapacity]
+      ResourceId: !Sub "table/${App}-${Stage}-articles"
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  SaveForLaterReadsScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: SaveForLaterReadsScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref SaveForLaterReadsScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0 # Target percentage of consumed throughput
+        ScaleInCooldown: 60 # seconds
+        ScaleOutCooldown: 10 # seconds
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization

@@ -1,0 +1,35 @@
+name: CI
+on: push
+
+jobs:
+  mobile-save-for-later-user-deletion-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          aws-region: eu-west-1
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: sbt
+
+      - name: Create artifacts
+        run: sbt "project mobile-save-for-later-user-deletion" assembly
+
+      - name: RiffRaff upload artifacts and upload cfn
+        uses: guardian/actions-riff-raff@v2
+        with:
+          app: mobile-save-for-later-user-deletion
+          configPath: ./mobile-save-for-later-user-deletion/riff-raff.yaml
+          contentDirectories: |
+            mobile-save-for-later-user-deletion-cfn:
+             - ./mobile-save-for-later-user-deletion/conf/cfn.yaml
+            mobile-save-for-later-user-deletion:
+             - mobile-save-for-later-user-deletion/target/scala-2.12/mobile-save-for-later-user-deletion.jar

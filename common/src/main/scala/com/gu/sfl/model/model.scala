@@ -27,11 +27,11 @@ case class SyncedPrefsResponse(status: String, syncedPrefs: SyncedPrefs)
 
 case class SavedArticlesResponse(status: String, savedArticles: SavedArticles)
 
-/*This is cribbed from the current identity model:  https://github.com/guardian/identity/blob/master/identity-model/src/main/scala/com/gu/identity/model/Model.scala
+/*This is cribbed from a historic version of the Identity model:  https://github.com/guardian/identity/blob/main/identity-model/src/main/scala/com/gu/identity/model/Model.scala
   This service was designed to sync various categories of data for a signed in user of which saved articles were one flavour - hence synced prefs. Because we need to preserve integrity with
   existing clients (ie apps) we need to maintain this model in order to render the same json
 */
-case class SyncedPrefs(userId: String, savedArticles :Option[SavedArticles])  {
+case class SyncedPrefs(userId: String, savedArticles: Option[SavedArticles])  {
   def ordered: SyncedPrefs = copy( savedArticles = savedArticles.map(_.ordered) )
 }
 

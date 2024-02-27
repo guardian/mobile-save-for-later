@@ -123,7 +123,7 @@ Resources:
       Statistic: Sum
       EvaluationPeriods: 1
       ComparisonOperator: GreaterThanThreshold
-      Threshold: 10
+      Threshold: 100
       AlarmActions:
         - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:mobile-server-side
       InsufficientDataActions:

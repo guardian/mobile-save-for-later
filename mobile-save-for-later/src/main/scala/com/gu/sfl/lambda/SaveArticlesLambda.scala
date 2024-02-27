@@ -1,5 +1,5 @@
 package com.gu.sfl.lambda
-import com.gu.identity.auth.{OktaLocalValidator, OktaTokenValidationConfig}
+import com.gu.identity.auth.{OktaAudience, OktaIssuerUrl, OktaLocalAccessTokenValidator, OktaTokenValidationConfig}
 import com.gu.sfl.Logging
 import com.gu.sfl.controller.SaveArticlesController
 import com.gu.sfl.identity.{IdentityConfig, IdentityServiceImpl}
@@ -19,11 +19,21 @@ object SaveArticlesConfig {
   lazy val identityOktaAudience = readEnvKey("IdentityOktaAudience")
 }
 object SaveArticlesLambda extends Logging {
-  lazy val saveForLaterController: SaveArticlesController = logOnThrown(
+  lazy val saveArticlesController: SaveArticlesController = logOnThrown(
     () => {
           new SaveArticlesController(
             new UpdateSavedArticlesImpl(
-              new IdentityServiceImpl(IdentityConfig(SaveArticlesConfig.identityApiHost), GlobalHttpClient.defaultHttpClient, OktaLocalValidator.fromConfig(OktaTokenValidationConfig(SaveArticlesConfig.identityOktaIssuerUrl, SaveArticlesConfig.identityOktaAudience))),
+              new IdentityServiceImpl(
+                IdentityConfig(SaveArticlesConfig.identityApiHost),
+                GlobalHttpClient.defaultHttpClient,
+                OktaLocalAccessTokenValidator.fromConfig(
+                  OktaTokenValidationConfig(
+                    OktaIssuerUrl(SaveArticlesConfig.identityOktaIssuerUrl),
+                    Some(OktaAudience(SaveArticlesConfig.identityOktaAudience)),
+                    None
+                  )
+                ).get
+              ),
               new SavedArticlesMergerImpl(SavedArticlesMergerConfig(SaveArticlesConfig.savedArticleLimit),
                 new SavedArticlesPersistenceImpl(PersistenceConfig(app, stage))
               )
@@ -33,4 +43,4 @@ object SaveArticlesLambda extends Logging {
 }
 
 
-class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveForLaterController)
+class SaveArticlesLambda extends AwsLambda(SaveArticlesLambda.saveArticlesController)
