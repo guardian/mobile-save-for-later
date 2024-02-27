@@ -74,6 +74,42 @@ Try(mapper.readValue[List[SavedArticle]](json)) match {
 
 *NB: I found that when a user record has 350+ articles the resultant string in too long for idea to handle. 
 
+## Running apps locally
+
+### Pre-requisites
+
+- Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
+- Install [AWS Sam](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+- Install [Docker](https://docs.docker.com/engine/install/)
+- Make sure you run the app with Java8
+
+### Mobile Save For Later
+
+Build a jar of the project by running:
+- `sbt "project mobile-save-for-later" riffRaffPackageType`
+  Navigate to the project
+- `cd mobile-save-for-later`
+
+Run the lambda service
+- `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local start-lambda --debug`
+
+Execute a function
+- `aws lambda invoke --function-name "mobilesaveforlaterFETCHcdkCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
+
+### Mobile Save For Later User Deletion
+
+Build a jar of the project by running:
+- `sbt "project mobile-save-for-later-user-deletion" riffRaffPackageType`
+  Navigate to the project
+- `cd mobile-save-for-later-user-deletion`
+
+Run the lambda service
+- `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local start-lambda --debug`
+
+Execute a function
+- `aws lambda invoke --function-name "mobilesaveforlateruserdeletionCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
+
+
 ## Testing the Apps on CODE
 
 [Save For Later App](docs/testing/save-for-later.md)
