@@ -9,11 +9,6 @@ import com.gu.sfl.persistence.{DynamoSavedArticles, PersistenceConfig}
 import com.gu.sfl.userdeletion.model.UserDeleteMessage
 
 class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
-  implicit val formatcom: DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles] = new DynamoFormat[DynamoSavedArticles] {
-    override def read(av: DynamoValue): Either[DynamoReadError, DynamoSavedArticles] = Right(DynamoSavedArticles("uasd", SavedArticles("asd", Nil)))
-
-    override def write(t: DynamoSavedArticles): DynamoValue = DynamoValue.fromString("")
-  }
 
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
   private val client = DynamoDbClient.builder().build()
