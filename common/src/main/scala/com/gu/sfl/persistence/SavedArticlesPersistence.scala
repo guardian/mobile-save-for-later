@@ -1,9 +1,10 @@
 package com.gu.sfl.persistence
 
-import org.scanamo.{PutReturn, Scanamo, Table}
+import org.scanamo.{DynamoFormat, DynamoReadError, DynamoValue, PutReturn, Scanamo, Table}
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
+import org.scanamo.DynamoValue.DynString
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
 import scala.util.{Failure, Success, Try}
@@ -60,7 +61,14 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
   import org.scanamo.syntax._
   import org.scanamo.generic.auto._
 
+  implicit val formatcom: DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles]= new DynamoFormat[DynamoSavedArticles] {
+    override def read(av: DynamoValue): Either[DynamoReadError, DynamoSavedArticles] = Right(DynamoSavedArticles("uasd", SavedArticles("asd", Nil)))
+
+    override def write(t: DynamoSavedArticles): DynamoValue = DynamoValue.fromString("")
+  }
+
   val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
+
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
     scanamo.exec(table.get("userId" -> userId)) match {
