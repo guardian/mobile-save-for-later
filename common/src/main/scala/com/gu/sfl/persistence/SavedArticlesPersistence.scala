@@ -1,12 +1,21 @@
 package com.gu.sfl.persistence
 
-import org.scanamo.{DynamoFormat, DynamoReadError, DynamoValue, PutReturn, Scanamo, Table}
+import org.scanamo.{
+  DynamoFormat,
+  DynamoReadError,
+  DynamoValue,
+  MissingProperty,
+  PutReturn,
+  Scanamo,
+  Table
+}
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
-import org.scanamo.DynamoValue.DynString
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
 case class PersistenceConfig(app: String, stage: String) {
@@ -34,11 +43,39 @@ case class DynamoSavedArticles(
 )
 
 object DynamoSavedArticles {
-  implicit val formatcom: DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles] = new DynamoFormat[DynamoSavedArticles] {
-    override def read(av: DynamoValue): Either[DynamoReadError, DynamoSavedArticles] = Right(DynamoSavedArticles("uasd", SavedArticles("asd", Nil)))
+  implicit val formatcom
+      : DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles] =
+    new DynamoFormat[DynamoSavedArticles] {
+      override def read(
+          dv: DynamoValue
+      ): Either[DynamoReadError, DynamoSavedArticles] = {
+        val av = dv.toAttributeValue
+        (for {
+          attrs <- Option(av.m()).map(_.asScala)
+          userId <- attrs.get("userId").flatMap(a => Option(a.s()))
+          version <- attrs.get("version").flatMap(a => Option(a.s()))
+          articles <- attrs.get("articles").flatMap(a => Option(a.s()))
+        } yield {
+          DynamoSavedArticles(userId, version, articles)
+        }).fold(
+          Left(MissingProperty): Either[DynamoReadError, DynamoSavedArticles]
+        )(s => Right(s))
+      }
 
-    override def write(t: DynamoSavedArticles): DynamoValue = DynamoValue.fromString("")
-  }
+      override def write(t: DynamoSavedArticles): DynamoValue = {
+        val av = AttributeValue
+          .builder()
+          .m(
+            Map(
+              "userId" -> AttributeValue.builder().s(t.userId).build(),
+              "version" -> AttributeValue.builder().s(t.version).build(),
+              "articles" -> AttributeValue.builder().s(t.articles).build()
+            ).asJava
+          )
+          .build()
+        DynamoValue.fromAttributeValue(av)
+      }
+    }
 
   def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles =
     DynamoSavedArticles(
@@ -66,9 +103,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
 
   import org.scanamo.syntax._
 
-
   val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
-
 
   override def read(userId: String): Try[Option[SavedArticles]] = {
     scanamo.exec(table.get("userId" -> userId)) match {
