@@ -34,6 +34,12 @@ case class DynamoSavedArticles(
 )
 
 object DynamoSavedArticles {
+  implicit val formatcom: DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles] = new DynamoFormat[DynamoSavedArticles] {
+    override def read(av: DynamoValue): Either[DynamoReadError, DynamoSavedArticles] = Right(DynamoSavedArticles("uasd", SavedArticles("asd", Nil)))
+
+    override def write(t: DynamoSavedArticles): DynamoValue = DynamoValue.fromString("")
+  }
+
   def apply(userId: String, savedArticles: SavedArticles): DynamoSavedArticles =
     DynamoSavedArticles(
       userId,
@@ -59,13 +65,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
   private val scanamo = Scanamo(client)
 
   import org.scanamo.syntax._
-  import org.scanamo.generic.auto._
 
-  implicit val formatcom: DynamoFormat[com.gu.sfl.persistence.DynamoSavedArticles]= new DynamoFormat[DynamoSavedArticles] {
-    override def read(av: DynamoValue): Either[DynamoReadError, DynamoSavedArticles] = Right(DynamoSavedArticles("uasd", SavedArticles("asd", Nil)))
-
-    override def write(t: DynamoSavedArticles): DynamoValue = DynamoValue.fromString("")
-  }
 
   val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
 
