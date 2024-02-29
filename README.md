@@ -93,7 +93,10 @@ Build a jar of the project by running:
 Run the lambda service
 - `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local start-lambda --debug`
 
-Execute a function
+Execute a function locally
+- `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local invoke`
+
+Execute a function on CODE
 - `aws lambda invoke --function-name "mobilesaveforlaterFETCHcdkCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
 
 ### Mobile Save For Later User Deletion
@@ -106,7 +109,10 @@ Build a jar of the project by running:
 Run the lambda service
 - `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local start-lambda --debug`
 
-Execute a function
+Execute a function locally
+- `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local invoke`
+
+Execute a function on CODE
 - `aws lambda invoke --function-name "mobilesaveforlateruserdeletionCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
 
 

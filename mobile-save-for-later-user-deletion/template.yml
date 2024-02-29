@@ -16,7 +16,7 @@ Resources:
       MemorySize: 384
       Timeout: 300
       Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
-      Runtime: java8
+      Runtime: java11
       Architectures:
         - x86_64
       EphemeralStorage:

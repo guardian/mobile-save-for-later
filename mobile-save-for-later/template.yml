@@ -16,7 +16,7 @@ Resources:
       MemorySize: 1024
       Timeout: 20
       Handler: com.gu.sfl.lambda.FetchArticlesLambda::handleRequest
-      Runtime: java8
+      Runtime: java11
       Architectures:
         - x86_64
       EphemeralStorage:
