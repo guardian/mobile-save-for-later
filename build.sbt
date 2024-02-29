@@ -28,8 +28,7 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] =
 val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   fork := true, // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
   resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
+    Resolver.sonatypeRepo("releases")
   ),
   libraryDependencies ++= Seq(
     awsLambda,
