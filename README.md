@@ -96,7 +96,7 @@ Run the lambda service
 Execute a function locally
 - `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local invoke`
 
-Execute a function on CODE
+Execute a function using AWS cli
 - `aws lambda invoke --function-name "mobilesaveforlaterFETCHcdkCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
 
 ### Mobile Save For Later User Deletion
@@ -112,7 +112,7 @@ Run the lambda service
 Execute a function locally
 - `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam local invoke`
 
-Execute a function on CODE
+Execute a function using AWS cli
 - `aws lambda invoke --function-name "mobilesaveforlateruserdeletionCODE" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt --profile mobile --region eu-west-1`
 
 
