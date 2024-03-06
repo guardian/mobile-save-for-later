@@ -39,7 +39,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     awsJavaSdk,
     jackson,
     jacksonDataFormat,
-    jacksonJdk8DataType,
     jacksonJsrDataType,
     log4j,
     commonsIo,
