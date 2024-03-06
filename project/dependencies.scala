@@ -17,8 +17,6 @@ object Dependencies {
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
   val jacksonDataFormat =
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
-  val jacksonJdk8DataType =
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion
   val jacksonJsrDataType =
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
