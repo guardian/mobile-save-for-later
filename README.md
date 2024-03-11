@@ -81,7 +81,7 @@ Try(mapper.readValue[List[SavedArticle]](json)) match {
 - Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
 - Install [AWS Sam](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 - Install [Docker](https://docs.docker.com/engine/install/)
-- Make sure you run the app with Java8
+- Make sure you run the app with Java 11
 
 ### Mobile Save For Later
 
