@@ -51,6 +51,46 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   ),
   ThisBuild / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
+    case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" =>
+      import java.io.FileInputStream
+      import java.io.FileOutputStream
+      import org.apache.logging.log4j.core.config.plugins.processor.PluginCache
+
+      import scala.collection.JavaConverters.asJavaEnumerationConverter
+
+      import sbt.io.{IO, Using}
+      import sbtassembly.Assembly.Dependency
+
+      CustomMergeStrategy("Log4j2Plugins") { conflicts =>
+        val dependencyStreamResource =
+          Using.resource((dependency: Dependency) => dependency.stream())
+        val tempDir = "target/log4j2-plugin-cache"
+        val urls = conflicts
+          .map { conflict =>
+            dependencyStreamResource(conflict) { is =>
+              val file = new File(
+                s"$tempDir/${conflict.module.get.jarName}-Log4j2Plugins.dat"
+              )
+              IO.write(file, IO.readBytes(is))
+              file.toURI.toURL
+            }
+          }
+        val aggregator = new PluginCache()
+        aggregator.loadCacheFiles(urls.toIterator.asJavaEnumeration)
+        val pluginCache = new File(s"$tempDir/Log4j2Plugins.dat")
+        val pluginCacheOutputStream = new FileOutputStream(pluginCache)
+        aggregator.writeCache(pluginCacheOutputStream)
+        pluginCacheOutputStream.close()
+        Right(
+          Vector(
+            JarEntry(
+              conflicts.head.target,
+              () => new FileInputStream(pluginCache)
+            )
+          )
+        )
+      }
+
     case _ => MergeStrategy.first
   },
   dependencyOverrides ++= Seq(
