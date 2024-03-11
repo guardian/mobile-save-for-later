@@ -15,7 +15,7 @@ class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
   private val client =
     DynamoDbClient
       .builder()
-      .credentialsProvider(DefaultCredentialsProvider)
+      .credentialsProvider(DefaultCredentialsProvider.create())
       .build()
   private val scanamo = Scanamo(client)
 
