@@ -119,3 +119,6 @@ Execute a function using AWS cli
 ## Testing the Apps on CODE
 
 [Save For Later App](docs/testing/save-for-later.md)
+
+[User Deletion App](docs/testing/user-deletion.md)
+
