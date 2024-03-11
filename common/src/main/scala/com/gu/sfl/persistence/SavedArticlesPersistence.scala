@@ -12,7 +12,6 @@ import org.scanamo.{
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
@@ -97,10 +96,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
     SavedArticles(dynamoSavedArticles.version, articles)
   }
 
-  private val client = DynamoDbClient
-    .builder()
-    .credentialsProvider(DefaultCredentialsProvider.create())
-    .build()
+  private val client = DynamoDbClient.create()
   //TODO confirm that it's ok to share the same client concurrently in all requests.. I guess if this is a lambda there won't be concurrent requests anyway ?
   private val scanamo = Scanamo(client)
 
