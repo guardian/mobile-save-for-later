@@ -124,7 +124,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
       savedArticles: SavedArticles
   ): Try[Option[SavedArticles]] = {
     scanamo.exec(
-      table.putAndReturn(PutReturn.NewValue)(
+      table.putAndReturn(PutReturn.OldValue)(
         DynamoSavedArticles(userId, savedArticles)
       )
     ) match {
@@ -133,7 +133,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
         Success(Some(articles.ordered))
       case Some(Left(error)) =>
         val exception = new IllegalArgumentException(s"$error")
-        logger.debug(
+        logger.error(
           s"Exception Thrown saving articles for $userId:",
           exception
         )
