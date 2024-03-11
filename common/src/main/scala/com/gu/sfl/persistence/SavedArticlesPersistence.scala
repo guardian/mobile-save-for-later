@@ -1,17 +1,10 @@
 package com.gu.sfl.persistence
 
-import org.scanamo.{
-  DynamoFormat,
-  DynamoReadError,
-  DynamoValue,
-  MissingProperty,
-  PutReturn,
-  Scanamo,
-  Table
-}
+import org.scanamo.{DynamoFormat, DynamoReadError, DynamoValue, MissingProperty, PutReturn, Scanamo, Table}
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
@@ -95,9 +88,8 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
       mapper.readValue[List[SavedArticle]](dynamoSavedArticles.articles)
     SavedArticles(dynamoSavedArticles.version, articles)
   }
-
-  // TODO - validate if default instance creds are needed here
-  private val client = DynamoDbClient.builder().build()
+  
+  private val client = DynamoDbClient.builder().credentialsProvider(DefaultCredentialsProvider).build()
   //TODO confirm that it's ok to share the same client concurrently in all requests.. I guess if this is a lambda there won't be concurrent requests anyway ?
   private val scanamo = Scanamo(client)
 
