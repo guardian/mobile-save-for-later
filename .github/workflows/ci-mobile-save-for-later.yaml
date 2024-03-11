@@ -20,6 +20,9 @@ jobs:
           distribution: corretto
           cache: sbt
 
+      - name: Run Tests
+        run: sbt "project mobile-save-for-later" test
+
       - name: Create artifacts
         run: sbt "project mobile-save-for-later" assembly
 

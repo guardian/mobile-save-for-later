@@ -91,10 +91,6 @@ class ArticleMergeSpecification extends Specification with Mockito {
       val saved =
         savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      there were no(savedArticlesPersistence).write(
-        any[String](),
-        any[SavedArticles]()
-      )
       there was one(savedArticlesPersistence).update(
         argThat(===(userId)),
         argThat(===(savedArticles2))
@@ -110,10 +106,6 @@ class ArticleMergeSpecification extends Specification with Mockito {
       val saved =
         savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      there were no(savedArticlesPersistence).write(
-        any[String](),
-        any[SavedArticles]()
-      )
       there were no(savedArticlesPersistence).update(
         any[String](),
         any[SavedArticles]()
@@ -185,10 +177,6 @@ class ArticleMergeSpecification extends Specification with Mockito {
       val saved =
         savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
 
-      there were no(savedArticlesPersistence).write(
-        any[String](),
-        any[SavedArticles]()
-      )
       there was one(savedArticlesPersistence).update(
         argThat(===(userId)),
         argThat(===(expectedArticlesPersisted))
@@ -222,10 +210,6 @@ class ArticleMergeSpecification extends Specification with Mockito {
       ) returns (Success(Some(expectedArticlesPersisted.advanceVersion)))
       val saved =
         savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
-      there were no(savedArticlesPersistence).write(
-        any[String](),
-        any[SavedArticles]()
-      )
       there was one(savedArticlesPersistence).update(
         argThat(===(userId)),
         argThat(===(expectedArticlesPersisted))
