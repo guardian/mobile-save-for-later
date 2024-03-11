@@ -29,11 +29,6 @@ trait SavedArticlesPersistence {
       userId: String,
       savedArticles: SavedArticles
   ): Try[Option[SavedArticles]]
-
-  def write(
-      userId: String,
-      savedArticles: SavedArticles
-  ): Try[Option[SavedArticles]]
 }
 
 case class DynamoSavedArticles(
@@ -116,32 +111,6 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig)
       case None =>
         logger.error(s"No articles found for user $userId")
         Success(None)
-    }
-  }
-
-  override def write(
-      userId: String,
-      savedArticles: SavedArticles
-  ): Try[Option[SavedArticles]] = {
-    scanamo.exec(
-      table.putAndReturn(PutReturn.OldValue)(
-        DynamoSavedArticles(userId, savedArticles)
-      )
-    ) match {
-      case Some(Right(articles)) =>
-        logger.debug(s"Succcesfully saved articles for $userId")
-        Success(Some(articles.ordered))
-      case Some(Left(error)) =>
-        val exception = new IllegalArgumentException(s"$error")
-        logger.error(
-          s"Exception Thrown saving articles for $userId:",
-          exception
-        )
-        Failure(exception)
-      case None => {
-        logger.debug(s"Successfully saved but none retrieved for $userId")
-        Success(Some(savedArticles))
-      }
     }
   }
 
