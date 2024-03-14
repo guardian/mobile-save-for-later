@@ -62,7 +62,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   ),
   organization := "com.gu",
   version := "1.0",
-  scalaVersion := "2.12.5",
+  scalaVersion := "2.12.19",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
