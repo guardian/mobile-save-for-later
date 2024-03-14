@@ -20,7 +20,7 @@ object Dependencies {
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.6"
   val scanamo = "org.scanamo" %% "scanamo" % "1.0.0-M11"
-  val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.9.2"
+  val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.9.3"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
