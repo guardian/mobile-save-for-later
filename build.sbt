@@ -6,6 +6,9 @@ import scala.collection.immutable
 
 val testAndCompileDependencies: String = "test->test;compile->compile"
 
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always // due to Identity using lift-json
+
 def projectMaker(projectName: String) = Project(projectName, file(projectName))
   .enablePlugins(RiffRaffArtifact)
   .settings(
@@ -27,9 +30,7 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] =
 
 val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   fork := true, // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
-  resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases")
-  ),
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
   libraryDependencies ++= Seq(
     awsLambda,
     awsDynamo,
@@ -62,7 +63,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   ),
   organization := "com.gu",
   version := "1.0",
-  scalaVersion := "2.12.5",
+  scalaVersion := "2.12.19",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
