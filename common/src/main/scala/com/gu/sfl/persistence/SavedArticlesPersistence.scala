@@ -1,13 +1,12 @@
 package com.gu.sfl.persistence
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
 import org.scanamo.{Scanamo, Table}
-import org.scanamo.auto._
 import org.scanamo.syntax._
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
+import org.scanamo.generic.auto.genericDerivedFormat
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
 import scala.util.{Failure, Success, Try}
 
@@ -35,7 +34,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
     SavedArticles(dynamoSavedArticles.version, articles)
   }
 
-  private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
+  private val client = DynamoDbClient.create()
   //TODO confirm that it's ok to share the same client concurrently in all requests.. I guess if this is a lambda there won't be concurrent requests anyway ?
   private val scanamo = Scanamo(client)
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
