@@ -1,6 +1,5 @@
 package com.gu.sfl.lib
 
-import com.amazonaws.util.Md5Utils
 import com.gu.sfl.Logging
 import com.gu.sfl.exception.{SaveForLaterError, SavedArticleMergeError}
 import com.gu.sfl.model._

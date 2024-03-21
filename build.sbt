@@ -20,6 +20,7 @@ def projectMaker(projectName: String) = Project(projectName, file(projectName))
   .dependsOn(common % "compile->compile")
   .aggregate(common)
 
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] =
   commonSettings ++ List(
     assemblyJarName := s"${name.value}.jar",
@@ -38,7 +39,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     awsJavaSdk,
     jackson,
     jacksonDataFormat,
-    jacksonJdk8DataType,
     jacksonJsrDataType,
     log4j,
     commonsIo,
@@ -49,10 +49,48 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     specsScalaCheck,
     specsMock
   ),
-  assembly / assemblyMergeStrategy := {
+  ThisBuild / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
-    case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" =>
-      new MergeFilesStrategy
+    case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" =>
+      import java.io.FileInputStream
+      import java.io.FileOutputStream
+      import org.apache.logging.log4j.core.config.plugins.processor.PluginCache
+
+      import scala.collection.JavaConverters.asJavaEnumerationConverter
+
+      import sbt.io.{IO, Using}
+      import sbtassembly.Assembly.Dependency
+
+      CustomMergeStrategy("Log4j2Plugins") { conflicts =>
+        val dependencyStreamResource =
+          Using.resource((dependency: Dependency) => dependency.stream())
+        val tempDir = "target/log4j2-plugin-cache"
+        val urls = conflicts
+          .map { conflict =>
+            dependencyStreamResource(conflict) { is =>
+              val file = new File(
+                s"$tempDir/${conflict.module.get.jarName}-Log4j2Plugins.dat"
+              )
+              IO.write(file, IO.readBytes(is))
+              file.toURI.toURL
+            }
+          }
+        val aggregator = new PluginCache()
+        aggregator.loadCacheFiles(urls.toIterator.asJavaEnumeration)
+        val pluginCache = new File(s"$tempDir/Log4j2Plugins.dat")
+        val pluginCacheOutputStream = new FileOutputStream(pluginCache)
+        aggregator.writeCache(pluginCacheOutputStream)
+        pluginCacheOutputStream.close()
+        Right(
+          Vector(
+            JarEntry(
+              conflicts.head.target,
+              () => new FileInputStream(pluginCache)
+            )
+          )
+        )
+      }
+
     case _ => MergeStrategy.first
   },
   dependencyOverrides ++= Seq(
@@ -68,7 +106,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-target:jvm-1.8",
     "-Ypartial-unification",
     "-Ywarn-dead-code"
   )
