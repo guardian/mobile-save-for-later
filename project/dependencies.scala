@@ -4,12 +4,12 @@ object Dependencies {
   val awsSdkVersion = "1.11.412"
   val log4j2Version = "2.17.1"
   val jacksonVersion = "2.14.0"
-  val specsVersion = "4.0.3"
+  val specsVersion = "4.20.5"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.0"
   val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.0"
-  val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
+  val awsJavaSdk = "software.amazon.awssdk" % "dynamodb" % "2.24.11"
   val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
 
@@ -19,7 +19,7 @@ object Dependencies {
   val jacksonJsrDataType = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.6"
-  val scanamo = "org.scanamo" %% "scanamo" % "1.0.0-M11"
+  val scanamo = "org.scanamo" %% "scanamo" % "1.0.1"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.9.2"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck = "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
