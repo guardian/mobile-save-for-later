@@ -1,8 +1,5 @@
 package coml.gu.sfl.userdeletion.db
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.services.dynamodbv2._
-import com.amazonaws.services.dynamodbv2.model.DeleteItemResult
 import org.scanamo.{Scanamo, Table}
 import org.scanamo.syntax._
 import com.gu.sfl.Logging
