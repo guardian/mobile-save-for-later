@@ -1,13 +1,12 @@
 package com.gu.sfl.persistence
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBAsync, AmazonDynamoDBAsyncClient}
 import org.scanamo.{Scanamo, Table}
-import org.scanamo.auto._
 import org.scanamo.syntax._
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.model._
+import org.scanamo.generic.auto.genericDerivedFormat
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
 import scala.util.{Failure, Success, Try}
 
@@ -26,7 +25,6 @@ trait SavedArticlesPersistence {
 
   def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]]
 
-  def write(userId: String, savedArticles: SavedArticles) : Try[Option[SavedArticles]]
 }
 
 class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends SavedArticlesPersistence with Logging {
@@ -35,7 +33,7 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
     SavedArticles(dynamoSavedArticles.version, articles)
   }
 
-  private val client: AmazonDynamoDBAsync = AmazonDynamoDBAsyncClient.asyncBuilder().withCredentials(DefaultAWSCredentialsProviderChain.getInstance()).build()
+  private val client = DynamoDbClient.create()
   //TODO confirm that it's ok to share the same client concurrently in all requests.. I guess if this is a lambda there won't be concurrent requests anyway ?
   private val scanamo = Scanamo(client)
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
@@ -55,21 +53,20 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
     }
   }
 
-  override def write(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
-    scanamo.exec(table.put(DynamoSavedArticles(userId, savedArticles))) match {
-      case Some(Right(articles)) =>
-        logger.debug(s"Succcesfully saved articles for $userId")
-        Success(Some(articles.ordered))
-      case Some(Left(error)) =>
-        val exception = new IllegalArgumentException(s"$error")
-        logger.debug(s"Exception Thrown saving articles for $userId:", exception)
-        Failure(exception)
-      case None => {
-        logger.debug(s"Successfully saved but none retrieved for $userId")
-        Success(Some(savedArticles))
-      }
-    }
-  }
+  /** *
+   * Using the update method as a create or update method, because
+   * dynamo update allows us to return newly created values:
+   * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
+   * Previously we had been using the put method to create new records,
+   * however the put operation only supports return values of the old value or none
+   * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
+   * Since we use the database response to respond to the client, we want to have
+   * the latest data from the data
+   * @param userId
+   * @param savedArticles
+   * @return savedArticles
+   *
+   *         * */
 
   override def update(userId: String, savedArticles: SavedArticles): Try[Option[SavedArticles]] = {
     scanamo.exec(table.update("userId" -> userId,

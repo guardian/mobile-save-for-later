@@ -49,7 +49,7 @@ class SavedArticlesMergerImpl(savedArticlesMergerConfig: SavedArticlesMergerConf
         persistMergedArticles(userId, articlesToSave)(savedArticlesPersistence.update)
       case Success(None) =>
         logger.info(s"UserId: $userId. Storing articles for the first time. Version: ${deduplicatedArticles.version}. Client count: ${deduplicatedArticles.articles.length}")
-        persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.write)
+        persistMergedArticles(userId, deduplicatedArticles)(savedArticlesPersistence.update)
       case _ => Left(SavedArticleMergeError("Could not retrieve current articles"))
     }
   }
