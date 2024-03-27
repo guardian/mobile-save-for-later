@@ -60,8 +60,8 @@ class SavedArticlesPersistenceImpl(persistanceConfig: PersistenceConfig) extends
    * Previously we had been using the put method to create new records,
    * however the put operation only supports return values of the old value or none
    * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
-   * Since we use the database response to respond to
-   *
+   * Since we use the database response to respond to the client, we want to have
+   * the latest data from the data
    * @param userId
    * @param savedArticles
    * @return savedArticles
