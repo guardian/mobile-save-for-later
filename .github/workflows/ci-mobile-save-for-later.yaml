@@ -20,11 +20,8 @@ jobs:
           distribution: corretto
           cache: sbt
 
-      - name: Run Tests
-        run: sbt "project mobile-save-for-later" test
-
-      - name: Create artifacts
-        run: sbt "project mobile-save-for-later" assembly
+      - name: Run Tests and Create Artifacts
+        run: sbt "project mobile-save-for-later" test assembly
 
       - name: Build CDK
         working-directory: ./cdk
