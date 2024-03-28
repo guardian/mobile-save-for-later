@@ -67,7 +67,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-release:11"
+    "-release:11",
     "-Ypartial-unification",
     "-Ywarn-dead-code"
   )
