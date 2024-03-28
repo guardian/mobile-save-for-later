@@ -32,8 +32,6 @@ object Dependencies {
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
-  val apacheLog4JCore =
-    "org.apache.logging.log4j" % "log4j-core" % log4j2Version
-  val apacheLog$jApi =
-    "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
+  val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
+  val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
 }
