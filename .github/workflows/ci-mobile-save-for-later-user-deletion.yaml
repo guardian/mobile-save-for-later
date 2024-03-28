@@ -20,11 +20,8 @@ jobs:
           distribution: temurin
           cache: sbt
 
-      - name: Run Tests
-        run: sbt "project mobile-save-for-later-user-deletion" test
-
-      - name: Create artifacts
-        run: sbt "project mobile-save-for-later-user-deletion" assembly
+      - name: Run Tests & Create Artifacts
+        run: sbt "project mobile-save-for-later-user-deletion" test assembly
 
       - name: RiffRaff upload artifacts and upload cfn
         uses: guardian/actions-riff-raff@v2
