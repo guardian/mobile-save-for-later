@@ -149,7 +149,7 @@ Resources:
       Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
       MemorySize: 512
       Role: !GetAtt UserDeletionRole.Arn
-      Runtime: java8
+      Runtime: java11
       Timeout: 300
   UserDeletionEventSource:
     Type: AWS::Lambda::EventSourceMapping

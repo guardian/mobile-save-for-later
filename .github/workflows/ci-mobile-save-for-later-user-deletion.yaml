@@ -8,20 +8,20 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
-      - name: Set up JDK 8
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: 8
-          distribution: temurin
+          java-version: 11
+          distribution: corretto
           cache: sbt
 
-      - name: Create artifacts
-        run: sbt "project mobile-save-for-later-user-deletion" assembly
+      - name: Run Tests & Create Artifacts
+        run: sbt "project mobile-save-for-later-user-deletion" test assembly
 
       - name: RiffRaff upload artifacts and upload cfn
         uses: guardian/actions-riff-raff@v2

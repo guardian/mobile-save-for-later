@@ -20,6 +20,7 @@ def projectMaker(projectName: String) = Project(projectName, file(projectName))
   .dependsOn(common % "compile->compile")
   .aggregate(common)
 
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] =
   commonSettings ++ List(
     assemblyJarName := s"${name.value}.jar",
@@ -38,7 +39,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     awsJavaSdk,
     jackson,
     jacksonDataFormat,
-    jacksonJdk8DataType,
     jacksonJsrDataType,
     log4j,
     commonsIo,
@@ -49,10 +49,9 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     specsScalaCheck,
     specsMock
   ),
-  assembly / assemblyMergeStrategy := {
+  ThisBuild / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
-    case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" =>
-      new MergeFilesStrategy
+    case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" => sbtassembly.Log4j2MergeStrategy.plugincache
     case _ => MergeStrategy.first
   },
   dependencyOverrides ++= Seq(
@@ -68,7 +67,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-target:jvm-1.8",
+    "-release:11",
     "-Ypartial-unification",
     "-Ywarn-dead-code"
   )
