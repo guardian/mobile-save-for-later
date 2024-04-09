@@ -1,4 +1,4 @@
-### Pre-requisites
+### Setting Up Oauth Flow
 1) Download [Postman](https://www.postman.com/downloads/)
 2) Set up acquiring an OKTA Auth token following these [instructions](https://github.com/guardian/identity/blob/a19ac17655fd715f15e8d0912b39173c199a8439/docs/postman/README.md)
 
@@ -33,3 +33,16 @@
    ![Authorization](../images/Authorization.png)
 3) Under the `Headers` tab add `x-gu-is-oauth: true`
    ![Headers](../images/GetHeaders.png)
+
+
+## Testing locally
+### Pre-requisites
+1) Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
+2) Follow the authentication flow as outlined at the [top](#setting-up-oauth-flow)
+
+* Go to `src/main/scala/com/gu/sfl/local/LocalServer.scala`
+* Select the drop down menu to the left of the run button and select `LocalServer` under run configurations
+* Then choose `Edit Configurations`
+* Add the following environment variables:
+  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
+* Follow the same steps as above for testing the GET and POST endpoints by changing the host to `http://127.0.0.1:8080`
