@@ -7,7 +7,7 @@ import com.gu.sfl.persistence.{DynamoSavedArticles, PersistenceConfig}
 import com.gu.sfl.userdeletion.model.UserDeleteMessage
 import org.scanamo.DeleteReturn.OldValue
 import org.scanamo.generic.auto.genericDerivedFormat
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.auth.credentials.{InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
@@ -17,6 +17,7 @@ class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
   private val table = Table[DynamoSavedArticles](persistanceConfig.tableName)
   private val client = DynamoDbClient
     .builder()
+    .credentialsProvider(InstanceProfileCredentialsProvider.builder().build())
     .credentialsProvider(ProfileCredentialsProvider.builder.profileName("mobile").build)
     .region(Region.EU_WEST_1)
     .build()
