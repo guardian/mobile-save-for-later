@@ -5,6 +5,7 @@ object Dependencies {
   val log4j2Version = "2.17.1"
   val jacksonVersion = "2.14.0"
   val specsVersion = "4.20.5"
+  val http4sVersion = "0.23.26"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.0"
   val awsDynamo = "software.amazon.awssdk" % "dynamodb" % "2.24.11"
@@ -28,6 +29,14 @@ object Dependencies {
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
   val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.17"
+
+  // HTTP4S
+  val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
+  val http4sCirce = "org.http4s" %% "http4s-circe" % http4sVersion
+  val http4sServer =  "org.http4s" %% "http4s-server" % http4sVersion
+  val http4sCore = "org.http4s" %% "http4s-core" % http4sVersion
+
+  val catsEffect = "org.typelevel" %% "cats-effect" % "3.5.4"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"

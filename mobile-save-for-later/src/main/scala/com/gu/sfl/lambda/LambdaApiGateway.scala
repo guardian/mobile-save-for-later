@@ -1,17 +1,24 @@
 package com.gu.sfl.lambda
 
+import cats.effect.IO
+
 import java.io.{InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
-
 import com.gu.sfl.Logging
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
 import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
-
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
+import fs2.text.utf8Encode
+import org.http4s.{EmptyBody, Header, Headers, Request, Response}
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import org.typelevel.ci.CIString
+import fs2.Stream
+import org.http4s.Status.InternalServerError
+import org.http4s.Status
 
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, lamdaResponse.maybeBody, lamdaResponse.headers)
@@ -47,6 +54,12 @@ object LambdaRequest {
     val headers = apiGatewayLambdaRequest.headers.map{ h => h.map {case (key, value) => (key.toLowerCase, value)}}.getOrElse(Map.empty)
     LambdaRequest(apiGatewayLambdaRequest.body, headers.toMap)
   }
+
+  def fromRequest(request: Request[IO]) = {
+    val headerToMapValue = (header: Header.Raw) => header.name.toString.toLowerCase -> header.value
+    val headers = request.headers.headers.map(headerToMapValue(_)).toMap
+    LambdaRequest(Some(request.body.toString()), headers)
+  }
 }
 
 case class LambdaRequest(maybeBody: Option[String], headers: Map[String, String] = Map.empty)
@@ -54,6 +67,12 @@ case class LambdaRequest(maybeBody: Option[String], headers: Map[String, String]
 object LambdaResponse extends Base64Utils {
   def apply(apiGatewayLambdaResponse: ApiGatewayLambdaResponse) : LambdaResponse = {
     LambdaResponse(apiGatewayLambdaResponse.statusCode, apiGatewayLambdaResponse.body, apiGatewayLambdaResponse.headers)
+  }
+  def toHttp4sRes(lambdaResponse: LambdaResponse): Response[IO] = {
+    val body = lambdaResponse.maybeBody.map(b => Stream(b).through(utf8Encode)).getOrElse(EmptyBody)
+    val headersRes = Headers(lambdaResponse.headers.map(h => Header.Raw(CIString(h._1), h._2)).toList)
+    Status.fromInt(lambdaResponse.statusCode).fold(_ => Response(InternalServerError, headers = headersRes, body = body), s => Response(s,
+      headers = headersRes, body = body))
   }
 }
 
