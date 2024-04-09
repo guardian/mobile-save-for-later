@@ -11,14 +11,13 @@ import com.gu.sfl.util.StatusCodes
 import org.apache.commons.io.IOUtils
 import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
 import fs2.text.utf8Encode
-import org.http4s.{EmptyBody, Header, Headers, Request, Response}
+import org.http4s.{EmptyBody, EntityDecoder, Header, Headers, Request, Response, Status}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import org.typelevel.ci.CIString
 import fs2.Stream
 import org.http4s.Status.InternalServerError
-import org.http4s.Status
 
 object ApiGatewayLambdaResponse extends Base64Utils {
   def apply(lamdaResponse: LambdaResponse): ApiGatewayLambdaResponse = ApiGatewayLambdaResponse(lamdaResponse.statusCode, lamdaResponse.maybeBody, lamdaResponse.headers)
@@ -58,7 +57,8 @@ object LambdaRequest {
   def fromRequest(request: Request[IO]) = {
     val headerToMapValue = (header: Header.Raw) => header.name.toString.toLowerCase -> header.value
     val headers = request.headers.headers.map(headerToMapValue(_)).toMap
-    LambdaRequest(Some(request.body.toString()), headers)
+    val body = EntityDecoder.decodeText(request).unsafeRunSync()
+    LambdaRequest(Some(body), headers)
   }
 }
 

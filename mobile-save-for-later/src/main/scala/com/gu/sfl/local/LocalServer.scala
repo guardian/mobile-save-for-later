@@ -2,7 +2,7 @@ package com.gu.sfl.local
 
 import cats.data.Kleisli
 import cats.effect.{ExitCode, IO, IOApp}
-import com.gu.sfl.lambda.{FetchArticlesLambda, LambdaRequest, LambdaResponse}
+import com.gu.sfl.lambda.{FetchArticlesLambda, LambdaRequest, LambdaResponse, SaveArticlesLambda}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.dsl.io._
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
@@ -16,6 +16,9 @@ object LocalServer extends IOApp {
       val lambsResFt = FetchArticlesLambda.fetchArticlesController.apply(LambdaRequest.fromRequest(request))
       IO.fromFuture(IO(lambsResFt)).map(LambdaResponse.toHttp4sRes)
 
+    case request @ POST -> Root / "syncedPrefs" / "me" / "savedArticles" =>
+      val lambsResFt = SaveArticlesLambda.saveArticlesController.apply(LambdaRequest.fromRequest(request))
+      IO.fromFuture(IO(lambsResFt)).map(LambdaResponse.toHttp4sRes)
   }
 
   val httpApp: Kleisli[IO, Request[IO], Response[IO]] = Router(
