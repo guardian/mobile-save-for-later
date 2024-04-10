@@ -24,16 +24,16 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
       val eventualMaybeString = identityService.userFromRequest(identityHeaders, List(updateSelf))
       eventualMaybeString transformWith {
           case Success(Some(userId)) =>
-            logger.debug(s"Storing ${savedArticles.numberOfArticles} articles for user $userId")
+            logger.info(s"Storing ${savedArticles.numberOfArticles} articles for user $userId")
             Future.successful(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))
           case Success(_) =>
-            logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
+            logger.error(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
             Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
           case Failure(OktaValidationException(e)) =>
-            logger.debug(s"Error retrieving userId from okta oauth token")
+            logger.error(s"Error retrieving userId from okta oauth token")
             Future.successful(Left(OktaOauthValidationError(e.message, e)))
           case Failure(_) =>
-            logger.debug(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
+            logger.error(s"Error retrieving userId for: token: ${identityHeaders.accessToken}")
             Future.successful(Left(new IdentityServiceError("Could not retrieve a user from the id api")))
         }
      }).getOrElse(Future.successful(Left(new MissingAccessTokenError("No access token on request"))))

@@ -21,7 +21,6 @@ object UserDeletionLambda extends Logging {
     messages.map{
       m =>
         val body = m.getBody
-        logger.debug(s"Message body: ${body}")
         val node = mapper.readTree(body)
         val user = mapper.readValue[UserDeleteMessage](node.get("Message").asText())
         sflDyanamo.deleteSavedArticleasForUser(user)
