@@ -36,6 +36,7 @@
 
 ### Pre-requisites
 1) Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
+2) Make sure you have java 21 installed ([SDK man](https://sdkman.io/) is a good package manager)
 
 * Go to `src/main/scala/local/RunUserDeletionLambda.scala`
 * Select the drop down menu to the left of the run button and select `RunUserDeletionLambda` under run configurations
