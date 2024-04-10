@@ -54,7 +54,7 @@ object LambdaRequest {
     LambdaRequest(apiGatewayLambdaRequest.body, headers.toMap)
   }
 
-  def fromRequest(request: Request[IO]) = {
+  def fromHttp4sRequest(request: Request[IO]) = {
     val headerToMapValue = (header: Header.Raw) => header.name.toString.toLowerCase -> header.value
     val headers = request.headers.headers.map(headerToMapValue(_)).toMap
     val body = EntityDecoder.decodeText(request).unsafeRunSync()
@@ -70,9 +70,9 @@ object LambdaResponse extends Base64Utils {
   }
   def toHttp4sRes(lambdaResponse: LambdaResponse): Response[IO] = {
     val body = lambdaResponse.maybeBody.map(b => Stream(b).through(utf8Encode)).getOrElse(EmptyBody)
-    val headersRes = Headers(lambdaResponse.headers.map(h => Header.Raw(CIString(h._1), h._2)).toList)
-    Status.fromInt(lambdaResponse.statusCode).fold(_ => Response(InternalServerError, headers = headersRes, body = body), s => Response(s,
-      headers = headersRes, body = body))
+    val headersRes = Headers(lambdaResponse.headers.map({ case (k, v) => Header.Raw(CIString(k), v) }).toList)
+    Status.fromInt(lambdaResponse.statusCode).fold(_ => Response(InternalServerError, headers = headersRes, body = body),
+      status => Response(status, headers = headersRes, body = body))
   }
 }
 

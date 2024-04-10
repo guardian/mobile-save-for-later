@@ -13,11 +13,11 @@ object LocalServer extends IOApp {
 
   val route: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case request @ GET -> Root / "syncedPrefs" / "me" =>
-      val lambsResFt = FetchArticlesLambda.fetchArticlesController.apply(LambdaRequest.fromRequest(request))
+      val lambsResFt = FetchArticlesLambda.fetchArticlesController.apply(LambdaRequest.fromHttp4sRequest(request))
       IO.fromFuture(IO(lambsResFt)).map(LambdaResponse.toHttp4sRes)
 
     case request @ POST -> Root / "syncedPrefs" / "me" / "savedArticles" =>
-      val lambsResFt = SaveArticlesLambda.saveArticlesController.apply(LambdaRequest.fromRequest(request))
+      val lambsResFt = SaveArticlesLambda.saveArticlesController.apply(LambdaRequest.fromHttp4sRequest(request))
       IO.fromFuture(IO(lambsResFt)).map(LambdaResponse.toHttp4sRes)
   }
 
