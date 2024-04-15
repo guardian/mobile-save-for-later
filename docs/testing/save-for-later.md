@@ -1,6 +1,6 @@
 ### Setting Up Oauth Flow
 1) Download [Postman](https://www.postman.com/downloads/)
-2) Set up acquiring an OKTA Auth token following these [instructions](https://github.com/guardian/identity/blob/a19ac17655fd715f15e8d0912b39173c199a8439/docs/postman/README.md)
+2) Set up acquiring an OKTA Auth token following these [instructions](https://github.com/guardian/identity/blob/a19ac17655fd715f15e8d0912b39173c199a8439/docs/postman/README.md). (Add 'guardian.save-for-later.update.self guardian.save-for-later.read.self' to the Scope field in Step 7)
 
 ### Testing the POST endpoint
 
