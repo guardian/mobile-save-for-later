@@ -6,7 +6,8 @@
 
 1) Select a POST request to https://mobile-save-for-later.mobile-aws.code.dev-guardianapis.com/syncedPrefs/me/savedArticles
    ![Post Request](../images/Post%20request.png)
-2) Under the `Authorization` tab, on the type dropdown select `Bearer Token` and paste in the token generated from the Okta auth
+2) Under the `Authorization` tab, on the type dropdown select `Oauth 2` and under `token` select the token that you saved
+in the oauth flow
    ![Authorization](../images/Authorization.png)
 3) Under the `Headers` tab add `Content-Type: application/json` and `x-gu-is-oauth: true`
    ![Headers](../images/Headers.png)
@@ -29,7 +30,8 @@
 ### Testing the GET endpoint
 1) Select a GET request to https://mobile-save-for-later.mobile-aws.code.dev-guardianapis.com/syncedPrefs/me/savedArticles
    ![Get Request](../images/Get%20Request.png)
-2) Under the `Authorization` tab, on the type dropdown select `Bearer Token` and paste in the token generated from the Okta auth
+2) Under the `Authorization` tab, on the type dropdown select `Oauth 2` and under `token` select the token that you saved
+   in the oauth flow
    ![Authorization](../images/Authorization.png)
 3) Under the `Headers` tab add `x-gu-is-oauth: true`
    ![Headers](../images/GetHeaders.png)
