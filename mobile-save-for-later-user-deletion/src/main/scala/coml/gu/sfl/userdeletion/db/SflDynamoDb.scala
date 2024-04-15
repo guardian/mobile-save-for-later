@@ -7,7 +7,7 @@ import com.gu.sfl.persistence.{DynamoSavedArticles, PersistenceConfig}
 import com.gu.sfl.userdeletion.model.UserDeleteMessage
 import org.scanamo.DeleteReturn.OldValue
 import org.scanamo.generic.auto.genericDerivedFormat
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProviderChain, EnvironmentVariableCredentialsProvider, InstanceProfileCredentialsProvider, ProfileCredentialsProvider, SystemPropertyCredentialsProvider, WebIdentityTokenFileCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProviderChain, EnvironmentVariableCredentialsProvider, ProfileCredentialsProvider}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
@@ -21,9 +21,7 @@ class SflDynamoDb(persistanceConfig: PersistenceConfig) extends Logging {
     .credentialsProvider(
       AwsCredentialsProviderChain.of(
         EnvironmentVariableCredentialsProvider.create(),
-        SystemPropertyCredentialsProvider.create(),
         ProfileCredentialsProvider.create("mobile"),
-        InstanceProfileCredentialsProvider.create()
         )
     ).region(Region.EU_WEST_1)
     .build()
