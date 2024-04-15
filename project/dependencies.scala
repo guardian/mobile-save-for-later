@@ -30,14 +30,6 @@ object Dependencies {
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
   val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.17"
 
-  // HTTP4S
-  val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
-  val http4sCirce = "org.http4s" %% "http4s-circe" % http4sVersion
-  val http4sServer =  "org.http4s" %% "http4s-server" % http4sVersion
-  val http4sCore = "org.http4s" %% "http4s-core" % http4sVersion
-
-  val catsEffect = "org.typelevel" %% "cats-effect" % "3.5.4"
-
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
