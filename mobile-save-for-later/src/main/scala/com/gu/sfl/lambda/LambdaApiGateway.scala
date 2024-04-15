@@ -69,10 +69,11 @@ object LambdaResponse extends Base64Utils {
     LambdaResponse(apiGatewayLambdaResponse.statusCode, apiGatewayLambdaResponse.body, apiGatewayLambdaResponse.headers)
   }
   def toHttp4sRes(lambdaResponse: LambdaResponse): Response[IO] = {
-    val body = lambdaResponse.maybeBody.map(b => Stream(b).through(utf8Encode)).getOrElse(EmptyBody)
-    val headersRes = Headers(lambdaResponse.headers.map({ case (k, v) => Header.Raw(CIString(k), v) }).toList)
-    Status.fromInt(lambdaResponse.statusCode).fold(_ => Response(InternalServerError, headers = headersRes, body = body),
-      status => Response(status, headers = headersRes, body = body))
+    Response(
+      status = Status.fromInt(lambdaResponse.statusCode).getOrElse(InternalServerError),
+      headers = Headers(lambdaResponse.headers.map({ case (k, v) => Header.Raw(CIString(k), v) }).toList),
+      body = lambdaResponse.maybeBody.map(b => Stream(b).through(utf8Encode)).getOrElse(EmptyBody)
+    )
   }
 }
 
