@@ -28,7 +28,7 @@ object LocalServer extends IOApp {
   import scala.concurrent.ExecutionContext.global
   override def run(args: List[String]) =
     BlazeServerBuilder[IO](global)
-      .bindHttp(8080, "localhost")
+      .bindHttp(8888, "localhost")
       .withHttpApp(httpApp)
       .serve
       .compile.drain.as(ExitCode.Success)
