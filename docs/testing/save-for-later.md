@@ -28,7 +28,7 @@ in the oauth flow
 
 
 ### Testing the GET endpoint
-1) Select a GET request to https://mobile-save-for-later.mobile-aws.code.dev-guardianapis.com/syncedPrefs/me/savedArticles
+1) Select a GET request to https://mobile-save-for-later.mobile-aws.code.dev-guardianapis.com/syncedPrefs/me
    ![Get Request](../images/Get%20Request.png)
 2) Under the `Authorization` tab, on the type dropdown select `Oauth 2` and under `token` select the token that you saved
    in the oauth flow
@@ -47,4 +47,6 @@ in the oauth flow
 * Add the following environment variables:
   `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
 * Press the green play button
-* Follow the same steps as above for testing the GET and POST endpoints by changing the host to `http://127.0.0.1:8888`
+* Follow the same steps as above for testing endpoints in the rest client by changing the urls to:
+GET: `http://localhost:8888/syncedPrefs/me`
+POST: `http://localhost:8888/syncedPrefs/me/savedArticles`
