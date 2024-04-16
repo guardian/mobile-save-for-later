@@ -15,7 +15,7 @@
     {
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"Message\": { \"userId\": \"1\"}}",
+      "body": "{\"Message\": \"{\\\"userId\\\":\\\"200126633\\\",\\\"eventType\\\":\\\"DELETE\\\"}\"}",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "SentTimestamp": "1523232000000",
@@ -31,3 +31,15 @@
   ]
 }
 ```
+
+## Testing locally
+
+### Pre-requisites
+1) Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
+
+* Go to the drop down menu between the build and play button and select `Edit Configurations`
+* Add the following environment variables:
+  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
+* Add the following environment variables: `SaveForLaterApp=mobile-save-for-later;Stage=CODE`
+* Modify the event json at `src/main/resources/delete-event.json` to have the user id you want
+* Hit the green run button
