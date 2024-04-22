@@ -41,7 +41,8 @@ in the oauth flow
 
 ### Pre-requisites
 1) Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
-2) Follow the authentication flow as outlined at the [top](#setting-up-oauth-flow)
+2) Make sure you have java 21 installed ([SDK man](https://sdkman.io/) is a good package manager)
+3) Follow the authentication flow as outlined at the [top](#setting-up-oauth-flow)
 
 * Go to the drop down menu between the build and play button and select `Edit Configurations`
 * Add the following environment variables:
