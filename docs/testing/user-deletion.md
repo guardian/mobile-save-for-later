@@ -38,8 +38,11 @@
 1) Mobile credentials from [Janus](https://janus.gutools.co.uk/login)
 
 * Go to the drop down menu between the build and play button and select `Edit Configurations`
+* Make sure `mobile-save-for-later-user-deletion` is selected for the module dropdown
+* Check that `local.RunUserDeletionLambda` is selected in the Main Module field
 * Add the following environment variables:
-  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
-* Add the following environment variables: `SaveForLaterApp=mobile-save-for-later;Stage=CODE`
-* Modify the event json at `src/main/resources/delete-event.json` to have the user id you want
+  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100;SaveForLaterApp=mobile-save-for-later`
+* Modify `src/main/resources/delete-event.json` to have the user id you want (inside `"body"` > `"message"` > `"userId"` value)
 * Hit the green run button
+* If successful, you should see `Deleted record for <user-id>` in the terminal (unless the user already doesn't exist in the database, in which case `Unable to delete record for user <user-id>`).
+* Alternatively you can check in AWS Console DynamoDB table `mobile-save-for-later-CODE-articles` that the corresponding user record is gone
