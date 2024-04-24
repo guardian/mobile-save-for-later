@@ -19,6 +19,15 @@ Object {
       },
     },
   },
+  "Metadata": Object {
+    "gu:cdk:constructs": Array [
+      "GuDistributionBucketParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuApiGatewayWithLambdaByPath",
+    ],
+    "gu:cdk:version": "TEST",
+  },
   "Outputs": Object {
     "RestApiEndpoint0551178A": Object {
       "Value": Object {
@@ -168,6 +177,7 @@ Object {
       "Type": "AWS::ApiGateway::RestApi",
     },
     "RestApiAccount7C83CF5A": Object {
+      "DeletionPolicy": "Retain",
       "DependsOn": Array [
         "RestApi0C43BF4B",
       ],
@@ -180,8 +190,10 @@ Object {
         },
       },
       "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
     },
     "RestApiCloudWatchRoleE3ED6605": Object {
+      "DeletionPolicy": "Retain",
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -229,6 +241,7 @@ Object {
         ],
       },
       "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
     },
     "RestApiDeployment180EC5035ed39622d7840f196ed35b5345f76c92": Object {
       "DependsOn": Array [
@@ -750,7 +763,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "java8",
+        "Runtime": "java21",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -869,7 +882,7 @@ Object {
                       Object {
                         "Ref": "DistributionBucketName",
                       },
-                      "/*",
+                      "/mobile/CODE/mobile-save-for-later/mobile-save-for-later.jar",
                     ],
                   ],
                 },
@@ -980,7 +993,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "java8",
+        "Runtime": "java21",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -1099,7 +1112,7 @@ Object {
                       Object {
                         "Ref": "DistributionBucketName",
                       },
-                      "/*",
+                      "/mobile/CODE/mobile-save-for-later/mobile-save-for-later.jar",
                     ],
                   ],
                 },
@@ -1197,6 +1210,16 @@ Object {
         "TableWriteMinCapacity": 50,
       },
     },
+  },
+  "Metadata": Object {
+    "gu:cdk:constructs": Array [
+      "GuDistributionBucketParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuApiGatewayWithLambdaByPath",
+      "GuApiGateway5xxPercentageAlarm",
+    ],
+    "gu:cdk:version": "TEST",
   },
   "Outputs": Object {
     "RestApiEndpoint0551178A": Object {
@@ -1309,7 +1332,7 @@ Object {
           },
         ],
         "AlarmDescription": "mobile-save-for-later exceeded 1% error rate",
-        "AlarmName": "High 5XX error % from mobile-save-for-later (ApiGateway) in PROD",
+        "AlarmName": "High 5XX error percentage from mobile-save-for-later (ApiGateway) in PROD",
         "ComparisonOperator": "GreaterThanThreshold",
         "EvaluationPeriods": 1,
         "Metrics": Array [
@@ -1420,6 +1443,7 @@ Object {
       "Type": "AWS::ApiGateway::RestApi",
     },
     "RestApiAccount7C83CF5A": Object {
+      "DeletionPolicy": "Retain",
       "DependsOn": Array [
         "RestApi0C43BF4B",
       ],
@@ -1432,8 +1456,10 @@ Object {
         },
       },
       "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
     },
     "RestApiCloudWatchRoleE3ED6605": Object {
+      "DeletionPolicy": "Retain",
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -1481,6 +1507,7 @@ Object {
         ],
       },
       "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
     },
     "RestApiDeployment180EC503a9713084f6e42c3174f3f6569d53b59c": Object {
       "DependsOn": Array [
@@ -2002,7 +2029,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "java8",
+        "Runtime": "java21",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -2121,7 +2148,7 @@ Object {
                       Object {
                         "Ref": "DistributionBucketName",
                       },
-                      "/*",
+                      "/mobile/PROD/mobile-save-for-later/mobile-save-for-later.jar",
                     ],
                   ],
                 },
@@ -2232,7 +2259,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "java8",
+        "Runtime": "java21",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -2351,7 +2378,7 @@ Object {
                       Object {
                         "Ref": "DistributionBucketName",
                       },
-                      "/*",
+                      "/mobile/PROD/mobile-save-for-later/mobile-save-for-later.jar",
                     ],
                   ],
                 },

@@ -37,12 +37,11 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       val expectedMergeResponse = Right(savedArticles.advanceVersion)
 
       savedArticlesPersistence.read(userId) returns (Success(None))
-      savedArticlesPersistence.write(userId, savedArticles) returns (responseArticles)
+      savedArticlesPersistence.update(userId, savedArticles) returns (responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       there was one(savedArticlesPersistence).read(userId)
 
-      there was no(savedArticlesPersistence).update(Mockito.any[String](), Mockito.any[SavedArticles]())
-      there were no(savedArticlesPersistence).update(userId, savedArticles)
+      there was one(savedArticlesPersistence).update(userId, savedArticles)
       saved shouldEqual (expectedMergeResponse)
     }
 
@@ -54,7 +53,6 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.update(argThat(===(userId)), argThat(===(savedArticles2))) returns(responseArticles)
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(savedArticles2)))
       saved shouldEqual (expectedMergeResponse)
     }
@@ -64,7 +62,6 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      there were no(savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there were no(savedArticlesPersistence).update(any[String](), any[SavedArticles]())
 
       saved shouldEqual(Right(savedArticles))
@@ -101,7 +98,6 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.read(userId) returns(Success(Some(savedArticles)))
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles2)
 
-      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedArticlesPersisted)))
       saved mustEqual(expectedMergeResponse)
     }
@@ -120,7 +116,6 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       savedArticlesPersistence.read(any[String]()) returns(Success(Some(articlesCurrentlySaved)))
       savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns(Success(Some(expectedArticlesPersisted.advanceVersion)))
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, articlesToSave)
-      there were no (savedArticlesPersistence).write(any[String](), any[SavedArticles]())
       there was one (savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedArticlesPersisted)))
       saved mustEqual(expectedMergeResponse)
     }
@@ -134,10 +129,10 @@ class ArticleMergeSpecification extends Specification with Mockito  {
       val expectedDeduped = SavedArticles(version, List(article1, article2))
 
       savedArticlesPersistence.read(userId) returns (Success(None))
-      savedArticlesPersistence.write(any[String](), any[SavedArticles]()) returns (responseArticles)
+      savedArticlesPersistence.update(any[String](), any[SavedArticles]()) returns (responseArticles)
       savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticlesWithDupes)
       there was one(savedArticlesPersistence).read(argThat(===(userId)))
-      there was one(savedArticlesPersistence).write(argThat(===(userId)), argThat(===(expectedDeduped)))
+      there was one(savedArticlesPersistence).update(argThat(===(userId)), argThat(===(expectedDeduped)))
 
     }
 
@@ -150,7 +145,7 @@ class ArticleMergeSpecification extends Specification with Mockito  {
 
     "failure to update the saved articles results in the currect error" in new Setup {
       savedArticlesPersistence.read(userId) returns (Success(None))
-      savedArticlesPersistence.write(userId, savedArticles) returns (Failure(new IllegalStateException("My mummy told me to be good, but I was naughty")))
+      savedArticlesPersistence.update(userId, savedArticles) returns (Failure(new IllegalStateException("My mummy told me to be good, but I was naughty")))
 
       val saved = savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles)
       saved shouldEqual (Left(SavedArticleMergeError("Could not update articles")))
