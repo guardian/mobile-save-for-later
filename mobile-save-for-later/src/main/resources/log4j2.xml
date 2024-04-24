@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration packages="com.amazonaws.services.lambda.runtime.log4j2.LambdaAppender">
+<Configuration>
     <Appenders>
-        <Lambda name="Lambda">
-            <PatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t] %X{AWSRequestId} %-5p %c{1}:%L - %m%n</pattern>
-            </PatternLayout>
+        <Lambda name="Lambda" format="${env:AWS_LAMBDA_LOG_FORMAT:-TEXT}">
+            <LambdaTextFormat>
+                <PatternLayout>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss} %X{AWSRequestId} %-5p %c{1} - %m%n </pattern>
+                </PatternLayout>
+            </LambdaTextFormat>
+            <LambdaJSONFormat>
+                <JsonTemplateLayout eventTemplateUri="classpath:LambdaLayout.json" />
+            </LambdaJSONFormat>
         </Lambda>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="${env:AWS_LAMBDA_LOG_LEVEL:-INFO}">
             <AppenderRef ref="Lambda"/>
         </Root>
+        <Logger name="software.amazon.awssdk" level="WARN" />
+        <Logger name="software.amazon.awssdk.request" level="DEBUG" />
     </Loggers>
 </Configuration>
