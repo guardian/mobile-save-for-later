@@ -1,4 +1,4 @@
-<Configuration status="WARN">
+<Configuration>
     <Appenders>
         <Lambda name="Lambda">
             <PatternLayout>
@@ -10,5 +10,7 @@
         <Root level="INFO">
             <AppenderRef ref="Lambda"/>
         </Root>
+        <Logger name="software.amazon.awssdk" level="INFO" />
+        <Logger name="software.amazon.awssdk.request" level="INFO" />
     </Loggers>
 </Configuration>
