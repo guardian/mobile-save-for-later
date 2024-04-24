@@ -1,6 +1,7 @@
 import Dependencies._
 import sbtassembly.AssemblyPlugin.autoImport.assemblyJarName
 import sbtassembly.MergeStrategy
+import com.gu.riffraff.artifact.BuildInfo
 
 import scala.collection.immutable
 
@@ -46,20 +47,17 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     identityAuthCore,
     specsCore,
     specsScalaCheck,
-    specsMock
+    specsMock,
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
+    "org.slf4j" % "log4j-over-slf4j" % "2.0.13", //  log4j-over-slf4j provides `org.apache.log4j.MDC`, which is dynamically loaded by the Lambda runtime
+    "ch.qos.logback" % "logback-classic" % "1.5.6",
+    "com.lihaoyi" %% "upickle" % "3.3.0",
   ),
   ThisBuild / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
     case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" => sbtassembly.Log4j2MergeStrategy.plugincache
     case _ => MergeStrategy.first
   },
-  dependencyOverrides ++= Seq(
-    commonsLogging,
-    slf4jApi,
-    log4jOverSlf4,
-    apacheLog4JCore,
-    apacheLog$jApi
-  ),
   organization := "com.gu",
   version := "1.0",
   scalaVersion := "2.12.19",
@@ -67,7 +65,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-release:21",
     "-Ypartial-unification",
     "-Ywarn-dead-code"
   )
@@ -75,7 +72,20 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
 
 lazy val common = project
   .in(file("common"))
+  .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
+  .settings(
+    buildInfoPackage := "com.gu.s4l",
+      buildInfoKeys := {
+      lazy val buildInfo = BuildInfo(baseDirectory.value)
+      Seq[BuildInfoKey](
+        "buildNumber" -> buildInfo.buildIdentifier,
+        "gitCommitId" -> buildInfo.revision,
+        "buildTime" -> System.currentTimeMillis
+      )
+    }
+  )
+
 
 lazy val saveforlaterapp = projectMaker("mobile-save-for-later").settings(
   riffRaffArtifactResources += (file(
