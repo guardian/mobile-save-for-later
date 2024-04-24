@@ -8,10 +8,10 @@ object Dependencies {
   val http4sVersion = "0.23.26"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
-  val awsDynamo ="com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
+  val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
-  val awsJavaSdk ="com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
-  val awsSqs ="com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
+  val awsJavaSdk = "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
+  val awsSqs = "com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
 
   val jackson =
