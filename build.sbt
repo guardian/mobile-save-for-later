@@ -34,7 +34,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   libraryDependencies ++= Seq(
     awsLambda,
-    awsDynamo,
     awsLambdaLog,
     awsJavaSdk,
     jackson,
@@ -57,6 +56,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   dependencyOverrides ++= Seq(
     commonsLogging,
     slf4jApi,
+    log4jOverSlf4,
     apacheLog4JCore,
     apacheLog$jApi
   ),

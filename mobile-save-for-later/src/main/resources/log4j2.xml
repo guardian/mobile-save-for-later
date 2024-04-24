@@ -10,7 +10,7 @@
         <Root level="INFO">
             <AppenderRef ref="Lambda"/>
         </Root>
-        <Logger name="software.amazon.awssdk" level="INFO" />
-        <Logger name="software.amazon.awssdk.request" level="INFO" />
+        <Logger name="software.amazon.awssdk" level="WARN" />
+        <Logger name="software.amazon.awssdk.request" level="WARN" />
     </Loggers>
 </Configuration>

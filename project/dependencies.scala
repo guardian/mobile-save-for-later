@@ -8,7 +8,6 @@ object Dependencies {
   val http4sVersion = "0.23.26"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
-  val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
   val awsSqs = "com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
@@ -33,6 +32,7 @@ object Dependencies {
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
+  val log4jOverSlf4 = "org.slf4j" % "log4j-over-slf4j" % "2.0.13"
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
 }
