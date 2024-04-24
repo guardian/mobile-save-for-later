@@ -41,7 +41,7 @@ export class MobileSaveForLater extends GuStack {
     const app = "mobile-save-for-later";
 
     const commonLambdaProps = {
-      runtime: Runtime.JAVA_8, // We should upgrade to Java 11 in a future PR
+      runtime: Runtime.JAVA_21,
       app,
       fileName: `${app}.jar`,
     };

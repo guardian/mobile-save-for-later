@@ -147,9 +147,9 @@ Resources:
           SaveForLaterApp: !Sub ${SaveForLaterApp}
       Description: Lamba that deletes saved for later data for deleted users
       Handler: com.gu.sfl.userdeletion.UserDeletionLambda::handler
-      MemorySize: 384
+      MemorySize: 512
       Role: !GetAtt UserDeletionRole.Arn
-      Runtime: java8
+      Runtime: java21
       Timeout: 300
   UserDeletionEventSource:
     Type: AWS::Lambda::EventSourceMapping
