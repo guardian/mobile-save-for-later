@@ -1,14 +1,9 @@
-<Configuration>
+<Configuration status="WARN">
     <Appenders>
         <Lambda name="Lambda">
-            <LambdaTextFormat>
-                <PatternLayout>
-                    <pattern>%d{yyyy-MM-dd HH:mm:ss} %X{AWSRequestId} %-5p %c{1} - %m%n </pattern>
-                </PatternLayout>
-            </LambdaTextFormat>
-            <LambdaJSONFormat>
-                <JsonTemplateLayout eventTemplateUri="classpath:LambdaLayout.json" />
-            </LambdaJSONFormat>
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} %X{AWSRequestId} %-5p %c{1} - %m%n</pattern>
+            </PatternLayout>
         </Lambda>
     </Appenders>
     <Loggers>
