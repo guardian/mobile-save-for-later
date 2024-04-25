@@ -1,9 +1,9 @@
 package com.gu.sfl.lambda
 
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import org.slf4j.Logger
 
-import org.apache.logging.log4j.core.Logger
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
