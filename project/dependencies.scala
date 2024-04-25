@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val awsSdkVersion = "1.11.1034"
-  val log4j2Version = "2.17.2"
+  val log4j2Version = "2.23.1"
   val jacksonVersion = "2.14.3"
   val specsVersion = "4.20.5"
   val http4sVersion = "0.23.26"
@@ -32,5 +32,5 @@ object Dependencies {
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
-  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
+  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.6.0"
 }
