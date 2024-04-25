@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
         <Lambda name="Lambda">
@@ -8,7 +7,7 @@
         </Lambda>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="INFO">
             <AppenderRef ref="Lambda"/>
         </Root>
         <Logger name="software.amazon.awssdk" level="WARN" />
