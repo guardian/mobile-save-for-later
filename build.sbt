@@ -56,11 +56,6 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" => sbtassembly.Log4j2MergeStrategy.plugincache
     case _ => MergeStrategy.first
   },
-//  dependencyOverrides ++= Seq(
-////    commonsLogging,
-////    slf4jApi,
-//
-//  ),
   organization := "com.gu",
   version := "1.0",
   scalaVersion := "2.12.19",
