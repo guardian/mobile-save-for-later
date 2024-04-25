@@ -34,32 +34,28 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   libraryDependencies ++= Seq(
     awsLambda,
-    awsLambdaLog,
     awsJavaSdk,
     jackson,
     jacksonDataFormat,
     jacksonJsrDataType,
-    log4j,
     commonsIo,
     scanamo,
     okHttp,
     identityAuthCore,
     specsCore,
     specsScalaCheck,
-    specsMock
+    specsMock,
+    // logging
+    awsLambdaLog,
+    log4j,
+    apacheLog4JCore,
+    apacheLog$jApi
   ),
   ThisBuild / assemblyMergeStrategy := {
     case "META-INF/MANIFEST.MF" => MergeStrategy.discard
     case PathList(ps @ _*) if ps.last equalsIgnoreCase "Log4j2Plugins.dat" => sbtassembly.Log4j2MergeStrategy.plugincache
     case _ => MergeStrategy.first
   },
-  dependencyOverrides ++= Seq(
-    commonsLogging,
-    slf4jApi,
-    log4jOverSlf4,
-    apacheLog4JCore,
-    apacheLog$jApi
-  ),
   organization := "com.gu",
   version := "1.0",
   scalaVersion := "2.12.19",

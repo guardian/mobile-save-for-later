@@ -8,7 +8,6 @@ object Dependencies {
   val http4sVersion = "0.23.26"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
-  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
   val awsSqs = "com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
@@ -19,7 +18,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
   val jacksonJsrDataType =
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
-  val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
+
   val commonsIo = "commons-io" % "commons-io" % "2.15.1"
   val scanamo = "org.scanamo" %% "scanamo" % "1.0.1"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.9.3"
@@ -29,10 +28,9 @@ object Dependencies {
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
   val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.21"
 
-  //DependencyOverride
-  val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
-  val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
-  val log4jOverSlf4 = "org.slf4j" % "log4j-over-slf4j" % "2.0.13"
+  // Logging
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
+  val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
+  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
 }
