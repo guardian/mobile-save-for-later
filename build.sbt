@@ -55,8 +55,8 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     case _ => MergeStrategy.first
   },
   dependencyOverrides ++= Seq(
-    commonsLogging,
-    slf4jApi,
+//    commonsLogging,
+//    slf4jApi,
     apacheLog4JCore,
     apacheLog$jApi
   ),
