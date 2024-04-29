@@ -35,4 +35,6 @@ object Dependencies {
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
+
+  val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.13"
 }
