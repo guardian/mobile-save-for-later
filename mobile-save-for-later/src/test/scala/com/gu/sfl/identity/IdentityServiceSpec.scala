@@ -93,7 +93,7 @@ class IdentityServiceSpec
           accessToken,
           List(readSelf)
         ) returns
-        Right(DefaultAccessClaims("email", "1234", Some("username")))
+        Right(DefaultAccessClaims("123", "email", "1234", Some("username")))
       val futureUserId =
         identityService.userFromRequest(identityOauthHeaders, List(readSelf))
       Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
