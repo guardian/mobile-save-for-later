@@ -3,7 +3,7 @@ package com.gu.sfl.lambda
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
-import org.apache.logging.log4j.core.Logger
+import org.slf4j.Logger
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
