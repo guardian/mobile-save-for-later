@@ -4,7 +4,7 @@ object Dependencies {
   val awsSdkVersion = "1.12.767"
   val log4j2Version = "2.17.2"
   val jacksonVersion = "2.17.2"
-  val specsVersion = "4.20.5"
+  val specsVersion = "4.20.8"
   val http4sVersion = "0.23.26"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
