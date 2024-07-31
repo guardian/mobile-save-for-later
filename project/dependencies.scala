@@ -22,7 +22,7 @@ object Dependencies {
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.16.1"
-  val scanamo = "org.scanamo" %% "scanamo" % "1.0.1"
+  val scanamo = "org.scanamo" %% "scanamo" % "1.0.4"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.12.0"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck =
