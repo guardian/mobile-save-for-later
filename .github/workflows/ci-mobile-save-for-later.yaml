@@ -41,4 +41,4 @@ jobs:
               - cdk/cdk.out/MobileSaveForLater-CODE.template.json
               - cdk/cdk.out/MobileSaveForLater-PROD.template.json
             mobile-save-for-later:
-             - mobile-save-for-later/target/scala-2.12/mobile-save-for-later.jar
+             - mobile-save-for-later/target/scala-*/mobile-save-for-later.jar
