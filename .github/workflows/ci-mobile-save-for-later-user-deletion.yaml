@@ -32,4 +32,4 @@ jobs:
             mobile-save-for-later-user-deletion-cfn:
              - ./mobile-save-for-later-user-deletion/conf/cfn.yaml
             mobile-save-for-later-user-deletion:
-             - mobile-save-for-later-user-deletion/target/scala-*/mobile-save-for-later-user-deletion.jar
+             - mobile-save-for-later-user-deletion/target/scala-2.13/mobile-save-for-later-user-deletion.jar
