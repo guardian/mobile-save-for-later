@@ -9,7 +9,7 @@ object Dependencies {
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
   val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
-  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
+  val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.6.0"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
   val awsSqs = "com.amazonaws" % "aws-java-sdk-sqs" % awsSdkVersion
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
@@ -20,6 +20,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
   val jacksonJsrDataType =
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
+  val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.16.1"
   val scanamo = "org.scanamo" %% "scanamo" % "1.0.4"
