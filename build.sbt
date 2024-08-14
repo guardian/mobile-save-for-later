@@ -56,13 +56,12 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   },
   organization := "com.gu",
   version := "1.0",
-  scalaVersion := "2.12.19",
+  scalaVersion := "2.13.14",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
     "UTF-8",
     "-release:21",
-    "-Ypartial-unification",
     "-Ywarn-dead-code"
   )
 )
