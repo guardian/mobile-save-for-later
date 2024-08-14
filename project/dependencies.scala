@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   val awsSdkVersion = "1.12.767"
   val log4j2Version = "2.17.2"
-  val jacksonVersion = "2.14.3"
+  val jacksonVersion = "2.17.2"
   val specsVersion = "4.20.5"
   val http4sVersion = "0.23.26"
 
@@ -20,6 +20,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion
   val jacksonJsrDataType =
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
+  val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.15.1"
   val scanamo = "org.scanamo" %% "scanamo" % "1.0.1"
