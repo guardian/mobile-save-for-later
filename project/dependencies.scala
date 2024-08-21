@@ -23,13 +23,13 @@ object Dependencies {
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.16.1"
-  val scanamo = "org.scanamo" %% "scanamo" % "1.0.4"
+  val scanamo = "org.scanamo" %% "scanamo" % "1.1.1"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.12.0"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.25"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.31"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
@@ -37,5 +37,5 @@ object Dependencies {
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
 
-  val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.13"
+  val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.16"
 }
