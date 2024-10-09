@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   val awsSdkVersion = "1.12.772"
   val log4j2Version = "2.17.2"
-  val jacksonVersion = "2.17.2"
+  val jacksonVersion = "2.18.0"
   val specsVersion = "4.20.8"
   val http4sVersion = "0.23.26"
 
@@ -29,7 +29,7 @@ object Dependencies {
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.33"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.34"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
