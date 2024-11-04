@@ -13,12 +13,8 @@ jobs:
         with:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: corretto
-          cache: sbt
+      - name: Setup JDK and sbt
+        uses: guardian/setup-scala@v1
 
       - name: Run Tests and Create Artifacts
         run: sbt "project mobile-save-for-later" test assembly
