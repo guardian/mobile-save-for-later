@@ -23,7 +23,7 @@ object Dependencies {
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
   val commonsIo = "commons-io" % "commons-io" % "2.17.0"
-  val scanamo = "org.scanamo" %% "scanamo" % "2.0.0"
+  val scanamo = "org.scanamo" %% "scanamo" % "3.0.0"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.12.0"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck =
