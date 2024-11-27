@@ -22,14 +22,14 @@ object Dependencies {
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version
-  val commonsIo = "commons-io" % "commons-io" % "2.17.0"
+  val commonsIo = "commons-io" % "commons-io" % "2.18.0"
   val scanamo = "org.scanamo" %% "scanamo" % "3.0.0"
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "4.12.0"
   val specsCore = "org.specs2" %% "specs2-core" % specsVersion % "test"
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.36"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.37.0"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
