@@ -96,6 +96,7 @@ Object {
           ],
         },
         "DomainName": "mobile-save-for-later.mobile-aws.code.dev-guardianapis.com",
+        "SecurityPolicy": "TLS_1_2",
         "Tags": Array [
           Object {
             "Key": "gu:cdk:version",
@@ -1289,6 +1290,7 @@ Object {
           ],
         },
         "DomainName": "mobile-save-for-later.mobile-aws.guardianapis.com",
+        "SecurityPolicy": "TLS_1_2",
         "Tags": Array [
           Object {
             "Key": "gu:cdk:version",
