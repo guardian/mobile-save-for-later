@@ -128,6 +128,7 @@ export class MobileSaveForLater extends GuStack {
     const cfnDomainName = new CfnDomainName(this, "ApiDomainName", {
       domainName: props.domainName,
       certificateArn,
+      securityPolicy: "TLS_1_2",
     });
 
     new CfnBasePathMapping(this, "ApiMapping", {
