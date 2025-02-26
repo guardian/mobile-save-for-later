@@ -6,6 +6,7 @@ object Dependencies {
   val jacksonVersion = "2.18.2"
   val specsVersion = "4.20.9"
   val http4sVersion = "0.23.26"
+  val nettyVersion = "4.1.118.Final"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
   val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
@@ -36,6 +37,7 @@ object Dependencies {
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
+  val nettyHandler = "io.netty" % "netty-handler" % nettyVersion
 
   val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.17"
 }
