@@ -41,6 +41,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
     jacksonDataFormat,
     jacksonJsrDataType,
     commonsIo,
+    nettyHandler,
     scanamo,
     okHttp,
     slf4jSimple,
