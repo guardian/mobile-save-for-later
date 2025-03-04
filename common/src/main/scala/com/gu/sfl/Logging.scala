@@ -11,7 +11,7 @@ trait Logging {
   def logOnThrown[T](function: () => T, messageOnError: String = ""): T = Try(function()) match {
     case Success(value) => value
     case Failure(throwable) =>
-      logger.warn(messageOnError, throwable)
+      logger.error(s"$messageOnError: ${throwable.getMessage}", throwable)
       throw throwable
   }
 }

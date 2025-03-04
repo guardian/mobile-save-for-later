@@ -25,7 +25,7 @@ class AwsLambdaSpec extends Specification with Mockito {
         ).recover {
           case t => t must beEqualTo(testException)
         }
-        there was one(mockedLogger).warn(s"Error executing lambda: ", testException)
+        there was one(mockedLogger).error(s"Error executing lambda: This is totally illegal", testException)
 
       }
     }
