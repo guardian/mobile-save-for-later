@@ -16,9 +16,9 @@ abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse]) exte
   private val lambdaApiGateway = new LambdaApiGatewayImpl(function)
 
   override def handleRequest(input: InputStream, output: OutputStream, context: Context): Unit = {
-    Try(lambdaApiGateway.execute(input, output)).recover {
-      case t: Throwable => logger.warn("Error executing lambda: ", t)
-        throw t
+    Try(lambdaApiGateway.execute(input, output)).recover { err =>
+      logger.error(s"Error executing lambda: ${err.getMessage()}", err)
+      throw err
     }
   }
 }
