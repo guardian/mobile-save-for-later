@@ -8,7 +8,7 @@ object Dependencies {
   val http4sVersion = "0.23.26"
   val nettyVersion = "4.2.1.Final"
 
-  val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.3"
+  val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.3.0"
   val awsDynamo = "com.amazonaws" % "aws-java-sdk-dynamodb" % awsSdkVersion
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.6.0"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion
