@@ -1,7 +1,7 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /cdk
+  - package-ecosystem: 'npm'
+    directory: '/cdk'
     schedule:
       interval: 'monthly'
     # The version of AWS CDK libraries must match those from @guardian/cdk.
@@ -10,7 +10,7 @@ updates:
       - dependency-name: 'aws-cdk-lib'
       - dependency-name: 'constructs'
 
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: weekly
+      interval: 'weekly'
