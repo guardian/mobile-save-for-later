@@ -48,7 +48,8 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
         logger.info("Got articles back from db")
         okSavedArticlesResponse(syncedPrefs)
       case Left(error) =>
-        logger.error(s"Error saving articles: ${error.message}")
+         val appInfo = requestHeaders.map { case (k, v) => k.toLowerCase -> v }.getOrElse("user-agent", "user-agent header not found")
+        logger.error(s"Error saving articles ($appInfo): ${error.message}")
         processErrorResponse(error) {
           case i: IdentityServiceError =>  identityErrorResponse
           case m: MissingAccessTokenError => missingAccessTokenResponse

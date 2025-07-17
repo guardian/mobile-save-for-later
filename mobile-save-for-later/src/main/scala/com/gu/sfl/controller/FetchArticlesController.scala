@@ -21,7 +21,8 @@ class FetchArticlesController(fetchSavedArticles: FetchSavedArticles)(implicit e
          )
          okSyncedPrefsResponse(syncedPrefs)
        case Left(error) =>
-         logger.error(s"Error trying to retrieve saved articles: ${error.message}")
+         val appInfo = lambdaRequest.headers.map { case (k, v) => k.toLowerCase -> v }.getOrElse("user-agent", "user-agent header not found")
+         logger.error(s"Error trying to retrieve saved articles ($appInfo): ${error.message}")
          processErrorResponse(error) {
            case e: IdentityServiceError =>  identityErrorResponse
            case e: MissingAccessTokenError => missingAccessTokenResponse
