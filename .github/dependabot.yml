@@ -9,6 +9,9 @@ updates:
       - dependency-name: 'aws-cdk'
       - dependency-name: 'aws-cdk-lib'
       - dependency-name: 'constructs'
+    groups:
+          all:
+            patterns: ["*"] # group all cdk dpendencies together
 
   - package-ecosystem: 'github-actions'
     directory: '/'
