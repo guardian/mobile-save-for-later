@@ -34,9 +34,7 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   libraryDependencies ++= Seq(
     awsLambda,
-    awsDynamo,
     awsLambdaLog,
-    awsJavaSdk,
     jackson,
     jacksonDataFormat,
     jacksonJsrDataType,
@@ -84,7 +82,6 @@ lazy val userDeletion =
   projectMaker("mobile-save-for-later-user-deletion").settings(
     libraryDependencies ++= Seq(
       awsLambdaEvent,
-      awsSqs
     ),
     riffRaffArtifactResources += (file(
       "mobile-save-for-later-user-deletion/conf/cfn.yaml"
