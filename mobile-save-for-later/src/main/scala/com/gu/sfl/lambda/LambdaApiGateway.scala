@@ -113,11 +113,11 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
           function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-            logger.debug(s"ApiGateway  lamda response: ${res}")
+            logger.debug(s"ApiGateway lamda response: ${res}")
             ApiGatewayLambdaResponse(res)
           }
-       case Right(_) =>
-          logger.debug("Lambda returned error")
+       case Right(error) =>
+          logger.error("Lambda returned error", error)
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 

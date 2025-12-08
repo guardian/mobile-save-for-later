@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
 import com.gu.sfl.Logging
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure,Success,Try}
 
 object AwsLambda {
   def readEnvKey(key: String): String = sys.env.getOrElse(key, throw new NullPointerException(s"Couldn't load environment variable $key"))
@@ -16,9 +16,11 @@ abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse]) exte
   private val lambdaApiGateway = new LambdaApiGatewayImpl(function)
 
   override def handleRequest(input: InputStream, output: OutputStream, context: Context): Unit = {
-    Try(lambdaApiGateway.execute(input, output)).recover { err =>
-      logger.error(s"Error executing lambda: ${err.getMessage()}", err)
-      throw err
+    Try(lambdaApiGateway.execute(input, output)) match {
+      case Success(_) => ()
+      case Failure(err) =>
+        logger.error("Error executing lambda", err)
+        throw err
     }
   }
 }
