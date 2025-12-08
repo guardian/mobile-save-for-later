@@ -2,6 +2,7 @@ package com.gu.sfl.lambda
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.concurrent.TimeoutException
 
 import com.gu.sfl.lambda.LambdaApiGatewaySpec.stringAsInputStream
 import com.gu.sfl.lib.Jackson._
@@ -10,7 +11,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 
 object LambdaApiGatewaySpec {
   def stringAsInputStream(s: String): InputStream = new ByteArrayInputStream(s.getBytes(UTF_8))
@@ -81,6 +82,17 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
         renderedResponse must beEqualTo(lambdaResponse)
         renderedResponse.hashCode() must beEqualTo(lambdaResponse.hashCode())
       }
+    }
+
+    "throw TimeoutException when Future does not complete within time limit" in {
+      val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
+      val inputStream = stringAsInputStream("""{"body":"test","isBase64Encoded":false,"headers":{"Content-Type":"text/plain"}}""")
+
+      val neverCompletingLambda = new LambdaApiGatewayImpl((_: LambdaRequest) => {
+        Promise[LambdaResponse]().future // Never completed Promise
+      })
+
+      neverCompletingLambda.execute(inputStream, outputStream) must throwA[TimeoutException]
     }
   }
 

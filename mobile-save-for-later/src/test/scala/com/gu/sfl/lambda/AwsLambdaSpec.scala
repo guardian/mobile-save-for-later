@@ -30,7 +30,7 @@ class AwsLambdaSpec extends Specification with Mockito {
 
       "log and throw TimeoutException when Await times out" in {
         val mockedLogger = mock[Logger]
-        val testException = new TimeoutException("Futures timed out after [20 seconds]")
+        val testException = new TimeoutException("Timeout Exceptions")
         val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
           override val logger = mockedLogger
         }
