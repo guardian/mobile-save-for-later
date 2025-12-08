@@ -1,6 +1,6 @@
 package com.gu.sfl.lambda
 
-import java.io.{InputStream, OutputStream}
+import java.io.{InputStream, OutputStream, PrintWriter, StringWriter}
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
 import com.gu.sfl.Logging
@@ -19,7 +19,9 @@ abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse]) exte
     Try(lambdaApiGateway.execute(input, output)) match {
       case Success(_) => ()
       case Failure(err) =>
-        logger.error("Error executing lambda", err)
+        val sw = new StringWriter()
+        err.printStackTrace(new PrintWriter(sw))
+        logger.error(s"Error executing lambda: ${sw.toString}")
         throw err
     }
   }
