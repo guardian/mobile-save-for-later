@@ -117,7 +117,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
             ApiGatewayLambdaResponse(res)
           }
        case Right(error) =>
-          logger.error("Lambda returned error", error)
+          logger.error(s"Lambda returned error: ${error}")
           Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
       }
 
