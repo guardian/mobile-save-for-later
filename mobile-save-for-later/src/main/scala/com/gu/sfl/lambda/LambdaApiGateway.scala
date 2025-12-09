@@ -121,7 +121,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           throw error
       }
 
-      val result = Await.result(response, 1.seconds) // with a buffer before lambda 20 second timeout
+      val result = Await.result(response, 18.seconds) // with a buffer before lambda 20 second timeout
       mapper.writeValue(outputStream, result)
     }
     finally {
