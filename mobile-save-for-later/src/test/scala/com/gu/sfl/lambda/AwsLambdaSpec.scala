@@ -13,39 +13,36 @@ import scala.util.Try
 class AwsLambdaSpec extends Specification with Mockito {
 
     "AwsLambda" should {
-      "log and throw exceptions" in {
+      val testInput = new ByteArrayInputStream("""{"body":"anybody","isBase64Encoded":false,"headers":{"Content-Type":"text/plain"}}""".getBytes())
+      val testOutput = new ByteArrayOutputStream()
+
+      "log and throw runtime exceptions" in {
         val mockedLogger = mock[Logger]
-        val testException = new RuntimeException("RuntimeException")
-        val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
+        val runtimeException = new RuntimeException("RuntimeException")
+        val lambda = new AwsLambda((_: LambdaRequest) => throw runtimeException) {
           override val logger = mockedLogger
         }
 
-        lambda.handleRequest(
-          new ByteArrayInputStream("""{"body":"anybody","isBase64Encoded":false,"headers":{"Content-Type":"text/plain"}}""".getBytes()),
-          new ByteArrayOutputStream(), null
-        ) must throwA[RuntimeException]("RuntimeException")
+        lambda.handleRequest(testInput, testOutput, null) must throwA[RuntimeException]("RuntimeException")
 
         there was one(mockedLogger).error(
           org.mockito.ArgumentMatchers.eq("Error executing lambda"),
-          org.mockito.ArgumentMatchers.eq(testException)
+          org.mockito.ArgumentMatchers.eq(runtimeException)
         )
       }
 
       "log and throw TimeoutException when Await times out" in {
         val mockedLogger = mock[Logger]
-        val testException = new TimeoutException("TimeoutException")
-        val lambda = new AwsLambda((_: LambdaRequest) => throw testException) {
+        val timeoutException = new TimeoutException("TimeoutException")
+        val lambda = new AwsLambda((_: LambdaRequest) => throw timeoutException) {
           override val logger = mockedLogger
         }
 
-        lambda.handleRequest(
-          new ByteArrayInputStream("""{"body":"anybody","isBase64Encoded":false,"headers":{"Content-Type":"text/plain"}}""".getBytes()),
-          new ByteArrayOutputStream(), null
-        ) must throwA[TimeoutException]
+        lambda.handleRequest(testInput, testOutput, null) must throwA[TimeoutException]("TimeoutException")
 
         there was one(mockedLogger).error(
           org.mockito.ArgumentMatchers.eq("Error executing lambda"),
-          org.mockito.ArgumentMatchers.eq(testException)
+          org.mockito.ArgumentMatchers.eq(timeoutException)
         )
       }
     }

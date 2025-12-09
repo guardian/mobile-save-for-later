@@ -19,7 +19,7 @@ abstract class AwsLambda(function: LambdaRequest => Future[LambdaResponse]) exte
     Try(lambdaApiGateway.execute(input, output)) match {
       case Success(_) => ()
       case Failure(err) =>
-        logger.error("Error executing lambda", err)
+        logger.error(s"Error executing lambda: ${err}")
         throw err
     }
   }
