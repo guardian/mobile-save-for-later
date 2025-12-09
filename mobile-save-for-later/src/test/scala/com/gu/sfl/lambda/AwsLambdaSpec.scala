@@ -25,9 +25,10 @@ class AwsLambdaSpec extends Specification with Mockito {
           new ByteArrayOutputStream(), null
         ) must throwA[RuntimeException]("RuntimeException")
 
-        there was one(mockedLogger).error(argThat((msg: String) =>
-          msg.startsWith("Error executing lambda:") && msg.contains("RuntimeException")
-        ))
+        there was one(mockedLogger).error(
+          org.mockito.ArgumentMatchers.eq("Error executing lambda"),
+          org.mockito.ArgumentMatchers.eq(testException)
+        )
       }
 
       "log and throw TimeoutException when Await times out" in {
@@ -42,9 +43,10 @@ class AwsLambdaSpec extends Specification with Mockito {
           new ByteArrayOutputStream(), null
         ) must throwA[TimeoutException]
 
-        there was one(mockedLogger).error(argThat((msg: String) =>
-          msg.startsWith("Error executing lambda:") && msg.contains("TimeoutException")
-        ))
+        there was one(mockedLogger).error(
+          org.mockito.ArgumentMatchers.eq("Error executing lambda"),
+          org.mockito.ArgumentMatchers.eq(testException)
+        )
       }
     }
 
