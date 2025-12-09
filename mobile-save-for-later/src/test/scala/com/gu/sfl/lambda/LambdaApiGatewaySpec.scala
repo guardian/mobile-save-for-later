@@ -84,12 +84,12 @@ class LambdaApiGatewaySpec extends Specification with ScalaCheck {
       }
     }
 
-    "throw TimeoutException when Future does not complete within time limit" in {
+    "throw TimeoutException when the lambda doesn't execute within time limit" in {
       val outputStream: ByteArrayOutputStream = new ByteArrayOutputStream()
       val inputStream = stringAsInputStream("""{"body":"test","isBase64Encoded":false,"headers":{"Content-Type":"text/plain"}}""")
 
       val neverCompletingLambda = new LambdaApiGatewayImpl((_: LambdaRequest) => {
-        Promise[LambdaResponse]().future // Never completed Promise
+        Promise[LambdaResponse]().future
       })
 
       neverCompletingLambda.execute(inputStream, outputStream) must throwA[TimeoutException]

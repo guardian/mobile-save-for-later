@@ -118,7 +118,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
           }
        case Right(error) =>
           logger.error(s"Lambda returned error: ${error}")
-          Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
+          throw error
       }
 
       val result = Await.result(response, 1.seconds) // with a buffer before lambda 20 second timeout
