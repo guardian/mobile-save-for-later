@@ -3,7 +3,7 @@ package com.gu.sfl.savedarticles
 import com.gu.identity.auth.{AccessScope, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaValidationException}
 
 import java.time.LocalDateTime
-import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, IdentityUserNotFoundError}
 import com.gu.sfl.identity.AccessScope.{readSelf, updateSelf}
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.lib.SavedArticlesMerger
@@ -50,7 +50,7 @@ class UpdateSavedArticlesSpec extends Specification with ThrownMessages with Moc
 
     updateResponse map {
       case Left(_) => fail("No IOxception thrown")
-      case Right(e) => e mustEqual(UserNotFoundError("Could not retrieve a user id"))
+      case Right(e) => e mustEqual(IdentityUserNotFoundError("Could not retrieve a user id"))
     }
   }
 

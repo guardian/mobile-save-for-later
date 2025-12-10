@@ -2,7 +2,7 @@ package com.gu.sfl.savedarticles
 
 import com.gu.identity.auth.OktaValidationException
 import com.gu.sfl.Logging
-import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, SaveForLaterError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, SaveForLaterError, IdentityUserNotFoundError}
 import com.gu.sfl.identity.AccessScope.updateSelf
 import com.gu.sfl.identity.IdentityService
 import com.gu.sfl.lib.{AuthHeaderParser, SavedArticlesMerger}
@@ -28,7 +28,7 @@ class UpdateSavedArticlesImpl(identityService: IdentityService, savedArticlesMer
             Future.successful(savedArticlesMerger.updateWithRetryAndMerge(userId, savedArticles))
           case Success(_) =>
             logger.debug(s"Could not retrieve a user id for token: ${identityHeaders.auth}")
-            Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
+            Future.successful(Left(new IdentityUserNotFoundError("Could not retrieve a user id")))
           case Failure(OktaValidationException(e)) =>
             logger.debug(s"Error retrieving userId from okta oauth token")
             Future.successful(Left(OktaOauthValidationError(e.message, e)))

@@ -37,7 +37,7 @@ class FetchSavedArticlesImpl(identityService: IdentityService, savedArticlesPers
           Future.successful(wrapSavedArticles(userId, savedArticlesPersistence.read(userId)))
         case Success(_) =>
           logger.debug(s"No user found for AccessToken ${identityHeaders.accessToken}")
-          Future.successful(Left(new UserNotFoundError("Could not retrieve a user id")))
+          Future.successful(Left(new IdentityUserNotFoundError("Could not retrieve a user id")))
         case Failure(OktaValidationException(e)) =>
           logger.debug(s"Error retrieving userId from okta oauth token")
           Future.successful(Left(OktaOauthValidationError(e.message, e)))

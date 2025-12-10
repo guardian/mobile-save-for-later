@@ -3,7 +3,7 @@ package com.gu.sfl.savedarticles
 import com.gu.identity.auth.{AccessScope, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaValidationException}
 
 import java.time.LocalDateTime
-import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityApiRequestError, IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, IdentityUserNotFoundError}
 import com.gu.sfl.identity.AccessScope.readSelf
 import com.gu.sfl.identity.{IdentityHeader, IdentityService}
 import com.gu.sfl.model.{SavedArticle, SavedArticles, SyncedPrefs}
@@ -90,7 +90,7 @@ class FetchSavedcArticlesSpec extends Specification with ThrownMessages with Moc
     val futureFetchException = Await.ready(fetchSavedArticlesImpl.retrieveForUser(requestHeaders), Duration.Inf).value.get
     futureFetchException map {
       case Right(_) => fail("No missing user errot")
-      case Left(ex) => ex mustEqual(new UserNotFoundError("Could not retrieve a user id"))
+      case Left(ex) => ex mustEqual(new IdentityUserNotFoundError("Could not retrieve a user id"))
     }
   }
 
