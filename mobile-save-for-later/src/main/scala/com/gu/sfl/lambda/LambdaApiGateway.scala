@@ -103,8 +103,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     try {
       Left(mapper.readValue(inputAsString, classOf[ApiGatewayLambdaRequest]))
     } catch {
-      case t: Throwable => logger.error(s"Input not an API gateway request: $inputAsString")
-        Right(t)
+      case t: Throwable => Right(t)
     }
   }
 
@@ -117,7 +116,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
             ApiGatewayLambdaResponse(res)
           }
        case Right(error) =>
-          logger.error(s"Lambda returned error: ${error}")
+          logger.error(s"Invalid API gateway request: ${error}")
           throw error
       }
 
