@@ -1,7 +1,7 @@
 package com.gu.sfl.controller
 
 import com.gu.identity.auth.{InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope}
-import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, UserNotFoundError}
+import com.gu.sfl.exception.{IdentityServiceError, MissingAccessTokenError, OktaOauthValidationError, IdentityUserNotFoundError}
 import com.gu.sfl.lambda.{LambdaRequest, LambdaResponse}
 import com.gu.sfl.lib.Base64Utils
 import com.gu.sfl.lib.Jackson._
@@ -49,16 +49,44 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
         okSavedArticlesResponse(syncedPrefs)
       case Left(error) =>
          val appInfo = requestHeaders.map { case (k, v) => k.toLowerCase -> v }.getOrElse("user-agent", "user-agent header not found")
-        logger.error(s"Error saving articles ($appInfo): ${error.message}")
         processErrorResponse(error) {
-          case i: IdentityServiceError =>  identityErrorResponse
-          case m: MissingAccessTokenError => missingAccessTokenResponse
-          case u: UserNotFoundError => missingUserResponse
-          case OktaOauthValidationError(e, InvalidOrExpiredToken) => oktaOauthError(e, StatusCodes.unauthorized)
-          case OktaOauthValidationError(e, MissingRequiredClaim(_)) => oktaOauthError(e, StatusCodes.badRequest)
-          case OktaOauthValidationError(e, MissingRequiredScope(_)) => oktaOauthError(e, StatusCodes.forbidden)
-          case OktaOauthValidationError(e, _) => oktaOauthError(e, StatusCodes.unauthorized)
-        }
+
+          case i: IdentityServiceError =>  {
+            val errorCode = StatusCodes.internalServerError
+            logger.error(s"Identity server error ($errorCode): ${i.message}. ($appInfo)")
+            identityErrorResponse
+          }
+          case m: MissingAccessTokenError => {
+            val errorCode = StatusCodes.forbidden
+            logger.error(s"No access token on the request ($errorCode). ($appInfo)")
+            missingAccessTokenResponse
+          }
+          case u: IdentityUserNotFoundError => {
+            val errorCode = StatusCodes.forbidden
+            logger.error(s"Token did not contain a valid identity user id ($errorCode). ($appInfo)")
+            missingUserResponse
+          }
+          case OktaOauthValidationError(e, InvalidOrExpiredToken) => {
+            val errorCode = StatusCodes.unauthorized
+            logger.error(s"Auth token invalid or expired ($errorCode): $e. ($appInfo)")
+            oktaOauthError(e, errorCode)
+          }
+          case OktaOauthValidationError(e, MissingRequiredClaim(_)) => {
+            val errorCode = StatusCodes.badRequest
+            logger.error(s"Auth token missing the required claim ($errorCode): $e. ($appInfo)")
+            oktaOauthError(e, StatusCodes.badRequest)
+          }
+          case OktaOauthValidationError(e, MissingRequiredScope(_)) => {
+            val errorCode = StatusCodes.forbidden
+            logger.error(s"Auth token missing the required scope ($errorCode): $e. ($appInfo)")
+            oktaOauthError(e, errorCode)
+          }
+          case OktaOauthValidationError(e, _) => {
+            val errorCode = StatusCodes.unauthorized
+            logger.error(s"Auth error ($errorCode): $e. ($appInfo)")
+            oktaOauthError(e, errorCode)
+          }
+         }
     }
   }
 }

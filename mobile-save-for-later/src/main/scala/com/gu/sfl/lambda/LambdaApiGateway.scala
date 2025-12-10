@@ -103,8 +103,7 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
     try {
       Left(mapper.readValue(inputAsString, classOf[ApiGatewayLambdaRequest]))
     } catch {
-      case t: Throwable => logger.error(s"Input not an API gateway request: $inputAsString")
-        Right(t)
+      case t: Throwable => Right(t)
     }
   }
 
@@ -113,15 +112,15 @@ class LambdaApiGatewayImpl(function: (LambdaRequest => Future[LambdaResponse])) 
       val response: Future[ApiGatewayLambdaResponse] = objectReadAndClose(inputStream) match {
         case Left(apiLambdaGatewayRequest) =>
           function(LambdaRequest(apiLambdaGatewayRequest)).map { res =>
-            logger.debug(s"ApiGateway  lamda response: ${res}")
+            logger.debug(s"ApiGateway lamda response: ${res}")
             ApiGatewayLambdaResponse(res)
           }
-       case Right(_) =>
-          logger.debug("Lambda returned error")
-          Future.successful(ApiGatewayLambdaResponse(StatusCodes.internalServerError))
+       case Right(error) =>
+          logger.error(s"Invalid API gateway request: ${error}")
+          throw error
       }
 
-      val result = Await.result(response, Duration.Inf)
+      val result = Await.result(response, 18.seconds) // with a buffer before lambda 20 second timeout
       mapper.writeValue(outputStream, result)
     }
     finally {
