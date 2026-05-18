@@ -745,7 +745,6 @@ Object {
           "Variables": Object {
             "APP": "mobile-save-for-later",
             "App": "mobile-save-for-later",
-            "IdentityApiHost": "https://id.code.dev-guardianapis.com",
             "IdentityOktaAudience": "https://profile.code.dev-theguardian.com/",
             "IdentityOktaIssuerUrl": "https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7",
             "STACK": "mobile",
@@ -975,7 +974,6 @@ Object {
           "Variables": Object {
             "APP": "mobile-save-for-later",
             "App": "mobile-save-for-later",
-            "IdentityApiHost": "https://id.code.dev-guardianapis.com",
             "IdentityOktaAudience": "https://profile.code.dev-theguardian.com/",
             "IdentityOktaIssuerUrl": "https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7",
             "STACK": "mobile",
@@ -2012,7 +2010,6 @@ Object {
           "Variables": Object {
             "APP": "mobile-save-for-later",
             "App": "mobile-save-for-later",
-            "IdentityApiHost": "https://id.guardianapis.com",
             "IdentityOktaAudience": "https://profile.theguardian.com/",
             "IdentityOktaIssuerUrl": "https://profile.theguardian.com/oauth2/aus3xgj525jYQRowl417",
             "STACK": "mobile",
@@ -2242,7 +2239,6 @@ Object {
           "Variables": Object {
             "APP": "mobile-save-for-later",
             "App": "mobile-save-for-later",
-            "IdentityApiHost": "https://id.guardianapis.com",
             "IdentityOktaAudience": "https://profile.theguardian.com/",
             "IdentityOktaIssuerUrl": "https://profile.theguardian.com/oauth2/aus3xgj525jYQRowl417",
             "STACK": "mobile",

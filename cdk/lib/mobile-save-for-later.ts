@@ -18,7 +18,6 @@ export interface MobileSaveForLaterProps extends GuStackProps {
   domainName: string;
   hostedZoneName: string;
   hostedZoneId: string;
-  identityApiHost: string;
   reservedConcurrentExecutions: number;
   monitoringConfiguration: NoMonitoring | ApiGatewayAlarms;
   identityOktaIssuerUrl: string;
@@ -50,7 +49,6 @@ export class MobileSaveForLater extends GuStack {
       App: app,
       Stack: this.stack,
       Stage: this.stage,
-      IdentityApiHost: props.identityApiHost,
       IdentityOktaIssuerUrl: props.identityOktaIssuerUrl,
       IdentityOktaAudience: props.identityOktaAudience,
     };
