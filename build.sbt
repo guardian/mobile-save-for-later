@@ -35,11 +35,12 @@ val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   libraryDependencies ++= Seq(
     awsLambda,
     awsLambdaLog,
+    awsDynamo,
+    awsAuth,
     jackson,
     jacksonDataFormat,
     jacksonJsrDataType,
     commonsIo,
-    nettyHandler,
     scanamo,
     okHttp,
     slf4jSimple,
