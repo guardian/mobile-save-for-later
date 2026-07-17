@@ -1,7 +1,8 @@
 package com.gu.sfl.model
 
 import java.io.IOException
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
+import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.annotation.JsonIgnore
@@ -80,7 +81,13 @@ case class ErrorResponse(status: String = "error", errors: List[Error])
 case class Error(message: String, description: String)
 
 object SavedArticleDateSerializer {
-  val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  /** Accept optional 3-digit milliseconds in input parsing since it is a valid ISO-8601 component
+   *  But drop them during output serialisation to ensure consistency in DB records and API responses
+  */
+  val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'")
+  val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+  def parse(value: String): LocalDateTime = LocalDateTime.parse(value, inputFormatter)
 }
 
 class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDeserializer[DirtySavedArticle](t)  {
@@ -93,7 +100,7 @@ class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDese
     val id = Option(node.get("id")).filter(_.isTextual).map(_.asText())
     val shortUrl = Option(node.get("shortUrl")).filter(_.isTextual).map(_.asText())
     val read = Option(node.get("read")).filter(_.isBoolean).map(_.asBoolean())
-    val date = Option(node.get("date")).filter(_.isTextual).map(_.asText()).map(LocalDateTime.parse(_, SavedArticleDateSerializer.formatter))
+    val date = Option(node.get("date")).filter(_.isTextual).map(_.asText()).map(SavedArticleDateSerializer.parse)
     DirtySavedArticle(id, shortUrl, date, read.getOrElse(false))
   }
 }
@@ -109,7 +116,7 @@ class SavedArticleSerializer(t:Class[SavedArticle]) extends StdSerializer[SavedA
     gen.writeStartObject()
     gen.writeStringField("id", value.id)
     gen.writeStringField("shortUrl", value.shortUrl)
-    gen.writeStringField("date", SavedArticleDateSerializer.formatter.format(value.date))
+    gen.writeStringField("date", SavedArticleDateSerializer.outputFormatter.format(value.date))
     gen.writeBooleanField("read", value.read)
     gen.writeEndObject()
   }
