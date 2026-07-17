@@ -15,9 +15,19 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 class SaveArticlesControllerSpec extends Specification with Mockito {
 
   "SaveArticlesController" should {
+    "save the articles when the date is in the expected format" in new Setup {
+      val validDateTimeString = "2026-07-16T10:15:30Z"
+      val json = s"""{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date": "$validDateTimeString","read":false}]}"""
+      updateSavedArticles.save(any[Map[String, String]](), any[SavedArticles]()) returns Future.successful(Left(mock[SaveForLaterError]))
 
-    "return a 400 when the date on an article is not in the expected format" in new Setup {
-      val json = """{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date":"2026-07-16T10:15:30.123Z","read":false}]}"""
+      Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
+
+      there was one(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
+    }
+
+    "return a 400 when the date is not in the expected format" in new Setup {
+      val invalidDateTimeString = "Fri Jan 01 08:00:01 GMT+08:00 2010"
+      val json = s"""{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date": "$invalidDateTimeString","read":false}]}"""
       val response = Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
 
       response.statusCode mustEqual StatusCodes.badRequest
@@ -34,15 +44,6 @@ class SaveArticlesControllerSpec extends Specification with Mockito {
       val response = Await.result(controller(LambdaRequest(None)), Duration.Inf)
 
       response.statusCode mustEqual StatusCodes.badRequest
-    }
-
-    "attempt to save the articles when the date is in the expected format" in new Setup {
-      val json = """{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date":"2026-07-16T10:15:30Z","read":false}]}"""
-      updateSavedArticles.save(any[Map[String, String]](), any[SavedArticles]()) returns Future.successful(Left(mock[SaveForLaterError]))
-
-      Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
-
-      there was one(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
     }
   }
 
