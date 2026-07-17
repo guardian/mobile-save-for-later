@@ -26,11 +26,10 @@ class SaveArticlesController(updateSavedArticles: UpdateSavedArticles)(implicit 
           case Failure(t) => {
             val headersWithoutAuth = lambdaRequest.headers.filter{ case (k,v) => headersToKeep.contains(k.toLowerCase)}
             logger.warn(s"Could not read value: $json \nWith headers: $headersWithoutAuth" )
+            Future { LambdaResponse(StatusCodes.badRequest, Some("Could not parse request body")) }
           }
-
-          case _ => ()
+          case _ => futureSave(triedSavedArticles, lambdaRequest.headers)
         }
-        futureSave(triedSavedArticles, lambdaRequest.headers)
       case LambdaRequest(None,  _) =>
         Future { LambdaResponse(StatusCodes.badRequest, Some("Expected a json body")) }
     }
