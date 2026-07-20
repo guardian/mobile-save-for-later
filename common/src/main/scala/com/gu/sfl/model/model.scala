@@ -1,10 +1,11 @@
 package com.gu.sfl.model
 
 import java.io.IOException
-import java.time.format.{DateTimeFormatter, DateTimeParseException}
-import java.time.temporal.ChronoField
+import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime, ZoneOffset, ZonedDateTime}
 import java.util.Locale
+
+import scala.util.Try
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, JsonProcessingException}
@@ -106,12 +107,8 @@ class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDese
   // is updated to always send ISO. Remove the fallback (and JavaDefaultDateFormat above) once
   // that migration is complete.
   private def parseDate(text: String): LocalDateTime =
-    try {
-      SavedArticleDateSerializer.parse(text)
-    } catch {
-      case _: DateTimeParseException =>
-        ZonedDateTime.parse(text, JavaDefaultDateFormat.formatter).toLocalDateTime
-    }
+    Try(SavedArticleDateSerializer.parse(text))
+      .getOrElse(ZonedDateTime.parse(text, JavaDefaultDateFormat.formatter).toLocalDateTime)
 
   @Override
   @throws(classOf[IOException])
