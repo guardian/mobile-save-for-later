@@ -46,6 +46,8 @@ class SaveArticlesControllerSpec extends Specification with Mockito {
      * while Android fixes their bug in sending the incorrect format. These tests exist only to
      * document and pin down the temporary fallback behaviour, and MUST fail (or get removed) once
      * that fallback is gone.
+     *
+     * Task ticket: https://app.asana.com/1/1210045093164357/project/1215309367148854/task/1216728547635263
      */
     "save the articles when the date is in the java default format" in new Setup {
       val javaDefaultDateTimeString = "Fri Jan 01 00:00:01 GMT 2010"

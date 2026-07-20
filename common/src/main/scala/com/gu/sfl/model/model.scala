@@ -94,7 +94,7 @@ object SavedArticleDateSerializer {
 
 // TEMPORARY: the Android client currently sends dates using Java's default Date#toString format
 // instead of ISO-8601. This object and its use below should be deleted once the client is fixed
-// to only ever send the ISO format used by SavedArticleDateSerializer above.
+// to only ever send the ISO format used by SavedArticleDateSerializer above (Task ticket: https://app.asana.com/1/1210045093164357/project/1215309367148854/task/1216728547635263)
 object JavaDefaultDateFormat {
   // matches java.util.Date#toString, e.g. "Fri Jan 01 00:00:01 GMT 2010" or "Fri Jan 01 08:00:01 GMT+08:00 2010"
   val formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
@@ -105,7 +105,7 @@ class DirtySavedArticleDeserializer(t: Class[DirtySavedArticle]) extends StdDese
 
   // TEMPORARY: accept both the ISO format and the legacy Java default format until the client
   // is updated to always send ISO. Remove the fallback (and JavaDefaultDateFormat above) once
-  // that migration is complete.
+  // that migration is complete (Task ticket: https://app.asana.com/1/1210045093164357/project/1215309367148854/task/1216728547635263).
   private def parseDate(text: String): LocalDateTime =
     Try(SavedArticleDateSerializer.parse(text))
       .getOrElse(ZonedDateTime.parse(text, JavaDefaultDateFormat.formatter).toLocalDateTime)
