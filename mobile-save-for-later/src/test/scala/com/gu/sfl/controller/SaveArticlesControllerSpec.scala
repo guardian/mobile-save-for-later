@@ -25,15 +25,6 @@ class SaveArticlesControllerSpec extends Specification with Mockito {
       there was one(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
     }
 
-    "return a 400 when the date is not in the expected format" in new Setup {
-      val invalidDateTimeString = "Fri Jan 01 08:00:01 GMT+08:00 2010"
-      val json = s"""{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date": "$invalidDateTimeString","read":false}]}"""
-      val response = Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
-
-      response.statusCode mustEqual StatusCodes.badRequest
-      there were no(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
-    }
-
     "return a 400 when the request body is not valid json" in new Setup {
       val response = Await.result(controller(LambdaRequest(Some("not json"))), Duration.Inf)
 
@@ -44,6 +35,18 @@ class SaveArticlesControllerSpec extends Specification with Mockito {
       val response = Await.result(controller(LambdaRequest(None)), Duration.Inf)
 
       response.statusCode mustEqual StatusCodes.badRequest
+    }
+
+    /* TEMPORARY: the following test was added while we temporarily accept java-default-format fallback while Android fixes their bug in sending the incorrect format. Remove them once the ISO format is accepted again. This test exists only to document and pin down the temporary fallback behaviour, and MUST fail once that fallback is gone.
+     */
+    "save the articles when the date is in the java default format" in new Setup {
+      val javaDefaultDateTimeString = "Fri Jan 01 00:00:01 GMT 2010"
+      val json = s"""{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date": "$javaDefaultDateTimeString","read":false}]}"""
+      updateSavedArticles.save(any[Map[String, String]](), any[SavedArticles]()) returns Future.successful(Left(mock[SaveForLaterError]))
+
+      Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
+
+      there was one(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
     }
   }
 
