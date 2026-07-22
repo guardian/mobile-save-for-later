@@ -2,14 +2,17 @@ import sbt._
 
 object Dependencies {
   val log4j2Version = "2.17.2"
-  val jacksonVersion = "2.19.1"
+  val jacksonVersion = "2.21.4"
   val specsVersion = "4.21.0"
   val http4sVersion = "0.23.26"
-  val nettyVersion = "4.2.2.Final"
 
   val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.3.0"
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.6.0"
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
+
+  val awsSdkV2 = "2.47.1"
+  val awsDynamo = "software.amazon.awssdk" % "dynamodb" % awsSdkV2
+  val awsAuth = "software.amazon.awssdk" % "auth" % awsSdkV2
 
   val jackson =
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
@@ -26,14 +29,12 @@ object Dependencies {
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "4.37.0"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "7.0.0"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
   val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
-  val nettyHandler = "io.netty" % "netty-handler" % nettyVersion
-
   val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.17"
 }
