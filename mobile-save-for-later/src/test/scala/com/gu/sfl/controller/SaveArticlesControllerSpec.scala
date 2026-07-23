@@ -27,6 +27,15 @@ class SaveArticlesControllerSpec extends Specification with Mockito {
       there was one(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
     }
 
+    "return a 400 when the date is not in the expected format" in new Setup {
+      val invalidDateTimeString = "2010-01-01 00:00:01" // missing the T separator and trailing Z
+      val json = s"""{"version":"1","articles":[{"id":"id/1","shortUrl":"p/1","date": "$invalidDateTimeString","read":false}]}"""
+      val response = Await.result(controller(LambdaRequest(Some(json))), Duration.Inf)
+
+      response.statusCode mustEqual StatusCodes.badRequest
+      there were no(updateSavedArticles).save(any[Map[String, String]](), any[SavedArticles]())
+    }
+
     "return a 400 when the request body is not valid json" in new Setup {
       val response = Await.result(controller(LambdaRequest(Some("not json"))), Duration.Inf)
 
