@@ -1,27 +1,19 @@
 package com.gu.sfl.identity
 
-import com.gu.identity.auth.{
-  AccessToken,
-  DefaultAccessClaims,
-  InvalidOrExpiredToken,
-  MissingRequiredClaim,
-  MissingRequiredScope,
-  OktaLocalAccessTokenValidator,
-  OktaValidationException
-}
+import com.gu.identity.auth.{AccessToken, DefaultAccessClaims, InvalidOrExpiredToken, MissingRequiredClaim, MissingRequiredScope, OktaLocalAccessTokenValidator, OktaValidationException}
 
 import java.io.IOException
-import com.gu.sfl.exception.IdentityApiRequestError
 import com.gu.sfl.identity.AccessScope.{readSelf, updateSelf}
 import com.gu.sfl.lib.GlobalHttpClient
 import okhttp3._
 import org.specs2.matcher.ThrownMessages
 import org.specs2.mock.Mockito
+import org.mockito.Mockito._
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 import scala.concurrent.Await
-import com.gu.sfl.lib.Parallelism.largeGlobalExecutionContext
+import org.slf4j.Logger
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
@@ -39,50 +31,11 @@ class IdentityServiceSpec
     isOauth = true
   )
   "the identity service using Identity API" should {
-    "return the user id when the identity api returns it" in new MockHttpRequestScope {
-      val futureUserId = identityService.userFromRequest(identityHeaders, any())
-      Await.result(futureUserId, Duration.Inf) mustEqual (Some("1234"))
-    }
-
-    "return none when the user id is not found" in new MockBadIdResponseScope {
+    "return none and log a hashed access token" in new MockBadIdResponseScope {
       val futureUserId = identityService.userFromRequest(identityHeaders, any())
       Await.result(futureUserId, Duration.Inf) mustEqual (None)
-    }
 
-    "the exception is caught when the request to identity fails" in new IdentityRequestFailsScope {
-      val idFailResult = Await
-        .ready(
-          identityService.userFromRequest(identityHeaders, any()),
-          Duration.Inf
-        )
-        .value
-        .get
-
-      idFailResult match {
-        case Success(_) => fail("No IOxception thrown")
-        case Failure(e) =>
-          e mustEqual (IdentityApiRequestError(
-            "Did not get identiy api response"
-          ))
-      }
-
-    }
-
-    "return future failed when identity returns 503" in new MockErrorResponseScope {
-      val idFailResult = Await
-        .ready(
-          identityService.userFromRequest(identityHeaders, any()),
-          Duration.Inf
-        )
-        .value
-        .get
-
-      idFailResult match {
-        case Success(_) => fail("No IOxception thrown")
-        case Failure(e) =>
-          e mustEqual (IdentityApiRequestError("Identity api server error"))
-      }
-
+      verify(mockedLogger).warn("Detected legacy User Access Token instead of Okta Access Token. Hash: bdf49c3c3882102fc017ffb661108c63a836d065888a4093994398cc55c2ea2f")
     }
   }
 
@@ -205,6 +158,7 @@ class IdentityServiceSpec
     val call = mock[Call]
 
     val oktaLocalAccessTokenValidator = mock[OktaLocalAccessTokenValidator]
+    val mockedLogger = mock[Logger]
 
     val accessToken = AccessToken("authorization_header")
 
@@ -228,10 +182,10 @@ class IdentityServiceSpec
       }
     }
     val identityService = new IdentityServiceImpl(
-      IdentityConfig(identityApiHost = "https://guardianidentiy.com"),
-      httpClient,
       oktaLocalAccessTokenValidator
-    )
+    ) {
+      override val logger: Logger = mockedLogger
+    }
   }
 
 }

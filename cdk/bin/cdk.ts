@@ -12,7 +12,6 @@ export const codeProps: MobileSaveForLaterProps = {
   domainName: "mobile-save-for-later.mobile-aws.code.dev-guardianapis.com",
   hostedZoneName: "mobile-aws.code.dev-guardianapis.com",
   hostedZoneId: "Z6PRU8YR6TQDK",
-  identityApiHost: "https://id.code.dev-guardianapis.com",
   reservedConcurrentExecutions: 1,
   monitoringConfiguration: { noMonitoring: true },
   identityOktaIssuerUrl:
@@ -27,7 +26,6 @@ export const prodProps: MobileSaveForLaterProps = {
   domainName: "mobile-save-for-later.mobile-aws.guardianapis.com",
   hostedZoneName: "mobile-aws.guardianapis.com",
   hostedZoneId: "Z1EYB4AREPXE3B",
-  identityApiHost: "https://id.guardianapis.com",
   reservedConcurrentExecutions: 500,
   monitoringConfiguration: {
     snsTopicName: "mobile-server-side",

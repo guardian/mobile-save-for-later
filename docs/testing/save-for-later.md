@@ -46,7 +46,7 @@ in the oauth flow
 
 * Go to the drop down menu between the build and play button and select `Edit Configurations`
 * Add the following environment variables:
-  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
+  `App=mobile-save-for-later;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100`
 * Press the green play button
 * Follow the same steps as above for testing endpoints in the rest client by changing the urls to:
 GET: `http://localhost:8888/syncedPrefs/me`

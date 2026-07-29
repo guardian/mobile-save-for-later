@@ -42,7 +42,7 @@
 * Make sure `mobile-save-for-later-user-deletion` is selected for the module dropdown
 * Check that `local.RunUserDeletionLambda` is selected in the Main Module field
 * Add the following environment variables:
-  `App=mobile-save-for-later;IdentityApiHost=https://id.code.dev-guardianapis.com;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100;SaveForLaterApp=mobile-save-for-later`
+  `App=mobile-save-for-later;IdentityOktaAudience=https://profile.code.dev-theguardian.com/;IdentityOktaIssuerUrl=https://profile.code.dev-theguardian.com/oauth2/aus3v9gla95Toj0EE0x7;Stage=CODE;SavedArticleLimit=100;SaveForLaterApp=mobile-save-for-later`
 * Modify `src/main/resources/delete-event.json` to have the user id you want (inside `"body"` > `"message"` > `"userId"` value)
 * Hit the green run button
 * If successful, you should see `Deleted record for <user-id>` in the terminal (unless the user already doesn't exist in the database, in which case `Unable to delete record for user <user-id>`).
