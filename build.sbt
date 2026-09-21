@@ -31,7 +31,6 @@ def commonAssemblySettings(module: String): immutable.Seq[Def.Setting[_]] =
 
 val commonSettings: immutable.Seq[Def.Setting[_]] = List(
   fork := true, // was hitting deadlock, fxxund similar complaints online, disabling concurrency helps: https://github.com/sbt/sbt/issues/3022, https://github.com/mockito/mockito/issues/1067
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
   libraryDependencies ++= Seq(
     awsLambda,
     awsLambdaLog,
