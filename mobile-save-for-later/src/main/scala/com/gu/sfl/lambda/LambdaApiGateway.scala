@@ -1,6 +1,7 @@
 package com.gu.sfl.lambda
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 
 import java.io.{InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
