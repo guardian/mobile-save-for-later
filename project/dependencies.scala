@@ -10,7 +10,7 @@ object Dependencies {
   val awsLambdaLog = "com.amazonaws" % "aws-lambda-java-log4j2" % "1.6.0"
   val awsLambdaEvent = "com.amazonaws" % "aws-lambda-java-events" % "2.2.2"
 
-  val awsSdkV2 = "2.47.1"
+  val awsSdkV2 = "2.55.1"
   val awsDynamo = "software.amazon.awssdk" % "dynamodb" % awsSdkV2
   val awsAuth = "software.amazon.awssdk" % "auth" % awsSdkV2
 
@@ -29,7 +29,7 @@ object Dependencies {
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "7.0.0"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "9.0.0"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
@@ -37,4 +37,7 @@ object Dependencies {
   val apacheLog4JCore = "org.apache.logging.log4j" % "log4j-core" % log4j2Version
   val apacheLog$jApi = "org.apache.logging.log4j" % "log4j-api" % log4j2Version % "provided"
   val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.17"
+
+  // TODO: remove once identity-auth-core/identity-crypto ships a version depending on bcprov-jdk18on >= 1.85
+  val bcprovJdk18on = "org.bouncycastle" % "bcprov-jdk18on" % "1.85"
 }
