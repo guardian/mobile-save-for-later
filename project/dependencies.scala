@@ -29,7 +29,7 @@ object Dependencies {
   val specsScalaCheck =
     "org.specs2" %% "specs2-scalacheck" % specsVersion % "test"
   val specsMock = "org.specs2" %% "specs2-mock" % specsVersion % "test"
-  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "9.0.0"
+  val identityAuthCore = "com.gu.identity" %% "identity-auth-core" % "10.0.0"
 
   //DependencyOverride
   val commonsLogging = "commons-logging" % "commons-logging" % "1.2"
