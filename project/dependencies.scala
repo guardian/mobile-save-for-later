@@ -39,5 +39,5 @@ object Dependencies {
   val  slf4jSimple = "org.slf4j" % "slf4j-simple" % "2.0.17"
 
   // TODO: remove once identity-auth-core/identity-crypto ships a version depending on bcprov-jdk18on >= 1.85
-  val bcprovJdk18on = "org.bouncycastle" % "bcprov-jdk18on" % "1.85"
+  val bcprovJdk18on = "org.bouncycastle" % "bcprov-jdk18on" % "1.86"
 }
