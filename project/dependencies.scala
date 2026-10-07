@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val log4j2Version = "2.17.2"
-  val jacksonVersion = "2.21.4"
+  val jacksonVersion = "2.21.5"
   val specsVersion = "4.21.0"
   val http4sVersion = "0.23.26"
 
